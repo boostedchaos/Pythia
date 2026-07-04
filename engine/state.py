@@ -18,6 +18,7 @@ class EngineState:
         self.runs: "OrderedDict[str, RunRecord]" = OrderedDict()
         self.generating: bool = False
         self.loop_enabled: bool = False
+        self.track: dict = {}                        # calibration track record (from ledger)
         self.last_run_ms: Optional[int] = None
         self.started_ms: int = now_ms()
         self._subs: set[asyncio.Queue] = set()
@@ -65,6 +66,10 @@ class EngineState:
         self.loop_enabled = on
         self.publish("loop", {"enabled": on})
 
+    def set_track(self, track: dict) -> None:
+        self.track = track
+        self.publish("track", track)
+
     # ── snapshot ──
     def snapshot(self) -> dict:
         return {
@@ -73,6 +78,7 @@ class EngineState:
             "loop_enabled": self.loop_enabled,
             "last_run_ms": self.last_run_ms,
             "uptime_ms": now_ms() - self.started_ms,
+            "track_record": self.track,
             "world": self.world.model_dump() if self.world else None,
             "predictions": [p.model_dump() for p in self.predictions],
             "runs": [r.model_dump() for r in list(self.runs.values())[-8:]],

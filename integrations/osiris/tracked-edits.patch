@@ -1,0 +1,833 @@
+diff --git a/package-lock.json b/package-lock.json
+index f0ed861..b37479d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -83,7 +83,6 @@
+       "integrity": "sha512-RgHBCvtjbOK2gXSNBNIkNoEc9qoVEtau3hj8gEqKQuL3HZAibKarWFEI3Lfm6EYKkLalOh8eSrj9b+ch9H/VBA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@babel/code-frame": "^7.29.7",
+         "@babel/generator": "^7.29.7",
+@@ -2464,7 +2463,6 @@
+       "integrity": "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "csstype": "^3.2.2"
+       }
+@@ -2543,7 +2541,6 @@
+       "integrity": "sha512-HPwA+hVkfcriajbNvTmZv4VRauibay+cWArYUYq7u7W7PmGShMxbPxLvrwDme55a6d5alG3nrYfhyJ/G28XlLg==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@typescript-eslint/scope-manager": "8.59.3",
+         "@typescript-eslint/types": "8.59.3",
+@@ -3293,7 +3290,6 @@
+       "integrity": "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "bin": {
+         "acorn": "bin/acorn"
+       },
+@@ -3675,7 +3671,6 @@
+         }
+       ],
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "baseline-browser-mapping": "^2.10.38",
+         "caniuse-lite": "^1.0.30001799",
+@@ -4061,7 +4056,6 @@
+       "resolved": "https://registry.npmjs.org/d3-selection/-/d3-selection-3.0.0.tgz",
+       "integrity": "sha512-fmTRWbNMmsmWq6xJV8D19U/gw/bwrHfNXxrIN+HfZgnzqTHp9jOmKMhsTUjXOJnZOdZY9Q28y4yebKzqDKlxlQ==",
+       "license": "ISC",
+-      "peer": true,
+       "engines": {
+         "node": ">=12"
+       }
+@@ -4598,7 +4592,6 @@
+       "integrity": "sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@eslint-community/eslint-utils": "^4.8.0",
+         "@eslint-community/regexpp": "^4.12.1",
+@@ -4784,7 +4777,6 @@
+       "integrity": "sha512-whOE1HFo/qJDyX4SnXzP4N6zOWn79WhnCUY/iDR0mPfQZO8wcYE4JClzI2oZrhBnnMUCBCHZhO6VQyoBU95mZA==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@rtsao/scc": "^1.1.0",
+         "array-includes": "^3.1.9",
+@@ -6659,7 +6651,6 @@
+       "resolved": "https://registry.npmjs.org/maplibre-gl/-/maplibre-gl-5.24.0.tgz",
+       "integrity": "sha512-ALyFxgtd5R+65UqZ/++lOqwWcC0SNho9c27fYSyLmG7AfnAul2o46F05aDJGPbFU57wos9dgcIySHs0Xe6ia3A==",
+       "license": "BSD-3-Clause",
+-      "peer": true,
+       "dependencies": {
+         "@mapbox/jsonlint-lines-primitives": "^2.0.2",
+         "@mapbox/point-geometry": "^1.1.0",
+@@ -6819,7 +6810,6 @@
+       "resolved": "https://registry.npmjs.org/next/-/next-16.2.6.tgz",
+       "integrity": "sha512-qOVgKJg1+At15NpeUP+eJgCHvTCgXsogweq87Ri/Ix7PkqQHg4sdaXmSFqKlgaIXE4kW0g25LE68W87UANlHtw==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "@next/env": "16.2.6",
+         "@swc/helpers": "0.5.15",
+@@ -7327,7 +7317,6 @@
+       "resolved": "https://registry.npmjs.org/react/-/react-19.2.4.tgz",
+       "integrity": "sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==",
+       "license": "MIT",
+-      "peer": true,
+       "engines": {
+         "node": ">=0.10.0"
+       }
+@@ -7337,7 +7326,6 @@
+       "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-19.2.4.tgz",
+       "integrity": "sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==",
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "scheduler": "^0.27.0"
+       },
+@@ -8304,7 +8292,6 @@
+       "integrity": "sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "engines": {
+         "node": ">=12"
+       },
+@@ -8503,7 +8490,6 @@
+       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+       "dev": true,
+       "license": "Apache-2.0",
+-      "peer": true,
+       "bin": {
+         "tsc": "bin/tsc",
+         "tsserver": "bin/tsserver"
+@@ -8674,7 +8660,6 @@
+       "integrity": "sha512-o5a9xKjbtuhY6Bi5S3+HvbRERmouabWbyUcpXXUA1u+GNUKoROi9byOJ8M0nHbHYHkYICiMlqxkg1KkYmm25Sw==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "dependencies": {
+         "esbuild": "^0.21.3",
+         "postcss": "^8.4.43",
+@@ -9019,7 +9004,6 @@
+       "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==",
+       "dev": true,
+       "license": "MIT",
+-      "peer": true,
+       "funding": {
+         "url": "https://github.com/sponsors/colinhacks"
+       }
+diff --git a/src/app/globals.css b/src/app/globals.css
+index c880ea3..dc2c7d6 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -70,9 +70,12 @@
+ 
+ /* 🔥
+    THEME TRANSITION SYSTEM
++   Only animate during an actual theme switch (body.theme-switching is added
++   for ~700ms by the toggle) — a permanent `* { transition }` re-animates every
++   color/border change on every data tick, which janks a page this busy.
+    🔥 */
+-* {
+-  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
++body.theme-switching * {
++  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+               border-color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+               color 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+               box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+@@ -2247,3 +2250,64 @@ html, body {
+     transition-duration: 0.01ms !important;
+   }
+ }
++
++/* ── PYTHIA overlay (fork) ── */
++:root { --font-doto: 'Doto', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
++.pythia-display { font-family: var(--font-doto); font-weight: 700; letter-spacing: 0.06em; }
++@keyframes pythia-ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
++.animate-ticker { animation-name: pythia-ticker-scroll; animation-timing-function: linear; animation-iteration-count: infinite; }
++
++/* Readability: the active Osiris theme uses low-contrast purples (--text-muted #4A148C,
++   --gold-primary/--cyan-primary purple). Scope brighter, legible values to PYTHIA UI only. */
++.pythia-scope {
++  --gold-primary: #cbb6ff;   /* was #B388FF — brighter violet */
++  --cyan-primary: #63e6ff;   /* was #7C4DFF purple — real cyan */
++  --alert-red:    #ff8a8a;   /* was #FF3D3D — softer, readable at small sizes */
++  --text-primary: #f4f0fb;
++  --text-secondary:#cdbff0;
++  --text-muted:   #a99fc6;   /* was #4A148C — near-invisible; now legible */
++  --text-heading: #f4f0fb;
++}
++
++/* ── PYTHIA light theme (fork) — Apple-white mode; toggled via body.theme-light ── */
++body.theme-light {
++  --gold-rgb: 107, 75, 214;
++  --cyan-rgb: 13, 143, 176;
++  --bg-void: #eef1f6;
++  --bg-primary: #f4f6fa;
++  --bg-secondary: #e9edf3;
++  --bg-tertiary: #dfe4ec;
++  --bg-panel: rgba(255, 255, 255, 0.82);
++  --bg-panel-solid: #ffffff;
++  /* text-bearing tokens are AA-computed vs #f4f6fa and #fff (≥4.5:1 small text) */
++  --gold-primary: #5f3ecc; --gold-light: #8a6cff; --gold-dim: #b7a6e8;
++  --cyan-primary: #0a6f8a; --cyan-dim: #7fd3e6;
++  --alert-red: #d02b2b; --alert-orange: #a85800; --alert-green: #10733d; --alert-blue: #2e6fd6;
++  --border-primary: rgba(60,50,90,0.14); --border-secondary: rgba(60,50,90,0.08); --border-active: rgba(107,75,214,0.4);
++  --text-primary: #1b1f2a; --text-secondary: #444b5a; --text-muted: #5b6472;
++  --text-heading: #14181f; --text-gold: #5f3ecc; --text-cyan: #0a6f8a;
++  --fw-shadow: 0 12px 40px rgba(40, 40, 80, 0.18);
++  --fw-header-bg: rgba(0, 0, 0, 0.04);
++  --hover-accent: rgba(60,50,90,0.06);
++  --scrollbar-thumb: rgba(60,50,90,0.25);
++}
++/* keep the PYTHIA overlay legible on white (its dark-mode scope uses light text) */
++body.theme-light .pythia-scope {
++  --gold-primary: #5f3ecc; --cyan-primary: #0a6f8a; --alert-red: #d02b2b; --alert-green: #10733d;
++  --text-primary: #1b1f2a; --text-secondary: #3f4656; --text-muted: #5b6472; --text-heading: #14181f;
++}
++
++/* ── light-mode readability fixes (fork) ──────────────────────────────────
++   1. Stock components hardcode dark-theme hexes; override by class substring
++      (higher specificity than the Tailwind arbitrary-value utility). */
++body.theme-light [class*="D4AF37"] { color: #7d631c; }               /* OSIRIS header gold, 5.28:1 */
++body.theme-light [class*="14F195"] {                                  /* $OSIRIS token green, 5.73:1 */
++  color: #096f4b; border-color: rgba(9, 111, 75, 0.4); background: rgba(9, 111, 75, 0.08);
++}
++/* 2. The bottom tickers keep their black chrome in light mode, so pin the
++      dark-theme text palette inside them (vars inherit down). */
++body.theme-light .pythia-ticker-bg,
++body.theme-light [class*="z-[198]"] {
++  --text-primary: #f4f0fb; --text-secondary: #cdbff0; --text-muted: #a99fc6;
++  --gold-primary: #8a6cff; --cyan-primary: #22b8dd; --alert-red: #ff8a8a; --alert-green: #2df5c8;
++}
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index 7ec7a22..50fdc6f 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -184,6 +184,7 @@ export default function RootLayout({
+       <head>
+         <link rel="preconnect" href="https://fonts.googleapis.com" />
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
++        <link href="https://fonts.googleapis.com/css2?family=Doto:wght@400..700&display=swap" rel="stylesheet" />
+         <link rel="icon" href="/favicon.ico" sizes="any" />
+         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 8c02210..193f7d6 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -3,7 +3,7 @@
+ import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+ import dynamic from 'next/dynamic';
+ import { motion, AnimatePresence } from 'framer-motion';
+-import { Layers, BarChart3, Newspaper, Search, X, Globe, MapPinned, Radar, Satellite, Moon, ExternalLink, AlertTriangle, Activity, Database, Wifi, Play, Network, Crosshair } from 'lucide-react';
++import { Eye, MessageSquare, Info, Sun, Layers, BarChart3, Newspaper, Search, X, Globe, MapPinned, Radar, Satellite, Moon, ExternalLink, AlertTriangle, Activity, Database, Wifi, Play, Network, Crosshair } from 'lucide-react';
+ import IntelFeed from '@/components/IntelFeed';
+ import MarketsPanel from '@/components/MarketsPanel';
+ import ScmPanel from '@/components/ScmPanel';
+@@ -15,6 +15,14 @@ import ViewPresets from '@/components/ViewPresets';
+ import KeyboardShortcuts from '@/components/KeyboardShortcuts';
+ import GlobalStatusBar from '@/components/GlobalStatusBar';
+ import LiveAlerts from '@/components/LiveAlerts';
++import PythiaStatus from '@/components/PythiaStatus';
++import PythiaPanel from '@/components/PythiaPanel';
++import DeliberationModal from '@/components/DeliberationModal';
++import HeadlineTicker from '@/components/HeadlineTicker';
++import ChatBox from '@/components/ChatBox';
++import FloatingWindow from '@/components/FloatingWindow';
++import CreditsModal from '@/components/CreditsModal';
++import { useEngineState, type Prediction as PythiaPrediction } from '@/lib/useEngineState';
+ 
+ const OsirisMap = dynamic(() => import('@/components/OsirisMap'), { ssr: false });
+ const LayerPanel = dynamic(() => import('@/components/LayerPanel'));
+@@ -22,6 +30,19 @@ const CameraViewer = dynamic(() => import('@/components/CameraViewer'));
+ const OsintPanel = dynamic(() => import('@/components/OsintPanel'));
+ const EntityGraphPanel = dynamic(() => import('@/components/EntityGraphPanel'));
+ const TokenPanel = dynamic(() => import('@/components/TokenPanel'));
++// PYTHIA social & humanitarian feeds → data key : engine/overlay endpoint
++const SOCIAL_FEEDS: [string, string][] = [
++  ['displacement', '/api/displacement'],
++  ['disease', '/api/health-outbreaks'],
++  ['unrest', '/api/unrest'],
++  ['food', '/api/food-security'],
++  ['inflation', '/api/economy'],
++  ['censorship', '/api/censorship'],
++  ['unemployment', '/api/unemployment'],
++  ['gdp', '/api/gdp-growth'],
++  ['poverty', '/api/poverty'],
++];
++
+ function useIsMobile() {
+   const [isMobile, setIsMobile] = useState(false);
+   useEffect(() => {
+@@ -115,12 +136,32 @@ export default function Dashboard() {
+   const [scanTargets, setScanTargets] = useState<any[]>([]);
+   const [entityGraphTarget, setEntityGraphTarget] = useState<{ type: string; id: string; label?: string; properties?: Record<string, any> } | null>(null);
+   const [demoMode, setDemoMode] = useState(false);
+-  const [osirisTheme, setOsirisTheme] = useState<'core'|'ghost'>('ghost');
++  const [osirisTheme, setOsirisTheme] = useState<'core'|'ghost'|'light'>('ghost');
++
++  // Restore persisted theme after mount (hydration-safe: server always renders 'ghost')
++  useEffect(() => {
++    const t = localStorage.getItem('pythia-theme');
++    if (t === 'light' || t === 'ghost' || t === 'core') setOsirisTheme(t);
++  }, []);
+ 
+   useEffect(() => {
+-    document.body.className = osirisTheme === 'core' ? '' : `theme-${osirisTheme}`;
++    document.body.classList.remove('theme-ghost', 'theme-light');
++    if (osirisTheme !== 'core') document.body.classList.add(`theme-${osirisTheme}`);
++    try { localStorage.setItem('pythia-theme', osirisTheme); } catch { /* private mode */ }
+   }, [osirisTheme]);
+ 
++  // ── PYTHIA engine state (SSE + poll fallback), shared by deck AND map ──
++  const { snap: engineSnap, connected: engineConnected } = useEngineState();
++  const [focusPredId, setFocusPredId] = useState<string | null>(null);
++  const [deliberation, setDeliberation] = useState<PythiaPrediction | null>(null);
++  const predictionsRef = useRef<PythiaPrediction[]>([]);
++  predictionsRef.current = engineSnap.predictions || [];
++  useEffect(() => {
++    (window as any).openPythiaDeliberation = (id: string) =>
++      setDeliberation(predictionsRef.current.find((p) => p.id === id) ?? null);
++    return () => { delete (window as any).openPythiaDeliberation; };
++  }, []);
++
+   const isMobile = useIsMobile();
+   const startTime = useRef(Date.now());
+   const geocodeCache = useRef<Map<string, string>>(new Map());
+@@ -159,6 +200,18 @@ export default function Dashboard() {
+     sdk_naval: true,
+     terrain_3d: false,
+     malware: false,
++    // PYTHIA prediction markers (the whole point — default ON)
++    predictions: true,
++    // PYTHIA social & humanitarian layers (default off)
++    displacement: false,
++    disease: false,
++    unrest: false,
++    food: false,
++    inflation: false,
++    censorship: false,
++    unemployment: false,
++    gdp: false,
++    poverty: false,
+   });
+   const [liveFeedUrl, setLiveFeedUrl] = useState<string | null>(null);
+   const [liveFeedName, setLiveFeedName] = useState('');
+@@ -429,6 +482,14 @@ export default function Dashboard() {
+       layerFetchedRef.current.add('gdelt');
+     }
+ 
++    // PYTHIA social & humanitarian feeds (GeoJSON — store the features array under the layer key)
++    for (const [key, url] of SOCIAL_FEEDS) {
++      if ((activeLayers as any)[key] && !layerFetchedRef.current.has(key)) {
++        fetchEndpoint(url, (d: any) => ({ [key]: d.features || [] }));
++        layerFetchedRef.current.add(key);
++      }
++    }
++
+     // Submarine Cables
+     if (activeLayers.cables && !layerFetchedRef.current.has('cables')) {
+       (async () => {
+@@ -562,6 +623,10 @@ export default function Dashboard() {
+   ), [data.commercial_flights, data.private_flights, data.private_jets, data.military_flights]);
+ 
+ 
++  const [showOracle, setShowOracle] = useState(true);
++  const [showChat, setShowChat] = useState(false);
++  const [showCredits, setShowCredits] = useState(false);
++
+   return (
+     <main className="fixed inset-0 w-full h-full bg-[var(--bg-void)] overflow-hidden">
+ 
+@@ -761,25 +826,97 @@ export default function Dashboard() {
+ 
+       {/* ── MAP ── */}
+       <ErrorBoundary name="Map">
+-        <OsirisMap 
+-          key={osirisTheme}
+-          data={data} 
+-          activeLayers={activeLayers} 
+-          projection={mapProjection} 
+-          mapStyle={mapStyle === 'satellite' ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' : 'dark'} 
+-          onEntityClick={handleEntityClick} 
+-          onMouseCoords={handleMouseCoords} 
+-          onRightClick={handleRightClick} 
+-          onViewStateChange={setMapView} 
++        <OsirisMap
++          key={osirisTheme === 'light' ? 'light' : 'dark'}
++          data={data}
++          activeLayers={activeLayers}
++          projection={mapProjection}
++          mapStyle={mapStyle === 'satellite' ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' : 'dark'}
++          onEntityClick={handleEntityClick}
++          onMouseCoords={handleMouseCoords}
++          onRightClick={handleRightClick}
++          onViewStateChange={setMapView}
+           flyToLocation={flyToLocation}
+           sweepData={sweepData}
+           scanTargets={scanTargets}
+           demoMode={demoMode}
+           theme={osirisTheme}
++          predictions={engineSnap.predictions || []}
++          focusPredictionId={focusPredId}
+         />
+       </ErrorBoundary>
+ 
+ 
++      {/* ── PYTHIA ORACLE OVERLAY (fork) — scoped for readable colors ── */}
++      <div className="pythia-scope">
++        <div className="fixed top-3 right-3 z-[320] pointer-events-none flex flex-col items-end gap-2 max-w-[92vw]">
++          <div className="pointer-events-auto"><PythiaStatus /></div>
++          <AnimatePresence>
++            {showOracle && (
++              <motion.div
++                key="oracle-deck"
++                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
++                className="pointer-events-auto w-[340px] max-w-[92vw] hidden md:block"
++              >
++                <PythiaPanel
++                  snap={engineSnap}
++                  connected={engineConnected}
++                  onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })}
++                  onSelect={setDeliberation}
++                  onHover={setFocusPredId}
++                />
++              </motion.div>
++            )}
++          </AnimatePresence>
++        </div>
++
++        {/* swarm deliberation (lifted here so map popups can open it too) */}
++        <DeliberationModal prediction={deliberation} onClose={() => setDeliberation(null)}
++          onLocate={(lat, lng) => setFlyToLocation({ lat, lng, ts: Date.now() })} />
++
++        {/* control cluster — deck / chat / credits */}
++        <div className="fixed bottom-[150px] right-3 z-[320] hidden md:flex flex-col gap-2">
++          <button onClick={() => setShowOracle((o) => !o)} title="Oracle deck" aria-label="Toggle oracle deck"
++            className="glass-panel p-3 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors">
++            <Eye className="w-5 h-5 text-[var(--gold-primary)]" />
++          </button>
++          <button onClick={() => setShowChat((c) => !c)} title="Ask PYTHIA" aria-label="Ask PYTHIA chat"
++            className="glass-panel p-3 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors">
++            <MessageSquare className="w-5 h-5 text-[var(--cyan-primary)]" />
++          </button>
++          <button onClick={() => setShowCredits(true)} title="Credits" aria-label="Show credits"
++            className="glass-panel p-3 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors">
++            <Info className="w-5 h-5 text-[var(--text-secondary)]" />
++          </button>
++          <button onClick={() => {
++              document.body.classList.add('theme-switching');
++              setTimeout(() => document.body.classList.remove('theme-switching'), 700);
++              setOsirisTheme((t) => (t === 'light' ? 'ghost' : 'light'));
++            }} title="Light / dark theme" aria-label="Toggle light or dark theme"
++            className="glass-panel p-3 pointer-events-auto hover:border-[var(--gold-primary)]/40 transition-colors">
++            {osirisTheme === 'light' ? <Moon className="w-5 h-5 text-[var(--gold-primary)]" /> : <Sun className="w-5 h-5 text-[var(--gold-primary)]" />}
++          </button>
++        </div>
++
++        {/* Ask-the-oracle chat (grounded in every live feed + forecasts) */}
++        {showChat && (
++          <FloatingWindow
++            title="ASK PYTHIA" icon={<MessageSquare className="w-3 h-3 text-[var(--cyan-primary)]" />}
++            initial={{ x: 32, y: 90, w: 380, h: 460 }} z={340}
++            onClose={() => setShowChat(false)} onFocus={() => {}}
++          >
++            <ChatBox />
++          </FloatingWindow>
++        )}
++
++        {/* world headline ticker */}
++        <HeadlineTicker />
++
++        {/* credits (portals itself; scoped via its own root class) */}
++        <CreditsModal open={showCredits} onClose={() => setShowCredits(false)} />
++      </div>
++
++
+       {/* ── MAP VIEW CONTROLS (3D/2D + SATELLITE TOGGLE) ── */}
+       <motion.div
+         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.5 }}
+@@ -834,7 +971,7 @@ export default function Dashboard() {
+           </div>
+         </div>
+         <div className="flex items-center gap-3 mt-1.5 pl-[44px] min-w-0 pr-4">
+-          <span className="text-[5px] md:text-[6px] text-[var(--text-muted)] font-mono tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-40 truncate">
++          <span className="text-[5px] md:text-[6px] text-[var(--text-muted)] font-mono tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-70 truncate">
+             POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE <span className="hidden md:inline">· C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK</span>
+           </span>
+         </div>
+@@ -854,11 +991,11 @@ export default function Dashboard() {
+ 
+         <span className="hidden lg:inline-flex items-center gap-1">
+           <span className="text-[var(--cyan-primary)] font-bold">{Object.values(activeLayers).filter(Boolean).length}</span>
+-          <span className="text-[var(--text-muted)]/60">FEEDS</span>
++          <span className="text-[var(--text-muted)]">FEEDS</span>
+         </span>
+ 
+         <UptimeClock />
+-        <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-50 ml-2">V.4.1</span>
++        <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] opacity-75 ml-2">V.4.1</span>
+         
+         <TokenPanel />
+ 
+@@ -878,14 +1015,6 @@ export default function Dashboard() {
+           </a>
+         </motion.div>
+       )}
+-      {isMobile && (
+-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute top-3 right-3 z-[200] pointer-events-auto flex items-center gap-2">
+-          <a href='https://ko-fi.com/M8D41ZYW4Z' target='_blank' className="glass-panel px-2 py-1 flex items-center gap-1.5 text-[7px] font-mono tracking-widest hover:opacity-80 transition-opacity border-[var(--gold-primary)]/40 bg-[var(--gold-primary)]/10">
+-            <div className="w-1 h-1 rounded-full bg-[var(--gold-primary)] animate-osiris-pulse" />
+-            <span className="text-[var(--gold-primary)] font-bold">SUPPORT PROJECT</span>
+-          </a>
+-        </motion.div>
+-      )}
+ 
+ 
+ 
+@@ -895,7 +1024,7 @@ export default function Dashboard() {
+ 
+ 
+       {/* ── RIGHT TOOL STRIP (desktop only — mobile uses bottom nav) ── */}
+-      {!isMobile && <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-[250] pointer-events-auto bg-black/40 backdrop-blur-sm p-1 rounded-full border border-white/5">
++      {!isMobile && <div className={`absolute ${showOracle ? 'right-[356px]' : 'right-2'} top-1/2 -translate-y-1/2 flex flex-col gap-2 z-[250] pointer-events-auto bg-black/40 backdrop-blur-sm p-1 rounded-full border border-white/5 transition-[right] duration-300`}>
+         <div className="relative group">
+           <button onClick={() => { setShowIntel(!showIntel); setShowMarkets(false); setShowAlerts(false); }} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${showIntel ? 'bg-[var(--cyan-primary)]/20' : 'hover:bg-white/10'}`}>
+             <Radar className={`w-4 h-4 ${showIntel ? 'text-[var(--cyan-primary)]' : 'text-white/60'}`} />
+@@ -1056,14 +1185,6 @@ export default function Dashboard() {
+       </AnimatePresence>
+ 
+       {/* ═══ MOBILE UI ═══ */}
+-      {isMobile && (
+-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5 }} className="absolute top-3 right-3 z-[200] pointer-events-auto flex items-center gap-2">
+-          <a href='https://ko-fi.com/M8D41ZYW4Z' target='_blank' rel='noopener noreferrer' className="glass-panel px-2 py-1 flex items-center gap-1.5 text-[7px] font-mono tracking-widest hover:opacity-80 transition-opacity border-[var(--gold-primary)]/40 bg-[var(--gold-primary)]/10">
+-            <div className="w-1 h-1 rounded-full bg-[var(--gold-primary)] animate-osiris-pulse" />
+-            <span className="text-[var(--gold-primary)] font-bold">SUPPORT PROJECT</span>
+-          </a>
+-        </motion.div>
+-      )}
+       {isMobile && (
+         <>
+           {/* Mobile Bottom Navigation */}
+@@ -1142,7 +1263,7 @@ export default function Dashboard() {
+       {/* ── BOTTOM RAW METRICS (desktop) ── */}
+       {!isMobile && (
+         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3, duration: 0.8 }} className="desktop-only absolute bottom-8 z-[200] pointer-events-auto" style={{ left: '72px' }}>
+-          <div className="flex items-center gap-6 text-[8px] font-mono tracking-widest text-[var(--text-muted)] opacity-60">
++          <div className="flex items-center gap-6 text-[8px] font-mono tracking-widest text-[var(--text-muted)] opacity-80">
+             <div className="flex gap-2 items-center">
+               <span>COORD</span>
+               <span ref={coordsDisplayRef} className="text-[var(--gold-primary)] font-bold tabular-nums">—</span>
+diff --git a/src/components/LayerPanel.tsx b/src/components/LayerPanel.tsx
+index 4466013..7c0a319 100644
+--- a/src/components/LayerPanel.tsx
++++ b/src/components/LayerPanel.tsx
+@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
+ import {
+   Plane, Satellite, Sun, AlertTriangle, Camera,
+   CloudLightning, Ship, Network, Database, Ghost,
+-  Flame, Tv, Radio, Mountain, Anchor, Radar
++  Flame, Tv, Radio, Mountain, Anchor, Radar, Eye
+ } from 'lucide-react';
+ 
+ interface LayerPanelProps {
+@@ -13,11 +13,19 @@ interface LayerPanelProps {
+   activeLayers: any;
+   setActiveLayers: React.Dispatch<React.SetStateAction<any>>;
+   isMobile?: boolean;
+-  theme?: 'core' | 'ghost';
+-  setTheme?: (theme: 'core' | 'ghost') => void;
++  theme?: 'core' | 'ghost' | 'light';
++  setTheme?: (theme: 'core' | 'ghost' | 'light') => void;
+ }
+ 
+ const LAYER_GROUPS = [
++  {
++    label: 'ORACLE',
++    fullLabel: 'PYTHIA ORACLE',
++    icon: Eye,
++    layers: [
++      { key: 'predictions', label: 'Predictions', dataKey: '' },
++    ],
++  },
+   {
+     label: 'SDK',
+     fullLabel: 'OSIRIS SDK',
+@@ -26,6 +34,22 @@ const LAYER_GROUPS = [
+       { key: 'sdk_sea', label: 'Maritime Lines', dataKey: 'sdk_entities' },
+     ],
+   },
++  {
++    label: 'SOCIAL',
++    fullLabel: 'SOCIAL & HUMANITARIAN',
++    icon: AlertTriangle,
++    layers: [
++      { key: 'displacement', label: 'Displacement', dataKey: 'displacement' },
++      { key: 'disease', label: 'Disease Outbreaks', dataKey: 'disease' },
++      { key: 'unrest', label: 'Civil Unrest', dataKey: 'unrest' },
++      { key: 'food', label: 'Food Insecurity', dataKey: 'food' },
++      { key: 'inflation', label: 'Inflation', dataKey: 'inflation' },
++      { key: 'censorship', label: 'Internet Censorship', dataKey: 'censorship' },
++      { key: 'unemployment', label: 'Unemployment', dataKey: 'unemployment' },
++      { key: 'gdp', label: 'GDP Growth', dataKey: 'gdp' },
++      { key: 'poverty', label: 'Extreme Poverty', dataKey: 'poverty' },
++    ],
++  },
+   {
+     label: 'AVIATION',
+     fullLabel: 'AVIATION',
+@@ -165,7 +189,7 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
+       <div className="flex flex-col gap-5 py-2">
+         {LAYER_GROUPS.map((group) => (
+           <div key={group.label} className="flex flex-col gap-2">
+-            <div className="text-[9px] font-mono tracking-[0.2em] uppercase text-white/30 border-b border-white/[0.06] pb-1.5">
++            <div className="text-[9px] font-mono tracking-[0.2em] uppercase text-[var(--text-muted)] border-b border-[var(--border-secondary)] pb-1.5">
+               {group.fullLabel}
+             </div>
+             <div className="flex flex-col gap-1">
+@@ -178,11 +202,11 @@ function LayerPanel({ data, activeLayers, setActiveLayers, isMobile, theme = 'co
+                       active={!!isLayerActive}
+                       onClick={() => toggle(layer.key)}
+                     />
+-                    <span className={`text-[10px] font-mono uppercase tracking-wider flex-1 transition-colors ${isLayerActive ? 'text-white/80' : 'text-white/40'}`}>
++                    <span className={`text-[10px] font-mono uppercase tracking-wider flex-1 transition-colors ${isLayerActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
+                       {layer.label}
+                     </span>
+                     {count !== null && (
+-                      <span className="text-[8px] font-mono tabular-nums text-white/20">
++                      <span className="text-[8px] font-mono tabular-nums text-[var(--text-muted)]">
+                         {count.toLocaleString()}
+                       </span>
+                     )}
+diff --git a/src/components/MarketsPanel.tsx b/src/components/MarketsPanel.tsx
+index a75e0e1..98edb89 100644
+--- a/src/components/MarketsPanel.tsx
++++ b/src/components/MarketsPanel.tsx
+@@ -48,7 +48,10 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps)
+ 
+   const content = (
+     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.6 }} className={`glass-panel p-3 pointer-events-auto transition-all duration-300 flex flex-col ${maximized ? 'fixed inset-4 z-[9999] bg-[#0a0a09]/95 backdrop-blur-3xl' : ''}`}>
+-      <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-between w-full mb-2">
++      {/* div, not button — a button here would nest the Maximize button (invalid HTML, hydration error) */}
++      <div role="button" tabIndex={0} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}
++        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded); } }}
++        className="flex items-center justify-between w-full mb-2 cursor-pointer select-none">
+         <div className="flex items-center gap-2">
+           <BarChart3 className="w-3.5 h-3.5 text-[var(--gold-primary)]" />
+           <span className="hud-text text-[12px] text-[var(--text-primary)]">MARKETS & INTEL</span>
+@@ -61,7 +64,7 @@ export default function MarketsPanel({ data, spaceWeather }: MarketsPanelProps)
+           </button>
+           {expanded ? <ChevronUp className="w-3.5 h-3.5 text-[var(--text-muted)]" /> : <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
+         </div>
+-      </button>
++      </div>
+ 
+       <AnimatePresence>
+         {expanded && (
+diff --git a/src/components/OsirisMap.tsx b/src/components/OsirisMap.tsx
+index fc5f603..7e8dbb1 100644
+--- a/src/components/OsirisMap.tsx
++++ b/src/components/OsirisMap.tsx
+@@ -17,9 +17,30 @@ interface OsirisMapProps {
+   sweepData?: any;
+   scanTargets?: any[];
+   demoMode?: boolean;
+-  theme?: 'core' | 'ghost';
++  theme?: 'core' | 'ghost' | 'light';
++  predictions?: any[];
++  focusPredictionId?: string | null;
+ }
+ 
++// ── PYTHIA social & humanitarian circle layers (added by the overlay) ──
++// `metric` names the numeric severity property each route emits (null = no magnitude data);
++// circles are sized by its per-layer log-normalized value (_norm, computed client-side).
++const SOCIAL_LAYERS = [
++  { key: 'displacement', source: 'soc-displacement', layer: 'soc-displacement-c', color: '#FF8A5B', metric: 'total' },
++  { key: 'disease',      source: 'soc-disease',      layer: 'soc-disease-c',      color: '#FF5D5D', metric: null },
++  { key: 'unrest',       source: 'soc-unrest',       layer: 'soc-unrest-c',       color: '#FFB454', metric: 'events' },
++  { key: 'food',         source: 'soc-food',         layer: 'soc-food-c',         color: '#E8C34A', metric: 'people' },
++  { key: 'inflation',    source: 'soc-inflation',    layer: 'soc-inflation-c',    color: '#54D18C', metric: 'inflation' },
++  { key: 'censorship',   source: 'soc-censorship',   layer: 'soc-censorship-c',   color: '#9A7BFF', metric: 'anomalies' },
++  { key: 'unemployment', source: 'soc-unemployment', layer: 'soc-unemployment-c', color: '#5DB0FF', metric: 'unemployment' },
++  { key: 'gdp',          source: 'soc-gdp',          layer: 'soc-gdp-c',          color: '#4ECDC4', metric: 'mag' },
++  { key: 'poverty',      source: 'soc-poverty',      layer: 'soc-poverty-c',      color: '#C678DD', metric: 'poverty' },
++];
++
++// PYTHIA prediction markers — one color per forecast horizon (matches the deck)
++const PYTHIA_HORIZON_COLOR: any = ['match', ['get', 'horizon'],
++  '24h', '#FF5252', 'week', '#FFD54F', 'month', '#4DD0E1', 'year', '#B388FF', '#B388FF'];
++
+ function computeSolarTerminator(): [number, number][] {
+   const now = new Date();
+   const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+@@ -42,7 +63,7 @@ function computeSolarTerminator(): [number, number][] {
+ 
+ const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
+ 
+-function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightClick, onViewStateChange, flyToLocation, projection = 'globe', mapStyle = 'dark', sweepData, scanTargets = [], demoMode = false, theme = 'core' }: OsirisMapProps) {
++function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightClick, onViewStateChange, flyToLocation, projection = 'globe', mapStyle = 'dark', sweepData, scanTargets = [], demoMode = false, theme = 'core', predictions = [], focusPredictionId = null }: OsirisMapProps) {
+   const containerRef = useRef<HTMLDivElement>(null);
+   const mapRef = useRef<maplibregl.Map | null>(null);
+   const popupRef = useRef<maplibregl.Popup | null>(null);
+@@ -136,8 +157,10 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
+   useEffect(() => {
+     if (!containerRef.current || mapRef.current) return;
+     
+-    // Select basemap style
+-    const styleUrl = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
++    // Select basemap style (light theme -> CARTO Positron; else dark-matter)
++    const styleUrl = theme === 'light'
++      ? 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
++      : 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+ 
+     const map = new maplibregl.Map({
+       container: containerRef.current,
+@@ -231,6 +254,25 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
+         'circle-color': ['interpolate',['linear'],['get','magnitude'], 2.5,'#F9A825', 4,'#E65100', 6,'#D32F2F'],
+         'circle-opacity': 0.55, 'circle-blur': 0.3, 'circle-stroke-width': 1, 'circle-stroke-color': '#F9A825', 'circle-stroke-opacity': 0.25,
+       }});
++      // ── PYTHIA social & humanitarian circle layers ──
++      // Sized by zoom AND the layer's normalized severity (_norm 0..1, 0.5 when absent),
++      // mirroring how earthquake circles scale with magnitude.
++      SOCIAL_LAYERS.forEach((s) => {
++        if (!map.getSource(s.source)) map.addSource(s.source, { type: 'geojson', data: EMPTY_FC });
++        map.addLayer({ id: s.layer, type: 'circle', source: s.source, paint: {
++          'circle-radius': ['interpolate',['linear'],['zoom'],
++            1.5, ['+', 2.5, ['*', 5,  ['coalesce',['get','_norm'], 0.5]]],
++            8,   ['+', 5,   ['*', 12, ['coalesce',['get','_norm'], 0.5]]]],
++          'circle-color': s.color, 'circle-opacity': 0.42, 'circle-blur': 0.35,
++          'circle-stroke-width': 1, 'circle-stroke-color': s.color, 'circle-stroke-opacity': 0.5,
++        }});
++        // labels for the worst-hit places only (like eq-label's magnitude≥4.5 filter)
++        map.addLayer({ id: s.layer + '-label', type: 'symbol', source: s.source, minzoom: 3,
++          filter: ['>=', ['coalesce',['get','_norm'], 0], 0.7],
++          layout: { 'text-field': ['get','label'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
++                    'text-offset': [0, 1.4], 'text-max-width': 14, 'text-allow-overlap': false },
++          paint: { 'text-color': s.color, 'text-halo-color': '#000', 'text-halo-width': 1.2, 'text-opacity': 0.85 }});
++      });
+       map.addLayer({ id: 'eq-label', type: 'symbol', source: 'earthquakes', filter: ['>=',['get','magnitude'],4.5], layout: {
+         'text-field': ['concat','M',['to-string',['get','magnitude']]], 'text-size': 9, 'text-font': ['Open Sans Regular'], 'text-offset': [0,1.5],
+       }, paint: { 'text-color': '#F9A825', 'text-halo-color': '#000', 'text-halo-width': 1 }});
+@@ -561,6 +603,28 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
+         'text-offset': [0, 1.2], 'text-allow-overlap': false,
+       }, paint: { 'text-color': ['match', ['get','type'], 'military','#D32F2F', 'tanker','#E65100', 'cargo','#26C6DA', '#B0BEC5'], 'text-halo-color': '#000', 'text-halo-width': 1 }});
+ 
++      // ── PYTHIA prediction markers (added last = drawn on top of every feed layer) ──
++      // Color = forecast horizon, size = consensus probability, white ring = swarm split.
++      map.addSource('pythia-predictions', { type: 'geojson', data: EMPTY_FC });
++      map.addLayer({ id: 'pythia-pred-glow', type: 'circle', source: 'pythia-predictions', paint: {
++        'circle-radius': ['interpolate',['linear'],['get','probability'], 0.1,10, 0.9,26],
++        'circle-color': PYTHIA_HORIZON_COLOR, 'circle-blur': 1, 'circle-opacity': 0.3,
++      }});
++      map.addLayer({ id: 'pythia-pred-core', type: 'circle', source: 'pythia-predictions', paint: {
++        'circle-radius': ['interpolate',['linear'],['get','probability'], 0.1,4, 0.9,11],
++        'circle-color': PYTHIA_HORIZON_COLOR, 'circle-opacity': 0.9,
++        'circle-stroke-width': ['case',['get','split'], 2, 1],
++        'circle-stroke-color': ['case',['get','split'], '#FFFFFF', PYTHIA_HORIZON_COLOR],
++        'circle-stroke-opacity': 0.85,
++      }});
++      // hover/focus ring driven by a filter on the prediction id (deck card hover)
++      map.addLayer({ id: 'pythia-pred-focus', type: 'circle', source: 'pythia-predictions',
++        filter: ['==',['get','id'],'__none__'], paint: {
++        'circle-radius': ['+', ['interpolate',['linear'],['get','probability'], 0.1,4, 0.9,11], 5],
++        'circle-opacity': 0, 'circle-stroke-width': 2,
++        'circle-stroke-color': '#FFFFFF', 'circle-stroke-opacity': 0.95,
++      }});
++
+       setMapReady(true);
+     });
+ 
+@@ -662,6 +726,36 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
+       </div>`);
+     });
+ 
++    // ── PYTHIA prediction markers → popup + deliberation modal ──
++    map.on('click', 'pythia-pred-core', e => {
++      if (!e.features?.length) return;
++      const p = e.features[0].properties as any;
++      const coords = (e.features[0].geometry as any).coordinates;
++      const pct = Math.round(Number(p.probability) * 100);
++      const split = p.split === true || p.split === 'true';   // MapLibre stringifies bools in events
++      popup(coords, `<div style="${pStyle}border:1px solid rgba(179,136,255,0.35);">
++        <div style="color:#B388FF;font-size:11px;font-weight:700;letter-spacing:0.12em;margin-bottom:6px;">🔮 PYTHIA — ${htmlEsc(String(p.horizon).toUpperCase())}</div>
++        <div style="color:#EDE7F6;font-size:12px;line-height:1.5;margin-bottom:8px;">${htmlEsc(p.statement)}</div>
++        <div style="font-size:10px;color:#B39DDB;">CONSENSUS ${pct}%${split ? ' · ⚡ SWARM SPLIT' : ''}${p.location ? ' · ' + htmlEsc(p.location) : ''}</div>
++        <button onclick="window.openPythiaDeliberation && window.openPythiaDeliberation('${idSafe(p.id)}')" style="${linkStyle}color:#B388FF;border:1px solid rgba(179,136,255,0.4);background:rgba(179,136,255,0.12);cursor:pointer;">[ VIEW DELIBERATION ]</button>
++      </div>`);
++    });
++    map.on('mouseenter', 'pythia-pred-core', () => { map.getCanvas().style.cursor = 'pointer'; });
++    map.on('mouseleave', 'pythia-pred-core', () => { map.getCanvas().style.cursor = ''; });
++
++    // ── PYTHIA social circles → label popup (routes emit a human-ready `label`) ──
++    SOCIAL_LAYERS.forEach(s => {
++      map.on('click', s.layer, e => {
++        if (!e.features?.length) return;
++        const p = e.features[0].properties as any;
++        popup((e.features[0].geometry as any).coordinates, `<div style="${pStyle}border:1px solid ${s.color}40;">
++          <div style="color:${s.color};font-size:12px;font-weight:700;">${htmlEsc(p.label || s.key.toUpperCase())}</div>
++        </div>`);
++      });
++      map.on('mouseenter', s.layer, () => { map.getCanvas().style.cursor = 'pointer'; });
++      map.on('mouseleave', s.layer, () => { map.getCanvas().style.cursor = ''; });
++    });
++
+     // ── Satellites (SatNOGS powered) ──
+     map.on('click', 'sat-dots', e => {
+       if (!e.features?.length) return;
+@@ -1121,6 +1215,41 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
+     setGeo('earthquakes', activeLayers.earthquakes && data.earthquakes ? data.earthquakes.map((eq: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [eq.lng, eq.lat] }, properties: { magnitude: eq.magnitude, place: eq.place } })) : []);
+   }, [mapReady, data.earthquakes, activeLayers.earthquakes, setGeo]);
+ 
++  // ── PYTHIA social & humanitarian layers (features already GeoJSON from the routes) ──
++  // Per-layer log-normalized severity (_norm 0..1) so millions-of-people and %-scale
++  // metrics both size sensibly within their own layer.
++  useEffect(() => {
++    if (!mapReady) return;
++    for (const s of SOCIAL_LAYERS) {
++      let feats = ((activeLayers as any)[s.key] && Array.isArray((data as any)[s.key])) ? (data as any)[s.key] : [];
++      if (feats.length && s.metric) {
++        const max = Math.max(...feats.map((f: any) => Number(f.properties?.[s.metric!]) || 0), 1);
++        feats = feats.map((f: any) => ({ ...f, properties: { ...f.properties,
++          _norm: Math.log1p(Number(f.properties?.[s.metric!]) || 0) / Math.log1p(max) } }));
++      }
++      setGeo(s.source, feats);
++    }
++  }, [mapReady, data, activeLayers, setGeo]);
++
++  // ── PYTHIA prediction markers ──
++  useEffect(() => {
++    if (!mapReady) return;
++    const feats = (activeLayers as any).predictions && Array.isArray(predictions)
++      ? predictions.filter((p: any) => p.lat != null && p.lng != null)
++          .map((p: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
++            properties: { id: p.id, statement: p.statement, horizon: p.horizon,
++                          probability: p.probability, split: !!p.split, location: p.location || '' } }))
++      : [];
++    setGeo('pythia-predictions', feats);
++  }, [mapReady, predictions, (activeLayers as any).predictions, setGeo]);
++
++  // deck card hover → white focus ring on that prediction's marker
++  useEffect(() => {
++    if (!mapReady || !mapRef.current) return;
++    try { mapRef.current.setFilter('pythia-pred-focus', ['==',['get','id'], focusPredictionId ?? '__none__']); }
++    catch { /* layer not ready yet */ }
++  }, [mapReady, focusPredictionId]);
++
+   useEffect(() => {
+     if (!mapReady) return;
+     const sats = data.satellites || [];

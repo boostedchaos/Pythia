@@ -59,13 +59,19 @@ async def run_prediction(trigger: str = "manual") -> RunRecord:
             from .config import CONFIG
             if CONFIG.swarm_enabled and preds:
                 from .swarm import deliberate
+                from .runtime import PERSONA_CLIENTS
                 try:
-                    preds = await deliberate(oracle, brief, preds, on_stage=stage)
+                    preds = await deliberate(PERSONA_CLIENTS, brief, preds, on_stage=stage, fallback=oracle)
                 except Exception as e:  # noqa: BLE001 — never let the swarm sink a run
                     log.warning("swarm deliberation skipped: %s", e)
 
             STATE.set_predictions(preds)
             run.prediction_ids = [p.id for p in preds]
+            try:
+                from . import ledger
+                ledger.append_predictions(run.id, preds, brief, oracle.model)
+            except Exception as e:  # noqa: BLE001 — a disk hiccup never sinks a pass
+                log.warning("ledger persist failed: %s", e)
             await stage("done", f"{len(preds)} predictions")
         except Exception as e:  # noqa: BLE001
             run.error = str(e)

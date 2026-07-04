@@ -5,10 +5,13 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
+from pathlib import Path
+
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 
+from . import __version__
 from .config import CONFIG
 from .state import STATE
 
@@ -25,23 +28,37 @@ async def lifespan(app: FastAPI):
     log.info("PYTHIA oracle up | %s", CONFIG.summary())
 
     async def _boot():
+        from . import ledger
         from .runtime import intake
-        from .pipeline import refresh_world
+        # seed the track record from disk so restarts show history immediately
+        try:
+            STATE.track = ledger.track_record()
+        except Exception as e:  # noqa: BLE001
+            log.warning("track record seed failed: %s", e)
         # wait for Osiris to be reachable, then give its routes a moment to compile
         for _ in range(20):
             if await intake.health():
                 break
             await asyncio.sleep(2)
         await asyncio.sleep(4)
-        await refresh_world()              # populate live events immediately (for agents/chat)
+        # run_prediction senses the world itself — no separate refresh_world (double-fetch)
         await run_prediction(trigger="boot")
 
     asyncio.create_task(_boot())
     yield
 
 
-app = FastAPI(title="PYTHIA Oracle", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="PYTHIA Oracle", version=__version__, lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+_DASHBOARD = Path(__file__).parent / "dashboard.html"
+
+
+@app.get("/", response_class=HTMLResponse)
+async def dashboard():
+    """A self-contained live view of the swarm (SSE-driven). No build step."""
+    return _DASHBOARD.read_text()
 
 
 @app.get("/health")
@@ -84,7 +101,7 @@ async def models():
 
 @app.post("/model")
 async def set_model(payload: dict = Body(...)):
-    """Switch the oracle's model at runtime."""
+    """Switch the DRAFT oracle's model at runtime. Swarm personas keep their boot-time models."""
     from .runtime import oracle
     name = (payload or {}).get("model", "").strip()
     if not name:
@@ -92,7 +109,7 @@ async def set_model(payload: dict = Body(...)):
     oracle.model = name
     STATE.publish("model", {"model": name})
     log.info("oracle model switched -> %s", name)
-    return {"model": oracle.model}
+    return {"model": oracle.model, "swarm_models": CONFIG.swarm_models}
 
 
 @app.get("/predictions")
@@ -109,9 +126,11 @@ async def predictions(horizon: str | None = None, min_probability: float = 0.0):
 @app.post("/predict")
 async def predict():
     """Run an oracle pass now (sense the world -> forecast)."""
-    from .pipeline import run_prediction
-    if STATE.generating:
+    from .pipeline import run_prediction, _lock
+    if STATE.generating or _lock.locked():
         return {"status": "already running"}
+    # claim synchronously before yielding, so two rapid POSTs can't both start a pass
+    STATE.set_generating(True)
     asyncio.create_task(run_prediction(trigger="manual"))
     return {"status": "started"}
 
@@ -169,6 +188,25 @@ async def world():
     if not STATE.world:
         raise HTTPException(404, "no world brief yet — run /predict")
     return STATE.world.model_dump()
+
+
+@app.post("/resolve")
+async def resolve():
+    """Run a resolution sweep now (judge expired forecasts against the current brief)."""
+    from . import ledger
+    from .models import now_ms
+    from .resolver import resolve_due
+    n = await resolve_due(limit=20)
+    return {"judged": n, "pending": len(ledger.due_for_resolution(now_ms(), limit=999))}
+
+
+@app.get("/history")
+async def history(horizon: str | None = None, status: str | None = None, limit: int = 200):
+    """Every persisted forecast joined with its resolution (disk-backed, survives restarts).
+    `status` ∈ pending|resolved_true|resolved_false|unresolvable."""
+    from . import ledger
+    return {"history": ledger.history(horizon, status, limit),
+            "track_record": ledger.track_record()}
 
 
 @app.get("/runs")

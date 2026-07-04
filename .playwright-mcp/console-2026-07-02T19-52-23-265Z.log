@@ -1,0 +1,10 @@
+[     148ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[     163ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[     270ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3001/:0
+[     270ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd:0
+[  200618ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  200630ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  331453ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  331467ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  331622ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  331629ms] [LOG] [Fast Refresh] done in 145ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477

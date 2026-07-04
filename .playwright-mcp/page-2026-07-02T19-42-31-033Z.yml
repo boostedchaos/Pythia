@@ -1,0 +1,527 @@
+- generic [ref=f1e1]:
+  - main [ref=f1e2]:
+    - region "Map" [ref=f1e496]
+    - generic:
+      - generic:
+        - generic [ref=f1e34]:
+          - generic [ref=f1e36]: PYTHIA
+          - generic [ref=f1e37]:
+            - generic [ref=f1e38]:
+              - 'img "Engine: connected" [ref=f1e231]'
+              - 'img "Osiris: connected" [ref=f1e232]'
+              - 'img "Ollama: connected" [ref=f1e233]'
+            - button "Choose the oracle model" [ref=f1e43]:
+              - generic [ref=f1e44]: deepseek/deepseek-v4-pro
+              - img [ref=f1e45]
+        - generic [ref=f1e48]:
+          - generic [ref=f1e49]:
+            - generic [ref=f1e50]:
+              - img [ref=f1e51]
+              - generic [ref=f1e54]: PYTHIA
+              - generic [ref=f1e55]: ORACLE
+            - generic [ref=f1e56]:
+              - img "engine connected" [ref=f1e234]
+              - button "Toggle auto-refresh forecasts" [ref=f1e58]:
+                - img [ref=f1e59]
+                - text: AUTO
+              - button "Forecast the world now" [ref=f1e65]:
+                - img [ref=f1e66]
+                - text: PREDICT
+          - generic [ref=f1e69]:
+            - generic [ref=f1e70]:
+              - img [ref=f1e71]
+              - text: watching
+              - generic [ref=f1e76]: "250"
+              - text: signals · 18 domains
+            - generic [ref=f1e77]: updated 10m ago
+          - generic [ref=f1e78]:
+            - generic [ref=f1e235]:
+              - generic [ref=f1e238]: NEXT 24 HOURS
+              - generic "Open the swarm deliberation" [ref=f1e239] [cursor=pointer]:
+                - generic [ref=f1e240]:
+                  - generic [ref=f1e241]: A tornado touches down near La Crosse, Wisconsin, causing damage to buildings and power outages, as warned by NWS.
+                  - generic [ref=f1e242]:
+                    - generic "the swarm disagrees sharply" [ref=f1e243]: ⚠
+                    - text: 52%
+                - generic [ref=f1e246]: An active tornado warning is in effect for La Crosse County, WI, with severe thunderstorm and flash flood warnings indicating a volatile environment.
+                - generic [ref=f1e247]: 📍 La Crosse, Wisconsin · fly →
+                - generic [ref=f1e248]:
+                  - generic [ref=f1e249]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e250]: · split
+                  - generic [ref=f1e251]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e252] [cursor=pointer]:
+                - generic [ref=f1e253]:
+                  - generic [ref=f1e254]: Tropical Cyclone BAVI-26 intensifies into a Category 2 storm, with wind speeds exceeding 150 km/h, prompting evacuations in Micronesia.
+                  - generic [ref=f1e255]:
+                    - generic "the swarm disagrees sharply" [ref=f1e256]: ⚠
+                    - text: 36%
+                - generic [ref=f1e259]: Red notification for BAVI-26 indicates current Category 1 affecting 48,400 people, and warm waters favor rapid intensification.
+                - generic [ref=f1e260]: 📍 Pacific Ocean near 12.3N, 158.0E · fly →
+                - generic [ref=f1e261]:
+                  - generic [ref=f1e262]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e263]: · split
+                  - generic [ref=f1e264]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e265] [cursor=pointer]:
+                - generic [ref=f1e266]:
+                  - generic [ref=f1e267]: Israeli forces launch airstrikes targeting Iranian-linked positions near Daraa, Syria, following the U.S.-Iran meeting in Doha.
+                  - generic [ref=f1e268]: 36%
+                - generic [ref=f1e271]: News shows Israeli forces already shelled Abdeen village in Daraa and anger over Vance's approach, likely escalating after the meeting.
+                - generic [ref=f1e272]: 📍 Daraa Governorate, Syria · fly →
+                - generic [ref=f1e273]:
+                  - generic [ref=f1e274]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e275]: · tap for deliberation →
+            - generic [ref=f1e276]:
+              - generic [ref=f1e279]: NEXT WEEK
+              - generic "Open the swarm deliberation" [ref=f1e280] [cursor=pointer]:
+                - generic [ref=f1e281]:
+                  - generic [ref=f1e282]: Zaporizhzhia Nuclear Power Plant loses external power for at least 24 hours due to nearby military activity, raising emergency diesel generator reliance.
+                  - generic [ref=f1e283]:
+                    - generic "the swarm disagrees sharply" [ref=f1e284]: ⚠
+                    - text: 27%
+                - generic [ref=f1e287]: The plant is in an active conflict zone, and repeated shelling near the site has caused power outages multiple times in the past.
+                - generic [ref=f1e288]: 📍 Zaporizhzhia NPP, Ukraine · fly →
+                - generic [ref=f1e289]:
+                  - generic [ref=f1e290]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e291]: · split
+                  - generic [ref=f1e292]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e293] [cursor=pointer]:
+                - generic [ref=f1e294]:
+                  - generic [ref=f1e295]: A critical Microsoft SharePoint vulnerability is weaponized in a widespread ransomware campaign targeting U.S. hospitals.
+                  - generic [ref=f1e296]: 19%
+                - generic [ref=f1e299]: CRITICAL SharePoint vulnerability listed, and healthcare is a frequent target; defense stocks spiking may reflect anticipated cyber offensive.
+                - generic [ref=f1e300]: 📍 United States · fly →
+                - generic [ref=f1e301]:
+                  - generic [ref=f1e302]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e303]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e304] [cursor=pointer]:
+                - generic [ref=f1e305]:
+                  - generic [ref=f1e306]: India reports at least 10 new confirmed Nipah virus cases in Kerala, prompting state-wide containment zones.
+                  - generic [ref=f1e307]:
+                    - generic "the swarm disagrees sharply" [ref=f1e308]: ⚠
+                    - text: 16%
+                - generic [ref=f1e311]: Nipah virus disease signal in India, with potential for human-to-human transmission in Kerala region.
+                - generic [ref=f1e312]: 📍 Kerala, India · fly →
+                - generic [ref=f1e313]:
+                  - generic [ref=f1e314]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e315]: · split
+                  - generic [ref=f1e316]: · tap for deliberation →
+            - generic [ref=f1e317]:
+              - generic [ref=f1e320]: NEXT MONTH
+              - generic "Open the swarm deliberation" [ref=f1e321] [cursor=pointer]:
+                - generic [ref=f1e322]:
+                  - generic [ref=f1e323]: Protests in Johannesburg over economic inequality escalate into clashes with police, resulting in several injuries.
+                  - generic [ref=f1e324]: 39%
+                - generic [ref=f1e327]: GDELT hotspot for protest activity in Johannesburg, South Africa, with ongoing socio-economic discontent.
+                - generic [ref=f1e328]: 📍 Johannesburg, South Africa · fly →
+                - generic [ref=f1e329]:
+                  - generic [ref=f1e330]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e331]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e332] [cursor=pointer]:
+                - generic [ref=f1e333]:
+                  - generic [ref=f1e334]: Lockheed Martin (LMT) stock price exceeds $600 per share amid escalating U.S.-Iran tensions and defense spending hikes.
+                  - generic [ref=f1e335]: 20%
+                - generic [ref=f1e338]: LMT already up 6.77% on day, with ongoing Middle East tensions; U.S.-Iran negotiations may fail, boosting defense sector.
+                - generic [ref=f1e339]: 📍 Global markets
+                - generic [ref=f1e340]:
+                  - generic [ref=f1e341]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e342]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e343] [cursor=pointer]:
+                - generic [ref=f1e344]:
+                  - generic [ref=f1e345]: A M6.5 earthquake strikes northeast of Taiwan near the Ryukyu Islands, triggering tsunami warnings for southern Japan.
+                  - generic [ref=f1e346]: 16%
+                - generic [ref=f1e349]: Recent M4.7 near Yonakuni indicates active tectonics in the region, prone to larger events along the Ryukyu Trench.
+                - generic [ref=f1e350]: 📍 Ryukyu Islands, near 24.7N, 122.6E · fly →
+                - generic [ref=f1e351]:
+                  - generic [ref=f1e352]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e353]: · tap for deliberation →
+            - generic [ref=f1e354]:
+              - generic [ref=f1e357]: NEXT YEAR
+              - generic "Open the swarm deliberation" [ref=f1e358] [cursor=pointer]:
+                - generic [ref=f1e359]:
+                  - generic [ref=f1e360]: The UN declares famine in parts of Darfur, Sudan, as displacement exceeds 15 million and humanitarian access collapses.
+                  - generic [ref=f1e361]:
+                    - generic "the swarm disagrees sharply" [ref=f1e362]: ⚠
+                    - text: 51%
+                - generic [ref=f1e365]: Sudan already has 12.9 million displaced, and conflict-induced food insecurity is likely to worsen without intervention.
+                - generic [ref=f1e366]: 📍 Darfur, Sudan · fly →
+                - generic [ref=f1e367]:
+                  - generic [ref=f1e368]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e369]: · split
+                  - generic [ref=f1e370]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e371] [cursor=pointer]:
+                - generic [ref=f1e372]:
+                  - generic [ref=f1e373]: Ubiquiti UniFi OS vulnerabilities lead to a coordinated attack compromising smart building systems at several U.S. airports, prompting CISA emergency directive.
+                  - generic [ref=f1e374]: 14%
+                - generic [ref=f1e377]: Multiple critical UniFi OS vulnerabilities listed, and past trends show exploitation in critical infrastructure; airports are high-profile targets.
+                - generic [ref=f1e378]: 📍 United States · fly →
+                - generic [ref=f1e379]:
+                  - generic [ref=f1e380]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e381]: · tap for deliberation →
+              - generic "Open the swarm deliberation" [ref=f1e382] [cursor=pointer]:
+                - generic [ref=f1e383]:
+                  - generic [ref=f1e384]: Zaporizhzhia Nuclear Power Plant is designated a permanent demilitarized zone under IAEA supervision, with all military forces withdrawn within a 30 km radius.
+                  - generic [ref=f1e385]: 7%
+                - generic [ref=f1e388]: Persistent proximity of active conflict to the plant necessitates international diplomatic resolution to prevent catastrophe.
+                - generic [ref=f1e389]: 📍 Zaporizhzhia, Ukraine · fly →
+                - generic [ref=f1e390]:
+                  - generic [ref=f1e391]: ⬡
+                  - text: swarm · 4 voices
+                  - generic [ref=f1e392]: · tap for deliberation →
+      - generic [ref=f1e80]:
+        - button "Toggle oracle deck" [ref=f1e81]:
+          - img [ref=f1e82]
+        - button "Ask PYTHIA chat" [active] [ref=f1e85]:
+          - img [ref=f1e86]
+        - button "Show credits" [ref=f1e88]:
+          - img [ref=f1e89]
+        - button "Toggle light or dark theme" [ref=f1e91]:
+          - img [ref=f1e497]
+      - generic:
+        - generic:
+          - generic:
+            - generic: WORLD
+          - generic:
+            - generic:
+              - generic:
+                - generic: At least 9 people killed, 56 wounded. Damage and destruction at over 30 different locations across K
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Overnight Russia launched 4 3M22 Tsirkon missiles, 24 ballistic missiles Iskander-M, 34 cruise missi
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "Paktia health officials have stated: 33 seriously injured individuals from the Pakistani military re"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Iran&#39;s President Pezeshkian says &#036;6 billion of Iranian assets in Qatar to be released, afte
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Ukrainian 79th Air Assault Brigade downed a Russian Eleron–3, now it&#39;s in the same situation as
+                - generic: · t.me/OSINTtechnical
+              - generic:
+                - generic: UK MOD update dives into the systematic failures of the Russian VKS- "In the conflict to date, Russi
+                - generic: · t.me/OSINTtechnical
+              - generic:
+                - generic: Имя @cyberknow выставлено на аукцион. Владелец установил минимальную ставку 💎80.
+                - generic: · t.me/CyberKnow
+              - generic:
+                - generic: The director of ambulance and emergency services at the Syrian Ministry of Health confirmed that the
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "SANA: The explosion in the Hijaz area occurred inside a cafe and caused injuries, according to initi"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: President Donald J. Trump has posted to Truth Social stating that representatives from the U.S. and
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "SANA correspondent in Daraa: Israeli forces targeted the village of Abdeen in the western countrysid"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: ❤️المانیتور گزارش داد؛ عصبانیت در اسرائیل بر سر رویکرد ونس در مذاکرات با ایران
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "وزارت خارجه بحرین:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "🚨دبیرکل شورای همکاری خلیج فارس: آمریکا به ما توضیحی درباره صندوق ۳۰۰ میلیارد دلاری نداده&#33;"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "گراهام، سناتور نزدیک به ترامپ:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: CNN برای منبع؛
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "آژانس کرایه:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "آژانس کرایه:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "هاآرتص عبری:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: Channel name was changed to «g»
+                - generic: · t.me/CyberKnow
+              - generic:
+                - generic: At least 9 people killed, 56 wounded. Damage and destruction at over 30 different locations across K
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Overnight Russia launched 4 3M22 Tsirkon missiles, 24 ballistic missiles Iskander-M, 34 cruise missi
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "Paktia health officials have stated: 33 seriously injured individuals from the Pakistani military re"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Iran&#39;s President Pezeshkian says &#036;6 billion of Iranian assets in Qatar to be released, afte
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: Ukrainian 79th Air Assault Brigade downed a Russian Eleron–3, now it&#39;s in the same situation as
+                - generic: · t.me/OSINTtechnical
+              - generic:
+                - generic: UK MOD update dives into the systematic failures of the Russian VKS- "In the conflict to date, Russi
+                - generic: · t.me/OSINTtechnical
+              - generic:
+                - generic: Имя @cyberknow выставлено на аукцион. Владелец установил минимальную ставку 💎80.
+                - generic: · t.me/CyberKnow
+              - generic:
+                - generic: The director of ambulance and emergency services at the Syrian Ministry of Health confirmed that the
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "SANA: The explosion in the Hijaz area occurred inside a cafe and caused injuries, according to initi"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: President Donald J. Trump has posted to Truth Social stating that representatives from the U.S. and
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: "SANA correspondent in Daraa: Israeli forces targeted the village of Abdeen in the western countrysid"
+                - generic: · t.me/Liveuamap
+              - generic:
+                - generic: ❤️المانیتور گزارش داد؛ عصبانیت در اسرائیل بر سر رویکرد ونس در مذاکرات با ایران
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "وزارت خارجه بحرین:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "🚨دبیرکل شورای همکاری خلیج فارس: آمریکا به ما توضیحی درباره صندوق ۳۰۰ میلیارد دلاری نداده&#33;"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "گراهام، سناتور نزدیک به ترامپ:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: CNN برای منبع؛
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "آژانس کرایه:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "آژانس کرایه:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: "هاآرتص عبری:"
+                - generic: · t.me/Faytuks
+              - generic:
+                - generic: Channel name was changed to «g»
+                - generic: · t.me/CyberKnow
+    - generic:
+      - button "2D MAP" [ref=f1e98]:
+        - img [ref=f1e99]
+        - generic [ref=f1e103]: 2D MAP
+      - button "SATELLITE" [ref=f1e104]:
+        - img [ref=f1e105]
+        - generic [ref=f1e111]: SATELLITE
+    - generic:
+      - generic:
+        - img
+        - generic:
+          - heading "OSIRIS" [level=1]
+          - generic: GLOBAL INTELLIGENCE COMMAND
+      - generic:
+        - generic: "POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE · C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK"
+    - generic:
+      - generic:
+        - generic: ZULU 19:42:30Z
+      - generic:
+        - text: "SYS:"
+        - generic: CONNECTED
+      - generic:
+        - text: "SOLAR:"
+        - generic: Kp0
+      - generic:
+        - generic: "12"
+        - generic: FEEDS
+      - generic: "UPTIME: 00:07:04"
+      - generic: V.4.1
+      - button "$OSIRIS" [ref=f1e112]:
+        - img [ref=f1e113]
+        - generic [ref=f1e116]: $OSIRIS
+      - link "SUPPORT PROJECT" [ref=f1e117] [cursor=pointer]:
+        - /url: https://ko-fi.com/M8D41ZYW4Z
+        - generic [ref=f1e119]: SUPPORT PROJECT
+    - generic [ref=f1e120]:
+      - generic [ref=f1e121]:
+        - img [ref=f1e124] [cursor=pointer]
+        - img [ref=f1e129] [cursor=pointer]
+        - img [ref=f1e135] [cursor=pointer]
+        - img [ref=f1e139] [cursor=pointer]
+        - img [ref=f1e143] [cursor=pointer]
+        - img [ref=f1e149] [cursor=pointer]
+        - img [ref=f1e157] [cursor=pointer]
+        - img [ref=f1e162] [cursor=pointer]
+        - img [ref=f1e167] [cursor=pointer]
+        - img [ref=f1e171] [cursor=pointer]
+        - img [ref=f1e178] [cursor=pointer]
+      - button "Ghost Protocol" [ref=f1e185] [cursor=pointer]:
+        - img [ref=f1e186]
+    - generic [ref=f1e188]:
+      - button [ref=f1e190]:
+        - img [ref=f1e191]
+      - button [ref=f1e199]:
+        - img [ref=f1e200]
+      - button [ref=f1e203]:
+        - img [ref=f1e204]
+      - button [ref=f1e207]:
+        - img [ref=f1e208]
+      - button [ref=f1e214]:
+        - img [ref=f1e215]
+    - generic [ref=f1e219]:
+      - generic [ref=f1e220]:
+        - generic [ref=f1e221]: COORD
+        - generic [ref=f1e222]: 45.4308, -92.9928
+      - generic [ref=f1e223]:
+        - generic [ref=f1e224]: LOC
+        - generic [ref=f1e225]: Stacy, Minnesota, United States
+      - generic [ref=f1e226]:
+        - generic [ref=f1e227]: Z
+        - generic [ref=f1e228]: "6.5"
+    - generic:
+      - generic:
+        - generic:
+          - generic: 100 km
+    - generic:
+      - generic:
+        - generic [ref=f1e396]: LIVE
+        - generic:
+          - generic:
+            - generic: "|"
+            - generic:
+              - generic:
+                - img
+                - generic: $61.5K
+              - generic:
+                - img
+                - generic: $1.7K
+              - generic:
+                - img
+                - generic: $80.87
+            - generic: "|"
+            - generic [ref=f1e397]:
+              - generic [ref=f1e398]: 🌋
+              - generic [ref=f1e399]: M4.3
+              - generic [ref=f1e400]: 26 km S of Maasim, Philippines
+            - generic [ref=f1e401]:
+              - generic [ref=f1e402]: 🌋
+              - generic [ref=f1e403]: M4.7
+              - generic [ref=f1e404]: 49 km NW of Yonakuni, Japan
+            - generic [ref=f1e405]:
+              - generic [ref=f1e406]: 🌋
+              - generic [ref=f1e407]: M4.7
+              - generic [ref=f1e408]: 39 km E of Uonuma, Japan
+            - generic [ref=f1e409]:
+              - generic [ref=f1e410]: 🌋
+              - generic [ref=f1e411]: M4.7
+              - generic [ref=f1e412]: 60 km WNW of Catuday, Philippines
+            - generic [ref=f1e413]:
+              - generic [ref=f1e414]: 🌋
+              - generic [ref=f1e415]: M5.2
+              - generic [ref=f1e416]: 23 km SSE of Karpathos, Greece
+            - generic: "|"
+            - generic:
+              - generic:
+                - img
+                - generic: $61.5K
+              - generic:
+                - img
+                - generic: $1.7K
+              - generic:
+                - img
+                - generic: $80.87
+            - generic: "|"
+            - generic [ref=f1e417]:
+              - generic [ref=f1e418]: 🌋
+              - generic [ref=f1e419]: M4.3
+              - generic [ref=f1e420]: 26 km S of Maasim, Philippines
+            - generic [ref=f1e421]:
+              - generic [ref=f1e422]: 🌋
+              - generic [ref=f1e423]: M4.7
+              - generic [ref=f1e424]: 49 km NW of Yonakuni, Japan
+            - generic [ref=f1e425]:
+              - generic [ref=f1e426]: 🌋
+              - generic [ref=f1e427]: M4.7
+              - generic [ref=f1e428]: 39 km E of Uonuma, Japan
+            - generic [ref=f1e429]:
+              - generic [ref=f1e430]: 🌋
+              - generic [ref=f1e431]: M4.7
+              - generic [ref=f1e432]: 60 km WNW of Catuday, Philippines
+            - generic [ref=f1e433]:
+              - generic [ref=f1e434]: 🌋
+              - generic [ref=f1e435]: M5.2
+              - generic [ref=f1e436]: 23 km SSE of Karpathos, Greece
+            - generic: "|"
+            - generic:
+              - generic:
+                - img
+                - generic: $61.5K
+              - generic:
+                - img
+                - generic: $1.7K
+              - generic:
+                - img
+                - generic: $80.87
+            - generic: "|"
+            - generic [ref=f1e437]:
+              - generic [ref=f1e438]: 🌋
+              - generic [ref=f1e439]: M4.3
+              - generic [ref=f1e440]: 26 km S of Maasim, Philippines
+            - generic [ref=f1e441]:
+              - generic [ref=f1e442]: 🌋
+              - generic [ref=f1e443]: M4.7
+              - generic [ref=f1e444]: 49 km NW of Yonakuni, Japan
+            - generic [ref=f1e445]:
+              - generic [ref=f1e446]: 🌋
+              - generic [ref=f1e447]: M4.7
+              - generic [ref=f1e448]: 39 km E of Uonuma, Japan
+            - generic [ref=f1e449]:
+              - generic [ref=f1e450]: 🌋
+              - generic [ref=f1e451]: M4.7
+              - generic [ref=f1e452]: 60 km WNW of Catuday, Philippines
+            - generic [ref=f1e453]:
+              - generic [ref=f1e454]: 🌋
+              - generic [ref=f1e455]: M5.2
+              - generic [ref=f1e456]: 23 km SSE of Karpathos, Greece
+            - generic: "|"
+            - generic:
+              - generic:
+                - img
+                - generic: $61.5K
+              - generic:
+                - img
+                - generic: $1.7K
+              - generic:
+                - img
+                - generic: $80.87
+            - generic: "|"
+            - generic [ref=f1e457]:
+              - generic [ref=f1e458]: 🌋
+              - generic [ref=f1e459]: M4.3
+              - generic [ref=f1e460]: 26 km S of Maasim, Philippines
+            - generic [ref=f1e461]:
+              - generic [ref=f1e462]: 🌋
+              - generic [ref=f1e463]: M4.7
+              - generic [ref=f1e464]: 49 km NW of Yonakuni, Japan
+            - generic [ref=f1e465]:
+              - generic [ref=f1e466]: 🌋
+              - generic [ref=f1e467]: M4.7
+              - generic [ref=f1e468]: 39 km E of Uonuma, Japan
+            - generic [ref=f1e469]:
+              - generic [ref=f1e470]: 🌋
+              - generic [ref=f1e471]: M4.7
+              - generic [ref=f1e472]: 60 km WNW of Catuday, Philippines
+            - generic [ref=f1e473]:
+              - generic [ref=f1e474]: 🌋
+              - generic [ref=f1e475]: M5.2
+              - generic [ref=f1e476]: 23 km SSE of Karpathos, Greece
+    - generic: "[?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW"
+  - button "Open Next.js Dev Tools" [ref=f1e482] [cursor=pointer]:
+    - img [ref=f1e483]
+  - alert [ref=f1e486]

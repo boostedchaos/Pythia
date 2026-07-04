@@ -1,0 +1,16 @@
+[     100ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[     110ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[     196ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3001/?layers=predictions,displacement,earthquakes,day_night:0
+[     196ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd:0
+[   60183ms] [ERROR] Access to fetch at 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://localhost:3001/?layers=earthquakes,day_night,predictions,displacement:0
+[   60183ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd:0
+[   70178ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/links:0
+[   70884ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/state:0
+[   73370ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/state:0
+[   75177ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/links:0
+[   75868ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/state:0
+[   77889ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[   78076ms] [LOG] [Fast Refresh] done in 289ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  147399ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:3001/api/engine/state:0
+[  148991ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477
+[  148994ms] [LOG] [Fast Refresh] done in 105ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_115brz8._.js:2477

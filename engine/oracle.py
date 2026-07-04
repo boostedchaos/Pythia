@@ -5,13 +5,14 @@ No Zep, no cloud, no cost.
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from typing import Awaitable, Callable, Optional
 
 import httpx
 
-from .config import CONFIG, HTTPX_VERIFY
+from .config import CONFIG, HTTPX_VERIFY, OPENROUTER_HEADERS
 from .models import Prediction, WorldBrief
 
 log = logging.getLogger("pythia.oracle")
@@ -41,15 +42,25 @@ def _norm_horizon(h: str) -> str:
 
 
 class Oracle:
-    def __init__(self) -> None:
-        self.base = CONFIG.llm_base_url.rstrip("/")
-        self.key = CONFIG.llm_api_key
-        self.model = CONFIG.llm_model
+    """An OpenAI-compatible chat client. Defaults to the configured primary backend;
+    pass base/key/model to point a single instance (e.g. one swarm persona) elsewhere."""
+
+    def __init__(self, base: str | None = None, key: str | None = None,
+                 model: str | None = None, extra_headers: dict | None = None) -> None:
+        self.base = (base or CONFIG.llm_base_url).rstrip("/")
+        self.key = key or CONFIG.llm_api_key
+        self.model = model or CONFIG.llm_model
+        # OpenRouter wants attribution headers; skip them for a plain local host.
+        self.extra_headers = (extra_headers if extra_headers is not None
+                              else (OPENROUTER_HEADERS if "openrouter" in self.base else {}))
+
+    def _headers(self) -> dict:
+        return {"Authorization": f"Bearer {self.key}", **self.extra_headers}
 
     async def health(self) -> bool:
         try:
             async with httpx.AsyncClient(verify=HTTPX_VERIFY, timeout=5) as c:
-                r = await c.get(f"{self.base}/models", headers={"Authorization": f"Bearer {self.key}"})
+                r = await c.get(f"{self.base}/models", headers=self._headers())
                 return r.status_code < 500
         except Exception:  # noqa: BLE001 — health is a status dot; never raise
             return False
@@ -58,7 +69,7 @@ class Oracle:
         """Scan the LLM backend (Ollama) for installed models."""
         try:
             async with httpx.AsyncClient(verify=HTTPX_VERIFY, timeout=8) as c:
-                r = await c.get(f"{self.base}/models", headers={"Authorization": f"Bearer {self.key}"})
+                r = await c.get(f"{self.base}/models", headers=self._headers())
                 r.raise_for_status()
                 data = r.json().get("data", [])
                 names = sorted({m.get("id", "") for m in data if m.get("id")})
@@ -70,10 +81,13 @@ class Oracle:
     def _prompt(self, brief: WorldBrief) -> str:
         horizons = ", ".join(f'"{h}"' for h in CONFIG.horizons)
         spans = "; ".join(f"{h} = {_HORIZON_LABEL.get(h, h)}" for h in CONFIG.horizons)
+        market_note = (
+            "Note: any [MARKET-ODDS] signals are real-money crowd probabilities from Polymarket — "
+            "treat them as strong anchors; you may sharpen or disagree with them, but stay calibrated.\n"
+        ) if "[MARKET-ODDS]" in brief.text else ""
         return (
             f"=== LIVE WORLD SNAPSHOT ({brief.event_count} signals) ===\n{brief.text}\n\n"
-            f"Note: any [MARKET-ODDS] signals are real-money crowd probabilities from Polymarket — "
-            f"treat them as strong anchors; you may sharpen or disagree with them, but stay calibrated.\n"
+            f"{market_note}"
             f"Give {CONFIG.predictions_per_horizon} concrete predictions for EACH horizon ({spans}).\n"
             f"Return ONLY a JSON array. Each element exactly:\n"
             f'{{"statement": "<specific predicted event>", "horizon": <one of {horizons}>, '
@@ -92,15 +106,30 @@ class Oracle:
         return preds
 
     async def _chat(self, user: str) -> str:
-        return await self._complete([{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}], 1400)
+        return await self._complete([{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}], 4000)
 
-    async def _complete(self, messages: list[dict], max_tokens: int = 900) -> str:
+    async def _complete(self, messages: list[dict], max_tokens: int = 2000) -> str:
+        # Reasoning models spend completion tokens on hidden reasoning before any content,
+        # so budgets must be generous or `content` comes back null / truncated.
         body = {"model": self.model, "messages": messages, "temperature": CONFIG.temperature, "max_tokens": max_tokens}
         async with httpx.AsyncClient(verify=HTTPX_VERIFY, timeout=CONFIG.request_timeout) as c:
-            r = await c.post(f"{self.base}/chat/completions", json=body,
-                             headers={"Authorization": f"Bearer {self.key}"})
-            r.raise_for_status()
-            return r.json()["choices"][0]["message"]["content"]
+            # one retry on transient failure (transport error or 5xx) — never on 4xx
+            for attempt in (0, 1):
+                try:
+                    r = await c.post(f"{self.base}/chat/completions", json=body, headers=self._headers())
+                    if r.status_code >= 500 and attempt == 0:
+                        log.warning("%s returned %d — retrying once", self.model, r.status_code)
+                        await asyncio.sleep(2)
+                        continue
+                    r.raise_for_status()
+                    # never crash on a null/absent content (reasoning-only or truncated reply)
+                    return r.json()["choices"][0]["message"].get("content") or ""
+                except httpx.TransportError as e:
+                    if attempt:
+                        raise
+                    log.warning("%s transport error (%s) — retrying once", self.model, e)
+                    await asyncio.sleep(2)
+            raise httpx.HTTPStatusError("retries exhausted", request=r.request, response=r)
 
     async def chat(self, question: str, brief, predictions, history=None) -> str:
         """Answer a free-form question grounded in EVERY live source + current predictions."""
@@ -117,11 +146,11 @@ class Oracle:
                "user's question using the live data below and sound reasoning. Be specific and concise, cite "
                "concrete signals, and give probabilities when it helps. If the data doesn't cover something, say so.")
         messages: list[dict] = [{"role": "system", "content": sys}]
-        for h in (history or [])[-6:]:
+        for h in [x for x in (history or []) if isinstance(x, dict)][-6:]:
             role = "assistant" if h.get("role") == "assistant" else "user"
             messages.append({"role": role, "content": str(h.get("content", ""))[:2000]})
         messages.append({"role": "user", "content": f"{context}\n\n— USER QUESTION —\n{question}"})
-        return await self._complete(messages, 800)
+        return await self._complete(messages, 2000)
 
     @staticmethod
     def _extract_objects(text: str) -> list[str]:

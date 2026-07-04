@@ -1,0 +1,89 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]: V4.2
+    - generic [ref=e15]:
+      - generic [ref=e16]: O
+      - generic [ref=e17]: S
+      - generic [ref=e18]: I
+      - generic [ref=e19]: R
+      - generic [ref=e20]: I
+      - generic [ref=e21]: S
+    - generic:
+      - generic:
+        - paragraph: GLOBAL INTELLIGENCE PLATFORM
+    - generic [ref=e24]:
+      - generic [ref=e25]: ESTABLISHING SECURE CONNECTION...
+      - generic [ref=e26]: INITIALIZING FEEDS...
+      - generic [ref=e27]: CALIBRATING SENSORS...
+      - generic [ref=e28]: SYSTEM READY
+  - generic:
+    - button "2D MAP" [ref=e33]:
+      - img [ref=e34]
+      - generic [ref=e38]: 2D MAP
+    - button "SATELLITE" [ref=e39]:
+      - img [ref=e40]
+      - generic [ref=e46]: SATELLITE
+  - generic:
+    - generic:
+      - img
+      - generic:
+        - heading "OSIRIS" [level=1]
+        - generic: GLOBAL INTELLIGENCE COMMAND
+    - generic:
+      - generic: "POWERED BY OSIRIS OPEN SOURCE INTELLIGENCE · C2 ENGINE: PHYSICAL COMMAND CORE · SENSORS: ORBITAL LATTICE · NET: LYCAN NETWORK"
+  - generic:
+    - generic:
+      - generic: ZULU --:--:--Z
+    - generic:
+      - text: "SYS:"
+      - generic: CONNECTING
+    - generic:
+      - generic: "11"
+      - generic: FEEDS
+    - generic: "UPTIME: 00:00:00"
+    - generic: V.4.1
+    - button "$OSIRIS" [ref=e47]:
+      - img [ref=e48]
+      - generic [ref=e51]: $OSIRIS
+    - link "SUPPORT PROJECT" [ref=e52] [cursor=pointer]:
+      - /url: https://ko-fi.com/M8D41ZYW4Z
+      - generic [ref=e54]: SUPPORT PROJECT
+  - generic [ref=e55]:
+    - generic [ref=e56]:
+      - img [ref=e59] [cursor=pointer]
+      - img [ref=e65] [cursor=pointer]
+      - img [ref=e69] [cursor=pointer]
+      - img [ref=e75] [cursor=pointer]
+      - img [ref=e83] [cursor=pointer]
+      - img [ref=e88] [cursor=pointer]
+      - img [ref=e93] [cursor=pointer]
+      - img [ref=e97] [cursor=pointer]
+      - img [ref=e104] [cursor=pointer]
+    - button "Ghost Protocol" [ref=e111] [cursor=pointer]:
+      - img [ref=e112]
+  - generic [ref=e114]:
+    - button [ref=e116]:
+      - img [ref=e117]
+    - button [ref=e125]:
+      - img [ref=e126]
+    - button [ref=e129]:
+      - img [ref=e130]
+    - button [ref=e133]:
+      - img [ref=e134]
+    - button [ref=e140]:
+      - img [ref=e141]
+  - generic [ref=e145]:
+    - generic [ref=e146]:
+      - generic [ref=e147]: COORD
+      - generic [ref=e148]: —
+    - generic [ref=e149]:
+      - generic [ref=e150]: LOC
+      - generic [ref=e151]: HOVER MAP
+    - generic [ref=e152]:
+      - generic [ref=e153]: Z
+      - generic [ref=e154]: "2.5"
+  - generic:
+    - generic:
+      - generic:
+        - generic: 2000 km
+  - generic: "[?] SHORTCUTS · [F] FULLSCREEN · [S] SHARE · [R] RESET VIEW"

@@ -1,4 +1,4 @@
-"""Boot the PYTHIA engine (FastAPI + Kalshi WS + autoscan loop)."""
+"""Boot the PYTHIA engine (FastAPI server + sense/oracle loops)."""
 from __future__ import annotations
 
 import uvicorn

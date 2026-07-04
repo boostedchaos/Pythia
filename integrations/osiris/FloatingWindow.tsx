@@ -26,7 +26,10 @@ export default function FloatingWindow({ title, icon, initial, z, onClose, onFoc
     const move = (e: MouseEvent) => {
       if (drag.current) {
         const d = drag.current;
-        setPos({ x: Math.max(0, d.px + e.clientX - d.sx), y: Math.max(0, d.py + e.clientY - d.sy) });
+        setPos({
+          x: Math.min(Math.max(0, d.px + e.clientX - d.sx), window.innerWidth - 120),
+          y: Math.min(Math.max(0, d.py + e.clientY - d.sy), window.innerHeight - 40),
+        });
       } else if (rez.current) {
         const r = rez.current;
         setSize({ w: Math.max(260, r.pw + e.clientX - r.sx), h: Math.max(160, r.ph + e.clientY - r.sy) });
@@ -44,18 +47,18 @@ export default function FloatingWindow({ title, icon, initial, z, onClose, onFoc
   return (
     <div
       className="fixed glass-panel pointer-events-auto flex flex-col overflow-hidden"
-      style={{ left: pos.x, top: pos.y, width: size.w, height: min ? undefined : size.h, zIndex: z, boxShadow: '0 12px 48px rgba(0,0,0,0.6)' }}
+      style={{ left: pos.x, top: pos.y, width: size.w, height: min ? undefined : size.h, zIndex: z, boxShadow: 'var(--fw-shadow, 0 12px 48px rgba(0,0,0,0.6))' }}
       onMouseDown={onFocus}
     >
-      <div className="flex items-center justify-between px-2.5 py-1.5 cursor-move select-none border-b border-[var(--border-secondary)]" style={{ background: 'rgba(255,255,255,0.03)' }} onMouseDown={startDrag}>
+      <div className="flex items-center justify-between px-2.5 py-1.5 cursor-move select-none border-b border-[var(--border-secondary)]" style={{ background: 'var(--fw-header-bg, rgba(255,255,255,0.03))' }} onMouseDown={startDrag}>
         <div className="flex items-center gap-1.5 min-w-0">
           {icon}
           <span className="text-[10px] font-mono tracking-wider text-[var(--text-primary)] truncate">{title}</span>
         </div>
         <div className="flex items-center gap-2 shrink-0 pl-2">
           {headerRight}
-          <button onClick={(e) => { e.stopPropagation(); setMin((m) => !m); }} title="Minimize" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Minus className="w-3 h-3" /></button>
-          <button onClick={(e) => { e.stopPropagation(); onClose(); }} title="Close" className="text-[var(--text-muted)] hover:text-[var(--alert-red)]"><X className="w-3 h-3" /></button>
+          <button onClick={(e) => { e.stopPropagation(); setMin((m) => !m); }} title="Minimize" aria-label="Minimize window" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Minus className="w-3 h-3" /></button>
+          <button onClick={(e) => { e.stopPropagation(); onClose(); }} title="Close" aria-label="Close window" className="text-[var(--text-muted)] hover:text-[var(--alert-red)]"><X className="w-3 h-3" /></button>
         </div>
       </div>
       {!min && <div className="flex-1 overflow-hidden relative">{children}</div>}

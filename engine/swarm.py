@@ -12,6 +12,7 @@ import json
 import logging
 
 from .models import AgentView, Prediction, WorldBrief
+from .world_state import BRIEF_CHARS
 
 log = logging.getLogger("pythia.swarm")
 
@@ -40,23 +41,33 @@ def _persona_messages(name: str, lens: str, brief_text: str, preds: list[Predict
         f'{{"i": <index>, "p": <0-100>, "note": "<your 1-2 sentence argument>"}}. No prose, no markdown.'
     )
     user = (
-        f"=== LIVE WORLD SNAPSHOT ===\n{brief_text[:2600]}\n\n"
+        f"=== LIVE WORLD SNAPSHOT ===\n{brief_text[:BRIEF_CHARS]}\n\n"
         f"=== CANDIDATE PREDICTIONS ===\n{listing}\n\n"
         f"Score every prediction from your lens. JSON array only."
     )
     return [{"role": "system", "content": system}, {"role": "user", "content": user}]
 
 
-async def _ask(oracle, name: str, lens: str, brief_text: str,
-               preds: list[Prediction]) -> tuple[str, dict[int, tuple[float, str]]]:
-    """Run one persona; return its {prediction_index: (probability, note)} map."""
+async def _ask(client, name: str, lens: str, brief_text: str, preds: list[Prediction],
+               fallback=None) -> tuple[str, dict[int, tuple[float, str]]]:
+    """Run one persona on its own model; return its {prediction_index: (probability, note)}
+    map. On transport/5xx failure, retry once against `fallback` (mirrors the Triad pattern)."""
+    messages = _persona_messages(name, lens, brief_text, preds)
+    text = None
     try:
-        text = await oracle._complete(_persona_messages(name, lens, brief_text, preds), max_tokens=1300)
+        text = await client._complete(messages, max_tokens=3000)
     except Exception as e:  # noqa: BLE001
-        log.warning("swarm persona %s failed: %s", name, e)
+        log.warning("swarm persona %s (%s) failed: %s", name, client.model, e)
+        if fallback is not None and fallback is not client:
+            try:
+                text = await fallback._complete(messages, max_tokens=3000)
+                log.info("swarm persona %s fell back to %s", name, fallback.model)
+            except Exception as e2:  # noqa: BLE001
+                log.warning("swarm persona %s fallback (%s) failed: %s", name, fallback.model, e2)
+    if text is None:
         return name, {}
     scored: dict[int, tuple[float, str]] = {}
-    for chunk in oracle._extract_objects(text):
+    for chunk in client._extract_objects(text):
         try:
             o = json.loads(chunk)
         except (ValueError, TypeError):
@@ -75,17 +86,21 @@ async def _ask(oracle, name: str, lens: str, brief_text: str,
     return name, scored
 
 
-async def deliberate(oracle, brief: WorldBrief | None, predictions: list[Prediction],
-                     on_stage=None) -> list[Prediction]:
-    """Have the persona council weigh in; enrich each prediction with agent votes,
-    a consensus probability, and a `split` flag when they disagree sharply."""
+async def deliberate(persona_clients: dict, brief: WorldBrief | None, predictions: list[Prediction],
+                     on_stage=None, fallback=None) -> list[Prediction]:
+    """Have the persona council weigh in — each on its OWN model — enriching every
+    prediction with agent votes, a consensus probability, and a `split` flag when they
+    disagree sharply. `persona_clients` maps persona name -> LLM client; `fallback` is the
+    client to retry with if a persona's model errors."""
     if not predictions:
         return predictions
     subset = predictions[:_MAX_PREDS]
     if on_stage:
         await on_stage("deliberating", f"swarm of {len(PERSONAS)} weighing {len(subset)} forecasts")
     brief_text = brief.text if brief else ""
-    results = await asyncio.gather(*[_ask(oracle, n, l, brief_text, subset) for n, l in PERSONAS])
+    results = await asyncio.gather(*[
+        _ask(persona_clients.get(n, fallback), n, l, brief_text, subset, fallback=fallback)
+        for n, l in PERSONAS])
 
     enriched = 0
     for idx, pred in enumerate(subset):
