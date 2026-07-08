@@ -5,6 +5,9 @@ from collections import defaultdict
 
 from .models import WorldBrief, WorldEvent
 
+# One snapshot budget for everyone who reads the brief (oracle draft AND swarm personas).
+BRIEF_CHARS = 6500
+
 
 def build_brief(events: list[WorldEvent]) -> WorldBrief:
     by_cat: dict[str, list[WorldEvent]] = defaultdict(list)
@@ -29,6 +32,6 @@ def build_brief(events: list[WorldEvent]) -> WorldBrief:
     return WorldBrief(
         event_count=len(events),
         domains=domains,
-        text=text[:6500],
+        text=text[:BRIEF_CHARS],
         top_events=top[:24],
     )

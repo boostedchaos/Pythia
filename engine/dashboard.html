@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PYTHIA — live swarm</title>
+<style>
+  :root { --bg:#0a0e14; --panel:#111823; --edge:#1e2a3a; --ink:#e6edf3; --dim:#7d8ea3;
+          --hot:#ff5d5d; --warm:#ffb454; --cool:#5db0ff; --good:#54d18c; --split:#c678dd; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:14px/1.5 ui-monospace,"SF Mono",Menlo,monospace; }
+  header { position:sticky; top:0; z-index:5; display:flex; gap:16px; align-items:center;
+           flex-wrap:wrap; padding:12px 18px; background:#0c1220ee; backdrop-filter:blur(8px);
+           border-bottom:1px solid var(--edge); }
+  h1 { font-size:16px; letter-spacing:.28em; margin:0; font-weight:600; }
+  .dot { width:9px; height:9px; border-radius:50%; background:#444; display:inline-block; }
+  .dot.on { background:var(--good); box-shadow:0 0 8px var(--good); }
+  .dot.busy { background:var(--warm); box-shadow:0 0 8px var(--warm); animation:pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity:.35; } }
+  .meta { color:var(--dim); font-size:12px; }
+  button { background:var(--cool); color:#04121f; border:0; border-radius:6px; padding:7px 14px;
+           font:inherit; font-weight:700; cursor:pointer; letter-spacing:.05em; }
+  button.ghost { background:transparent; color:var(--dim); border:1px solid var(--edge); font-weight:400; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  #summary { color:var(--dim); font-size:12px; padding:10px 18px; border-bottom:1px solid var(--edge);
+             white-space:pre-wrap; max-height:96px; overflow:auto; }
+  #chips { display:flex; gap:6px; flex-wrap:wrap; padding:8px 18px; border-bottom:1px solid var(--edge); }
+  .chip { background:var(--panel); border:1px solid var(--edge); border-radius:20px; padding:2px 10px;
+          font-size:11px; color:var(--dim); }
+  #track { display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:8px 18px;
+           border-bottom:1px solid var(--edge); font-size:11px; color:var(--dim); }
+  #track .chip b { color:var(--ink); }
+  #cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; padding:16px; }
+  .col h2 { font-size:12px; letter-spacing:.2em; color:var(--dim); text-transform:uppercase;
+            border-bottom:1px solid var(--edge); padding-bottom:6px; margin:0 0 10px; }
+  .card { background:var(--panel); border:1px solid var(--edge); border-radius:10px; padding:12px 14px;
+          margin-bottom:12px; animation:in .3s ease; }
+  @keyframes in { from { opacity:0; transform:translateY(6px); } }
+  .stmt { font-size:13px; margin-bottom:8px; }
+  .loc { color:var(--dim); font-size:11px; }
+  .prob { float:right; font-size:22px; font-weight:700; margin-left:8px; }
+  .band { font-size:11px; color:var(--dim); margin:4px 0 10px; }
+  .split { display:inline-block; background:var(--split); color:#120a1a; font-weight:700;
+           border-radius:4px; padding:0 6px; font-size:10px; letter-spacing:.08em; margin-left:6px; }
+  .agent { border-top:1px dashed var(--edge); padding:6px 0; }
+  .agent .row { display:flex; justify-content:space-between; gap:8px; }
+  .agent .name { font-weight:700; }
+  .agent .model { color:var(--dim); font-size:10px; }
+  .agent .p { font-weight:700; }
+  .agent .note { color:var(--dim); font-size:11px; margin-top:2px; }
+  .empty { color:var(--dim); padding:40px 18px; text-align:center; }
+  #log { color:var(--dim); font-size:11px; padding:4px 18px 18px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PYTHIA</h1>
+  <span><span id="sse" class="dot"></span> <span class="meta" id="sseTxt">connecting…</span></span>
+  <span class="meta">oracle: <b id="model">—</b></span>
+  <span class="meta"><span id="ecount">0</span> signals</span>
+  <span style="flex:1"></span>
+  <span><span id="gen" class="dot"></span> <span class="meta" id="stage">idle</span></span>
+  <button id="predict">PREDICT NOW</button>
+  <button id="loop" class="ghost">auto-loop: off</button>
+</header>
+<div id="summary">waiting for the first world brief…</div>
+<div id="chips"></div>
+<div id="track"></div>
+<div id="cols"></div>
+<div id="log"></div>
+
+<script>
+const HORIZONS = ["24h","week","month","year"];
+let personaModel = {};   // name -> model slug, from /config
+
+const $ = s => document.querySelector(s);
+const pct = p => Math.round((p||0)*100);
+const color = p => p>=0.66 ? "var(--hot)" : p>=0.4 ? "var(--warm)" : "var(--cool)";
+const esc = s => (s||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+async function loadConfig(){
+  try { const c = await (await fetch("/config")).json();
+        personaModel = c.swarm_models || {}; $("#model").textContent = c.llm_model || "—"; } catch {}
+}
+
+function render(preds){
+  const cols = $("#cols"); cols.innerHTML = "";
+  if(!preds || !preds.length){ cols.innerHTML = '<div class="empty">No predictions yet — press <b>PREDICT NOW</b>.</div>'; return; }
+  for(const h of HORIZONS){
+    const items = preds.filter(p => p.horizon === h);
+    if(!items.length) continue;
+    const col = document.createElement("div"); col.className = "col";
+    col.innerHTML = `<h2>${h} · ${items.length}</h2>`;
+    for(const p of items.sort((a,b)=>b.probability-a.probability)) col.appendChild(card(p));
+    cols.appendChild(col);
+  }
+}
+
+function card(p){
+  const el = document.createElement("div"); el.className = "card";
+  const draft = p.base_probability!=null ? `oracle draft ${pct(p.base_probability)}% → swarm ${pct(p.probability)}%` : `probability ${pct(p.probability)}%`;
+  let agents = "";
+  for(const a of (p.agents||[])){
+    agents += `<div class="agent"><div class="row">
+      <span><span class="name">${esc(a.name)}</span> <span class="model">${esc(personaModel[a.name]||"")}</span></span>
+      <span class="p" style="color:${color(a.probability)}">${pct(a.probability)}%</span></div>
+      <div class="note">${esc(a.note)}</div></div>`;
+  }
+  el.innerHTML = `<span class="prob" style="color:${color(p.probability)}">${pct(p.probability)}%</span>
+    <div class="stmt">${esc(p.statement)}${p.split?'<span class="split">SPLIT</span>':''}</div>
+    <div class="loc">${esc(p.location||"")}</div>
+    <div class="band">${draft}</div>${agents}`;
+  return el;
+}
+
+function applyWorld(w){
+  if(!w) return;
+  $("#ecount").textContent = w.event_count ?? 0;
+  $("#summary").textContent = w.text || "(brief empty)";
+  const chips = $("#chips"); chips.innerHTML = "";
+  for(const [d,n] of Object.entries(w.domains||{}).sort((a,b)=>b[1]-a[1])){
+    const c = document.createElement("span"); c.className="chip"; c.textContent = `${d} ${n}`; chips.appendChild(c);
+  }
+}
+
+function setGen(on){ $("#gen").className = "dot " + (on?"busy":""); if(!on) $("#stage").textContent="idle"; }
+
+function applyTrack(t){
+  const el = $("#track");
+  if(!t || !t.resolved){ el.innerHTML = '<span>track record: no resolved forecasts yet</span>'; return; }
+  let html = `<span class="chip">Brier <b>${t.brier}</b> (${t.resolved} resolved)</span>`;
+  if(t.brier_base!=null) html += `<span class="chip">draft ${t.brier_base}</span>`;
+  if(t.brier_baserate!=null){
+    const beat = t.brier < t.brier_baserate;   // is the swarm actually better than trivial?
+    html += `<span class="chip" title="Brier of always predicting the ${t.base_rate!=null?Math.round(t.base_rate*100)+'%':''} base rate — the real bar to beat">`
+          + `base-rate ${beat?'✓':'⚠'} <b>${t.brier_baserate}</b></span>`;
+  }
+  html += `<span class="chip">${t.pending} pending · ${t.unresolvable} unresolvable</span>`;
+  for(const [n,v] of Object.entries(t.by_persona||{}))
+    html += `<span class="chip">${esc(n)} <b>${v.brier}</b> (${v.n})</span>`;
+  el.innerHTML = html;
+}
+
+function connect(){
+  const es = new EventSource("/state/stream");
+  es.onopen = () => { $("#sse").className="dot on"; $("#sseTxt").textContent="live"; };
+  es.onerror = () => { $("#sse").className="dot"; $("#sseTxt").textContent="reconnecting…"; };
+  es.onmessage = ev => {
+    let m; try { m = JSON.parse(ev.data); } catch { return; }
+    if(m.kind==="snapshot"){ const s=m.payload; applyWorld(s.world); render(s.predictions); setGen(s.generating);
+                             applyTrack(s.track_record);
+                             $("#loop").textContent = "auto-loop: " + (s.loop_enabled?"on":"off"); }
+    else if(m.kind==="track") applyTrack(m.payload);
+    else if(m.kind==="predictions") render(m.payload);
+    else if(m.kind==="world") applyWorld(m.payload);
+    else if(m.kind==="generating") setGen(m.payload.generating);
+    else if(m.kind==="run"){ const r=m.payload; if(r.stage) $("#stage").textContent = r.stage;
+                             $("#log").textContent = `run ${r.stage}` + (r.error?` — ${r.error}`:"") + `  (${r.elapsed_ms||0}ms)`; }
+    else if(m.kind==="model"){ $("#model").textContent = m.payload.model; }
+    else if(m.kind==="loop"){ $("#loop").textContent = "auto-loop: " + (m.payload.enabled?"on":"off"); }
+  };
+}
+
+$("#predict").onclick = async e => { e.target.disabled=true; setGen(true); $("#stage").textContent="starting…";
+  try { await fetch("/predict",{method:"POST"}); } finally { setTimeout(()=>e.target.disabled=false, 3000); } };
+$("#loop").onclick = async () => { const on = $("#loop").textContent.includes("off");
+  await fetch("/loop",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({enabled:on})}); };
+
+loadConfig(); connect();
+</script>
+</body>
+</html>

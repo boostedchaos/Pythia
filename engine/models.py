@@ -55,7 +55,6 @@ class Prediction(BaseModel):
     horizon: str                        # 24h | week | month | year
     probability: float                  # 0..1 (consensus after swarm deliberation)
     reasoning: str = ""
-    drivers: list[str] = Field(default_factory=list)   # signals that informed it
     location: str = ""                  # human place name (e.g. "Strait of Hormuz")
     lat: Optional[float] = None         # approx coords so the UI can fly there
     lng: Optional[float] = None

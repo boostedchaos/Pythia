@@ -9,11 +9,12 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
+from datetime import datetime
 
 import httpx
 
 from .config import CONFIG, HTTPX_VERIFY
-from .models import WorldEvent
+from .models import WorldEvent, now_ms
 
 log = logging.getLogger("pythia.intake")
 
@@ -106,6 +107,22 @@ def _salience(title: str, summary: str, raw: dict) -> float:
     return round(min(1.0, score), 2)
 
 
+def _event_ts(d: dict) -> int | None:
+    """Epoch-ms from common feed fields: numeric epoch (USGS `time`) or ISO strings."""
+    for k in ("time", "timestamp"):
+        v = d.get(k)
+        if isinstance(v, (int, float)) and v > 1e9:
+            return int(v if v > 1e12 else v * 1000)
+    for k in ("date", "published_at", "published", "pubDate", "updated", "seendate"):
+        v = d.get(k)
+        if isinstance(v, str):
+            try:
+                return int(datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp() * 1000)
+            except ValueError:
+                continue
+    return None
+
+
 def _to_event(d: dict, source: str, category: str) -> WorldEvent | None:
     title = _text(d, "title", "name", "headline", "question", "html", "place")
     mag = d.get("magnitude") or d.get("mag")
@@ -135,6 +152,7 @@ def _to_event(d: dict, source: str, category: str) -> WorldEvent | None:
         lng=lng,
         url=_text(d, "url", "link", "feed_url"),
         salience=_salience(title, summary, d),
+        ts=_event_ts(d) or now_ms(),
         raw={k: d[k] for k in list(d)[:25]},
     )
 
@@ -228,6 +246,9 @@ def _unrest_events(data: dict) -> list[WorldEvent]:
 class OsirisIntake:
     def __init__(self, base_url: str | None = None):
         self.base = (base_url or CONFIG.osiris_url).rstrip("/")
+        # dedup-key -> first-seen epoch ms, so events rebuilt every fetch keep a
+        # stable timestamp and `?since=` filtering actually means something
+        self._first_seen: dict[str, int] = {}
 
     async def health(self) -> bool:
         try:
@@ -287,5 +308,10 @@ class OsirisIntake:
             key = ev.title.lower()[:80]
             if key not in seen or ev.salience > seen[key].salience:
                 seen[key] = ev
+        # pin each event to its earliest known timestamp (feed ts wins if older)
+        for key, ev in seen.items():
+            ev.ts = min(ev.ts, self._first_seen.setdefault(key, ev.ts))
+        if len(self._first_seen) > 5000:   # ponytail: crude prune; fine at ~250 events/fetch
+            self._first_seen = {k: self._first_seen[k] for k in seen}
         ranked = sorted(seen.values(), key=lambda e: e.salience, reverse=True)
         return ranked[:limit]

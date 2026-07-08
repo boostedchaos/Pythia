@@ -11,11 +11,16 @@ type Links = {
 };
 
 function StatusDot({ on, label }: { on?: boolean; label: string }) {
+  // offline = hollow ring, not just a color change (color-blind safe)
   return (
     <span
+      role="img"
+      aria-label={`${label}: ${on ? 'connected' : 'offline'}`}
       title={`${label}: ${on ? 'connected' : 'offline'}`}
       className="w-2 h-2 rounded-full transition-colors"
-      style={{ background: on ? 'var(--cyan-primary)' : 'var(--alert-red)', boxShadow: on ? '0 0 6px var(--cyan-primary)' : 'none' }}
+      style={on
+        ? { background: 'var(--cyan-primary)', boxShadow: '0 0 6px var(--cyan-primary)' }
+        : { background: 'transparent', border: '1.5px solid var(--alert-red)' }}
     />
   );
 }
@@ -53,7 +58,7 @@ export default function PythiaStatus({ compact = false }: { compact?: boolean })
       <div className="flex items-center justify-between gap-3">
         <span className="pythia-display text-[12px] font-bold tracking-[0.22em] text-[var(--gold-primary)]">PYTHIA</span>
         {s.generating && (
-          <span className="flex items-center gap-1 text-[7px] font-mono tracking-widest text-[var(--gold-primary)]">
+          <span className="flex items-center gap-1 text-[10px] font-mono tracking-widest text-[var(--gold-primary)]">
             <Loader2 className="w-2.5 h-2.5 animate-spin" /> FORECASTING
           </span>
         )}
@@ -69,7 +74,7 @@ export default function PythiaStatus({ compact = false }: { compact?: boolean })
 
         {!compact && (
           <div className="relative">
-            <button onClick={() => setOpen((o) => !o)} title="Choose the oracle model" className="flex items-center gap-1 text-[8px] font-mono text-[var(--text-muted)] hover:text-[var(--text-secondary)] max-w-[120px]">
+            <button onClick={() => setOpen((o) => !o)} title="Choose the oracle model" aria-label="Choose the oracle model" className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--text-secondary)] max-w-[130px]">
               <span className="truncate">{s.model || '—'}</span>
               <ChevronDown className="w-2.5 h-2.5 shrink-0" />
             </button>
@@ -77,9 +82,9 @@ export default function PythiaStatus({ compact = false }: { compact?: boolean })
               <>
                 <div className="fixed inset-0 z-[400]" onClick={() => setOpen(false)} />
                 <div className="absolute right-0 mt-1 z-[401] glass-panel p-1 min-w-[150px] max-h-[240px] overflow-y-auto">
-                  {models.length === 0 && <div className="text-[8px] font-mono text-[var(--text-muted)] px-2 py-1">no models found</div>}
+                  {models.length === 0 && <div className="text-[10px] font-mono text-[var(--text-muted)] px-2 py-1">no models found</div>}
                   {models.map((m) => (
-                    <button key={m} onClick={() => pick(m)} className="w-full text-left text-[9px] font-mono px-2 py-1 rounded hover:bg-[var(--hover-accent)] truncate"
+                    <button key={m} onClick={() => pick(m)} className="w-full text-left text-[10px] font-mono px-2 py-1 rounded hover:bg-[var(--hover-accent)] truncate"
                       style={{ color: m === s.model ? 'var(--gold-primary)' : 'var(--text-secondary)' }}>
                       {m === s.model ? '● ' : ''}{m}
                     </button>

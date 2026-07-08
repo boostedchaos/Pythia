@@ -1,13 +1,11 @@
 
-
-https://github.com/user-attachments/assets/8374d329-41e0-4074-80ac-79e442927319
-
+<https://github.com/user-attachments/assets/8374d329-41e0-4074-80ac-79e442927319>
 
 <div align="center">
 
 # PYTHIA
 
-### Watch the world. Predict what happens next.
+### Watch the world. Predict what happens next
 
 PYTHIA fuses two open-source projects — **[MiroFish](https://github.com/666ghj/MiroFish)**, a swarm-intelligence prediction engine, and **[Osiris](https://github.com/simplifaisoul/osiris)**, a live global-intelligence globe — into a single machine that ingests everything happening on Earth in real time and forecasts the future across the next **24 hours, week, month, and year**.
 
@@ -16,6 +14,45 @@ It runs **entirely on your own hardware**. No cloud, no API keys, no cost.
 > **Building an agent?** Point it at PYTHIA and it gains **eyes on the whole planet** — one live, machine-readable view of everything happening on Earth (conflict, disasters, markets, displacement, disease, unrest, cyber) plus forecasts and reasoning, to inform decisions and add real-world context to whatever it does. → **[For agents ↓](#for-agents--give-your-agent-eyes-on-the-planet)**
 
 </div>
+
+---
+
+## This fork — multi-model swarm + live dashboard
+
+Upstream runs the whole swarm on **one** local model, so the four personas' votes are correlated —
+"consensus" and "dissent" are stylistic, not independent. **This fork gives each persona its own
+model** (via [OpenRouter](https://openrouter.ai)) so the council is genuinely four different minds:
+
+| Persona | Model | Persona | Model |
+|---|---|---|---|
+| **Strategist** | Claude Sonnet 5 | **Naturalist** | Gemini 3.5 Flash |
+| **Economist** | GPT-5.4-mini | **Skeptic** | DeepSeek V4 Pro |
+
+Set any via `SWARM_<NAME>_MODEL` (see `.env.example`); leave them all unset to fall back to a single
+`LLM_MODEL` — i.e. upstream's local-only behaviour still works unchanged.
+
+Two ways to watch it: the **full themed Osiris globe UI** (`:3000`) with the oracle deck, swarm
+deliberation modals, chat, a SOCIAL map-layer group, and a light/dark theme toggle; **or** a keyless
+**engine dashboard** the engine serves at **`http://localhost:8088/`** (SSE-driven prediction cards +
+every model's vote) if you don't want to apply the UI overlay.
+
+**Run this fork:**
+
+```bash
+cp .env.example .env          # OpenRouter multi-model; key auto-reads from ~/.hermes/.env if blank
+# 1) a feeds source — a running Osiris checkout on :3000  (npm run dev)
+# 2) the engine:
+uv run python -m engine.run   # :8088  — senses feeds, runs a boot forecast
+```
+
+Then open **<http://localhost:3000>** for the full UI (or **<http://localhost:8088/>** for the
+engine dashboard). Project status, decisions, and the run recipe live in [`STATE.md`](STATE.md);
+working notes in [`CLAUDE.md`](CLAUDE.md).
+
+> Note: the multi-model setup is cloud (OpenRouter, ~$0.06 per forecast pass; ~$0.10–0.13/hr on the
+> 30-min auto-loop, ~$0 idle). The "no cloud, no keys,
+> no cost" promise below still holds if you keep a single local `LLM_MODEL` (Ollama) and leave the
+> `SWARM_*` vars unset.
 
 ---
 
@@ -101,26 +138,32 @@ Everything is local HTTP + JSON on **`http://localhost:8088`**. No keys, no SDK,
 ### Install & run (one time)
 
 **Prerequisites**
+
 - [Ollama](https://ollama.com) running, with a chat model pulled — `ollama pull llama3.1` (any model works).
 - A [Osiris](https://github.com/simplifaisoul/osiris) checkout with the PYTHIA overlay applied — see [`integrations/osiris/INSTALL.md`](integrations/osiris/INSTALL.md).
 - Python 3.11+ and [uv](https://docs.astral.sh/uv/).
 
 **Start the stack** — the live globe (`:3000`) + the agent API (`:8088`):
+
 ```bash
 git clone https://github.com/jangles-byte/Pythia && cd Pythia
 cp .env.example .env          # sensible defaults — no keys needed
 ./run-all.sh                  # starts Osiris + the engine and opens the UI
 ```
+
 Your agent only ever talks to the engine: **`http://localhost:8088`**. The UI is optional — close it and the engine keeps sensing the world. Confirm it's up:
+
 ```bash
 curl http://localhost:8088/health
 curl http://localhost:8088/links     # {engine, osiris, oracle} all true once ready
 ```
 
 ### The one call most agents want
+
 ```bash
 curl http://localhost:8088/agent/view
 ```
+
 One JSON payload = your agent's situational awareness: a prose **summary** of the world, every live **event grouped by domain** (with coordinates), the active **domains**, and the current **predictions**.
 
 ### Full API reference
@@ -145,10 +188,12 @@ One JSON payload = your agent's situational awareness: a prose **summary** of th
 | `GET /docs` · `GET /openapi.json` | — | interactive Swagger UI + the full **OpenAPI spec** (self-discovery) |
 
 ### Object shapes
+
 - **Event** — `{ title, summary, category, source, lat, lng, salience (0–1), ts (epoch ms), url }`
 - **Prediction** — `{ statement, horizon, probability (0–1), reasoning, location, lat, lng, base_probability, split, agents: [{ name, probability, note }] }`
 
 ### Recipes
+
 ```bash
 # High-salience conflict events only, top 20, with coordinates
 curl 'http://localhost:8088/agent/events?domain=conflict&min_salience=0.7&limit=20'
@@ -171,6 +216,7 @@ curl -X POST http://localhost:8088/model -H 'content-type: application/json' -d 
 ```
 
 ### Notes for agents
+
 - **Visibility ≠ availability** — UI layer toggles only affect the map; the engine senses *every* feed regardless, so the API always returns the full world.
 - **Discover, don't guess** — `/agent/events` returns `domains_available`, `/predictions` returns `horizons`, `/models` lists models, and `/openapi.json` describes the entire API.
 - **Always fresh** — a background sensing loop refreshes the world brief continuously; turn on `/loop` to keep forecasts re-running too.
