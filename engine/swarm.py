@@ -37,6 +37,9 @@ def _persona_messages(name: str, lens: str, brief_text: str, preds: list[Predict
         f"You will be given a live world snapshot and a numbered list of candidate predictions. "
         f"For EACH prediction give your OWN probability (0-100) and make your case in your own voice: "
         f"1-2 sentences citing the specific signals (or absences) that drive your view, from your lens. "
+        f"Calibrate to base rates: most specific events do NOT happen within their window, so a "
+        f"probability of X% should mean about an X% real chance — reserve high probabilities for "
+        f"events already underway or with a confirmed trigger in the snapshot. "
         f'Return ONLY a JSON array, one object per prediction: '
         f'{{"i": <index>, "p": <0-100>, "note": "<your 1-2 sentence argument>"}}. No prose, no markdown.'
     )

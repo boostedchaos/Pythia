@@ -76,6 +76,22 @@ def test_brier(tmp: str) -> None:
     print("ok — Brier arithmetic (overall, base, per-persona, per-horizon)")
 
 
+def test_dedupe(tmp: str) -> None:
+    ledger = _fresh_ledger(tmp)
+    from .models import now_ms
+    ts = now_ms()   # active (unexpired) so dedupe actually engages
+    same_a = Prediction(id="d1", statement="Israeli forces shell targets in the Daraa countryside "
+                        "of southern Syria", horizon="24h", probability=0.6, ts=ts)
+    same_b = Prediction(id="d2", statement="Israeli forces shell additional targets in Daraa "
+                        "countryside, southern Syria", horizon="24h", probability=0.6, ts=ts)
+    other = Prediction(id="d3", statement="A magnitude 6 earthquake strikes off the coast of Japan",
+                       horizon="24h", probability=0.4, ts=ts)
+    ledger.append_predictions("run_1", [same_a, same_b, other], WorldBrief(), "m")
+    ids = {h["id"] for h in ledger.history()}
+    assert ids == {"d1", "d3"}, ids   # d2 deduped against active d1; d3 is a distinct story
+    print("ok — near-duplicate of an active forecast is skipped, distinct stories kept")
+
+
 def test_judge_output_parse() -> None:
     noisy = ('Here are my verdicts:\n```json\n'
              '[{"i": 0, "outcome": "true", "confidence": 85, "rationale": "seen in brief"},\n'
@@ -89,11 +105,11 @@ def test_judge_output_parse() -> None:
 
 
 def main() -> None:
-    for fn in (test_expiry_and_roundtrip, test_due_and_resolution, test_brier):
+    for fn in (test_expiry_and_roundtrip, test_due_and_resolution, test_brier, test_dedupe):
         with tempfile.TemporaryDirectory() as tmp:
             fn(tmp)
     test_judge_output_parse()
-    print("ok — ledger verified (4 checks passed)")
+    print("ok — ledger verified (5 checks passed)")
 
 
 if __name__ == "__main__":

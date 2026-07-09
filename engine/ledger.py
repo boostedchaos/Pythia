@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import threading
 
 from .config import CONFIG
@@ -53,11 +54,44 @@ def _append(path, records: list[dict]) -> None:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
+_WORD = re.compile(r"[a-z0-9]+")
+_DUP_JACCARD = 0.6   # word-overlap at/above this = the same running story
+
+
+def _words(s: str) -> set:
+    return set(_WORD.findall((s or "").lower()))
+
+
+def _dupes_active(statement: str, horizon: str, now: int, cache: dict) -> bool:
+    """True if a still-active (non-expired) same-horizon forecast with a very similar
+    statement is already logged — so the same running story re-emitted every pass is
+    persisted once, not 100×, keeping the track record from being dominated by it.
+    ponytail: naive word-Jaccard over active entries, not embeddings — upgrade only if
+    rewordings start slipping through."""
+    words = _words(statement)
+    if not words:
+        return False
+    for rec in cache.values():
+        if rec.get("horizon") != horizon or rec.get("expires_ms", 0) <= now:
+            continue
+        other = _words(rec.get("statement", ""))
+        union = words | other
+        if union and len(words & other) / len(union) >= _DUP_JACCARD:
+            return True
+    return False
+
+
 def append_predictions(run_id: str, preds: list[Prediction], brief: WorldBrief, model: str) -> None:
-    """Persist a completed pass. Called once per run; never raises past the caller's guard."""
+    """Persist a completed pass. Called once per run; never raises past the caller's guard.
+    Near-duplicates of a still-active forecast are skipped (they stay on the live deck but
+    aren't re-logged) so one running story isn't counted dozens of times in the ledger."""
     cache, _ = _load()
-    records = []
+    now = now_ms()
+    records, skipped = [], 0
     for p in preds:
+        if _dupes_active(p.statement, p.horizon, now, cache):
+            skipped += 1
+            continue
         rec = {
             "id": p.id, "run_id": run_id, "ts": p.ts,
             "expires_ms": p.ts + HORIZON_MS.get(p.horizon, HORIZON_MS["week"]),
@@ -73,7 +107,7 @@ def append_predictions(run_id: str, preds: list[Prediction], brief: WorldBrief, 
         cache[p.id] = rec
         records.append(rec)
     _append(_PREDICTIONS, records)
-    log.info("ledger: persisted %d predictions from %s", len(records), run_id)
+    log.info("ledger: persisted %d predictions from %s (%d dupes skipped)", len(records), run_id, skipped)
 
 
 def append_resolution(prediction_id: str, outcome: str, confidence: float,
@@ -138,16 +172,26 @@ def track_record() -> dict:
         for a in p.get("agents") or []:
             by_persona.setdefault(a["name"], []).append((a["probability"], o))
 
+    # the honest benchmark: what a trivial "always predict the observed base rate" scores.
+    # If consensus Brier isn't well under this, the swarm has no real skill — it just looks
+    # good next to the wildly overconfident raw draft (brier_base).
+    outcomes = [o for _, o in overall]
+    base_rate = round(sum(outcomes) / len(outcomes), 3) if outcomes else None
+    brier_baserate = brier([(base_rate, o) for o in outcomes]) if base_rate is not None else None
+
     return {
         "resolved": len(resolved),
         "pending": len(preds) - len(res),
         "unresolvable": unresolvable,
         "brier": brier(overall),
         "brier_base": brier(base),
+        "brier_baserate": brier_baserate,   # trivial always-base-rate benchmark
+        "base_rate": base_rate,             # observed fraction of resolved that came true
         "by_horizon": {h: {"n": len(v), "brier": brier(v)} for h, v in by_h.items()},
-        # persona -> model is the CURRENT mapping; historical votes may predate a config change
+        # current_model is TODAY's config; per-persona Brier pools every historical vote, which
+        # may predate a model change — so the model label is not what generated all these votes.
         "by_persona": {n: {"n": len(v), "brier": brier(v),
-                           "model": CONFIG.swarm_models.get(n, "")}
+                           "current_model": CONFIG.swarm_models.get(n, "")}
                        for n, v in by_persona.items()},
     }
 

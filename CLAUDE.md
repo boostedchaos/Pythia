@@ -50,15 +50,20 @@ confirm the globe renders, and screenshot. Osiris throws 2 pre-existing CoinGeck
 errors that are NOT ours.
 
 `.env` is OpenRouter multi-model. `LLM_API_KEY` blank → auto-reads `OPENROUTER_API_KEY` from
-`~/.hermes/.env` (no secret in-repo). Persona→model: Strategist=`anthropic/claude-sonnet-5`,
-Economist=`openai/gpt-5.4-mini`, Naturalist=`google/gemini-3.5-flash`, Skeptic + oracle
-draft=`deepseek/deepseek-v4-pro`. Override per persona via `SWARM_<NAME>_MODEL`; unset → falls back
-to `LLM_MODEL` (single-model = upstream behaviour, backward compatible).
+`~/.hermes/.env` (no secret in-repo). Persona→model (retuned 2026-07-04 for cost, same OpenRouter
+pricing check that picked these): Strategist=`x-ai/grok-4.3`, Economist=`openai/gpt-5-mini`,
+Naturalist=`google/gemini-3.1-flash-lite`, Skeptic + oracle draft=`deepseek/deepseek-v4-pro`
+(unchanged — already the cheap anchor). Override per persona via `SWARM_<NAME>_MODEL`; unset →
+falls back to `LLM_MODEL` (single-model = upstream behaviour, backward compatible).
 
-**Cost:** ~$0.06 per forecast pass (measured). Auto-loop at `LOOP_INTERVAL_SEC=1800` (30 min) ≈
-$0.10–0.13/hr; ~$0 idle (feed refresh makes no LLM calls). Economist is `gpt-5.4-mini` because
-`gpt-5.5` was ~half the whole pass cost. Cheapen further: `openai/gpt-5-mini`, longer interval, or
-`PREDICTIONS_PER_HORIZON=2`.
+**Cost:** was ~$0.06/pass (previously Strategist=`claude-sonnet-5`, Economist=`gpt-5.4-mini`,
+Naturalist=`gemini-3.5-flash`); the 2026-07-04 retune targets a ~70% cut on the swarm-deliberation
+portion (same-or-cheaper completion-token pricing on all 3 swapped personas — see STATE.md Cost
+table for per-call pricing and the rationale). Not yet re-measured live — **check `GET /history`
+after this runs a few days**: the swap is a same-tier-down bet (Grok/gpt-5-mini/flash-lite vs their
+pricier siblings), not benchmark-verified for this task, so the per-persona Brier track record is
+the real check on whether it held up. Auto-loop at `LOOP_INTERVAL_SEC=1800` (30 min). Cheapen
+further: longer interval, or `PREDICTIONS_PER_HORIZON=2`.
 
 ## Calibration (shipped 2026-07-02)
 
@@ -67,6 +72,20 @@ batched LLM judge on expired forecasts (rides the sense loop every `RESOLVE_INTE
 `POST /resolve`) → `runs/resolutions.jsonl` → Brier track record (overall / vs-draft / per-horizon /
 **per-persona**) at `GET /history` + SSE `kind="track"` + a dashboard strip. `unresolvable` is
 terminal. Judge = `JUDGE_MODEL` (blank → `LLM_MODEL`). Self-check: `uv run python -m engine.test_ledger`.
+
+**Read Brier against the base rate, not against 0.25.** Events here are rare (~7% true), so the
+honest benchmark is "always predict the base rate" (Brier ~0.064), NOT a 50/50 coin flip (0.25).
+The 2026-07-05 review found the system badly **over-forecasting**: consensus Brier 0.249 only looked
+OK next to the wildly overconfident raw draft (0.579) — it's ~4× worse than the trivial 0.064 bar.
+`track_record()` now also returns `brier_baserate` + `base_rate` and the dashboard shows a
+`base-rate ✓/⚠` chip. Fixes shipped the same day: (1) `oracle.py` SYSTEM + `swarm.py` persona
+prompts carry **calibration** (low base rates; P% must mean ~P%; reserve >60% for in-progress /
+confirmed-trigger events) + **verifiability** (predict observable events a later snapshot can
+confirm, not private meeting outcomes) discipline; (2) `ledger.append_predictions()` **dedups**
+near-duplicates (word-Jaccard ≥0.6) of a still-active same-horizon forecast so one running story
+(Doha talks were 104 rows) doesn't dominate the ledger. First post-fix pass: draft mean 0.65→0.46,
+high-confidence calls 26%→12.5%. **Personas are pinned at boot → prompt/model changes need an
+engine restart.**
 
 ## Gotchas
 
@@ -85,7 +104,23 @@ terminal. Judge = `JUDGE_MODEL` (blank → `LLM_MODEL`). Self-check: `uv run pyt
   (`max-h min(82vh, 100dvh−440px)`) — if the cluster moves/grows, retune. If the UI looks
   broken-stacked after a `.next` swap, it's the browser's stale CSS chunk — hard refresh (⌘⇧R).
 
-## Deferred
+## Mode since 2026-07-08: world-monitoring + daily digest (forecasting RETIRED)
 
-Let the track record accumulate (auto-loop on for a few days → real Brier numbers), then optionally
-surface `track_record` in the osiris-live deck. Details in `STATE.md`.
+The forecast/swarm/resolver pipeline is retired — verdict from local ledger forensics + verified
+deep research: the architecture (self-generated questions, no retrieval, LLM-judge resolution)
+cannot reach decision-grade skill, and prompt-level calibration is documented to fail. Full report:
+`../PYTHIA-VIABILITY-REPORT-2026-07-07.md`; dated decision in `STATE.md`.
+
+- **Auto-loop stays OFF** — `start-pythia.ps1` no longer POSTs `/loop` at boot. Don't re-enable
+  without reading the viability report first.
+- **Resolver retired** via `RESOLVE_INTERVAL_SEC=315360000` set in `start-pythia.ps1` (NOT `.env` —
+  `.env` is tool-inaccessible on this box; the launcher env reaches the engine child process).
+- **The deliverable is the digest**: "PYTHIA Daily Digest" scheduled task (7:00 AM, normal
+  privileges) runs `../daily-digest.py` — one LLM call/day over `GET /agent/view` →
+  `../digests/YYYY-MM-DD.md` + `latest.md`. Cost ≈ $0.30/mo.
+- The engine + osiris-live UI keep running; the sense loop refreshes events + brief with zero LLM
+  calls. The ledger stays on disk as the closed experiment's record (`analyze-calibration.py` is
+  the instrument if forecasting is ever rebuilt — then use curated questions + retrieval +
+  objective resolution, not the old pipeline).
+
+Details in `STATE.md`.

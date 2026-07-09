@@ -131,6 +131,11 @@ function applyTrack(t){
   if(!t || !t.resolved){ el.innerHTML = '<span>track record: no resolved forecasts yet</span>'; return; }
   let html = `<span class="chip">Brier <b>${t.brier}</b> (${t.resolved} resolved)</span>`;
   if(t.brier_base!=null) html += `<span class="chip">draft ${t.brier_base}</span>`;
+  if(t.brier_baserate!=null){
+    const beat = t.brier < t.brier_baserate;   // is the swarm actually better than trivial?
+    html += `<span class="chip" title="Brier of always predicting the ${t.base_rate!=null?Math.round(t.base_rate*100)+'%':''} base rate — the real bar to beat">`
+          + `base-rate ${beat?'✓':'⚠'} <b>${t.brier_baserate}</b></span>`;
+  }
   html += `<span class="chip">${t.pending} pending · ${t.unresolvable} unresolvable</span>`;
   for(const [n,v] of Object.entries(t.by_persona||{}))
     html += `<span class="chip">${esc(n)} <b>${v.brier}</b> (${v.n})</span>`;

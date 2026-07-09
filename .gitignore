@@ -11,3 +11,6 @@ Screen Recording.mov
 
 # nested Osiris checkout (own git repo)
 osiris-live/
+
+# local Claude Code session settings
+.claude/settings.local.json
