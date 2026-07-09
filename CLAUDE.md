@@ -116,8 +116,9 @@ cannot reach decision-grade skill, and prompt-level calibration is documented to
 - **Resolver retired** via `RESOLVE_INTERVAL_SEC=315360000` set in `start-pythia.ps1` (NOT `.env` —
   `.env` is tool-inaccessible on this box; the launcher env reaches the engine child process).
 - **The deliverable is the digest**: "PYTHIA Daily Digest" scheduled task (7:00 AM, normal
-  privileges) runs `../daily-digest.py` — one LLM call/day over `GET /agent/view` →
-  `../digests/YYYY-MM-DD.md` + `latest.md`. Cost ≈ $0.30/mo.
+  privileges) runs `daily-digest.py` (repo root since 2026-07-09) — one LLM call/day over
+  `GET /agent/view` → `../digests/YYYY-MM-DD.md` + `latest.md` (next to the checkout, outside
+  the repo). Cost ≈ $0.30/mo.
 - The engine + osiris-live UI keep running; the sense loop refreshes events + brief with zero LLM
   calls. The ledger stays on disk as the closed experiment's record (`analyze-calibration.py` is
   the instrument if forecasting is ever rebuilt — then use curated questions + retrieval +
