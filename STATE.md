@@ -211,6 +211,16 @@ _Last updated: 2026-07-08_
   pace → ~$0.30/mo. The ledger (1,009 forecasts / 384 resolutions) stays on disk as the experiment's
   record; `analyze-calibration.py` remains the instrument if forecasting is ever rebuilt on the honest
   recipe (Metaculus API questions + retrieval + objective resolution — see report Option B).
+- 2026-07-09 — **First scheduled digest verified + script moved into the repo.** The "PYTHIA Daily
+  Digest" task fired on schedule (7:00:01 AM, exit 0) and wrote `../digests/2026-07-09.md` from 250
+  live events — the new mode's first unattended run. Two fixes shipped: (a) the LLM's own H1 stacked
+  under the script's title — a leading H1 in the completion is now stripped; (b) `daily-digest.py`
+  was untracked (lived above the repo root) — moved to the repo root (`.env` read from repo root,
+  digests still write to `../digests/` next to the checkout so output never dirties git status).
+  Scheduled task repointed at the repo and re-verified live (manual fire, exit 0, same output
+  folder). Committed `a427b9d` → fork `winbox-2026-07-08` + merged into `review-fixes` (`84474fd`).
+  Loop retirement re-confirmed: `GET /state` → `loop_enabled: false`; no new predictions since 07-07.
+  (Note: the engine has no `GET /status` — the state check is `GET /state`; `/loop` is POST-only.)
 
 - `engine/config.py` — Hermes-`.env` key auto-read; per-persona `SWARM_*` backend fields + `__post_init__`.
 - `engine/oracle.py` — `Oracle(base,key,model,extra_headers)` doubles as a per-persona client;
@@ -285,16 +295,16 @@ this table is priced-in, not measured.
 the 07-08 decision + `../PYTHIA-VIABILITY-REPORT-2026-07-07.md`); calibration work items are closed.
 
 1. **Check the digest lands**: `../digests/YYYY-MM-DD.md` appears daily after 7:00 AM ("PYTHIA Daily
-   Digest" scheduled task → `../daily-digest.py`). If the box was asleep at 7, run it manually:
-   `cd 'C:\AI World\pythia-win11'; uv run python daily-digest.py`.
+   Digest" scheduled task → `daily-digest.py` at the repo root since 07-09). If the box was asleep
+   at 7, run it manually: `cd 'C:\AI World\pythia-win11\Pythia'; uv run python daily-digest.py`.
+   First scheduled run verified 2026-07-09.
 2. **At next engine restart** (any reboot, or the elevated one-liner in pythia.md), verify the
    retirement held: `GET /state` → `loop_enabled: false`, and the resolver stays quiet
    (`RESOLVE_INTERVAL_SEC=315360000` is set in `start-pythia.ps1`, not `.env` — the `.env` file is
    tool-inaccessible on this box). Optional cleanup while elevated: re-register "PYTHIA Oracle Ready"
    WITHOUT highest-privileges so future cycles need no UAC.
-3. **Push the winbox delta** (Kyle): includes the repurpose (`start-pythia.ps1`, `../daily-digest.py`,
-   STATE/CLAUDE edits, viability report) on top of the earlier `analyze-calibration.py` work —
-   winbox → `fork` `HEAD:winbox-2026-07-08` → merge into `review-fixes`.
+3. ~~Push the winbox delta~~ DONE 07-08/07-09: fork `winbox-2026-07-08` + `review-fixes` both carry
+   the pivot (`83e1de5`, merge `f8a705a`) and the digest move/H1 fix (`a427b9d`, merge `84474fd`).
 4. **If forecasting is ever revisited**, do NOT iterate on the old architecture — rebuild on the
    honest recipe (report Option B): Metaculus API questions, retrieval at question time (self-hosted
    SearXNG/crawl4ai), objective platform resolution, shrinkage. Ceiling: crowd-adjacent, not expert.
