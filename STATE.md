@@ -1,6 +1,56 @@
 # PYTHIA — STATE (record of record)
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-08-28_
+
+## 2026-08-28 — PIVOT TO MONITOR v1: sited on Proxmox, Phase 0 built and verified
+
+Supersedes the Status bullets below where they conflict. Plan of record is now
+`PYTHIA-MONITOR-V1-PLAN.md` (rewritten today); `BUILD-PROMPT.md` carries a paste-ready
+autonomous build prompt for the remaining phases.
+
+**Audit.** The Monitor v1 plan's eight code findings were each checked line by line before any
+were fixed. All eight were real — no invented defects. Three NEW findings were added: the
+inherited feeds cover only 2 of the 5 chosen beats (so feed work moved from Phase 4 to Phase 1);
+market events can never dedup because the price sits inside the identity; and `config.py` reads
+`~/.hermes/.env` and defaults to Ollama, neither of which exists in a container.
+
+**Host decision.** Debian 13 VM (VM **107**, `pythia`) on Proxmox node **pve2**, at
+**192.168.0.28**. Chosen over Midgard because Midgard has no `docker compose` plugin, Proxmox
+gives `vzdump` backups for free, and Midgard `:8088` is already SearXNG. Measured first: Midgard
+15% RAM, pve 85%, pve2 20%.
+
+**Quorum tested, not assumed** (the documented QDevice-casts-zero-votes trap): rebooted pve2, and
+pve stayed quorate on 2 of 3 votes with `/etc/pve` writable. Only that direction was tested —
+rebooting pve takes TrueNAS and its USB shelf down. Tie-breaker is lowest node ID = pve, so in a
+network split pve2 loses quorum and Pythia would pause. Acceptable; recorded.
+
+**Phase 0 shipped** (`5fcd8f3`): `PYTHIA_MODE=monitor|research` failing closed to monitor; boot
+forecast, oracle loop and resolver gone from monitor mode; forecast routes return 409; loopback
+bind, CORS allowlist, optional bearer token; coordinate-zero fixed; per-feed health via
+`/feeds/health`; `gather(return_exceptions=True)`; honest timestamps; graceful shutdown; non-root
+Dockerfile + hardened Compose stack; CI with a monitor-mode gate. 23 tests.
+
+**Verification discipline that paid off.** Every fix was proven by reverting it and confirming the
+test failed. Three canaries fired. Two bugs were caught in the new work itself: `/readyz` reported
+ready while all 23 feeds were dead, and the forecast-activity log grep matched the word
+`swarm_models` in a config dump. Both fixed, both now tested.
+
+**Backup** (`7f3f251`): job `pythia-daily`, VM 107, 03:00 nightly, snapshot mode, zstd, pruned
+7 daily + 4 weekly. Proven end to end — a backup ran (763 MB / 11 s), the archive **restored** to
+a throwaway VMID, the throwaway was destroyed (it carried VM 107's duplicate MAC and `onboot: 1`),
+and the **schedule was shown firing on its own** before 03:00 was restored.
+
+**Decisions recorded** (full table in the plan §2): Osiris dropped — Pythia will fetch feeds
+directly; delivery via ntfy; remote access via Tailscale + bearer token; 1-year retention; quiet
+hours 22:00–07:00; under $5/month with deterministic change detection; markets ships broad macro
+defaults only, never personal holdings.
+
+**Open.** No real feed source has ever been exercised — Phase 0's healthy path was proven with a
+fake feed server written for the test. VM is on DHCP (needs a UniFi reservation for MAC
+`BC:24:11:CF:02:8F`). Tailscale not installed. `monitor-v1` is not pushed. `daily-digest.py`,
+`run-all.sh`, `PYTHIA.command`, `PYTHIA.app` and `integrations/osiris/` are workstation-era
+artifacts awaiting removal.
+
 
 ## Status
 
