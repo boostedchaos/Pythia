@@ -18,6 +18,11 @@ fixed-IP reservation SET and verified by read-back** (`use_fixedip: true`, MAC
 in `~/.claude/settings.json` with Kyle's approval — closes the DHCP item in the 2026-08-28
 Open list. Still open from that list: Tailscale not installed.
 
+**Branch migration (same day, Kyle-approved):** `monitor-v1` renamed to **`main`** and made
+the GitHub default; the stale pre-fork `main` (was `5cf04ba`) was deleted and recreated from
+the monitor code; remote `monitor-v1` deleted (same commit lives on `main`). README rewritten
+for the monitor; GitHub About updated. `review-fixes` untouched (forecasting archive).
+
 **Now:** two-week evaluation, no development. Kyle reads the 07:00 brief, rates bullets, logs
 misses in `docs/misses-log.md` (target ≤2/week). Phase 2+ (ranking, feedback button, alert
 rules) waits on that data.

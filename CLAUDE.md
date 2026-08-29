@@ -17,8 +17,8 @@ Upstream: github.com/jangles-byte/Pythia (built on MiroFish + Osiris) — diverg
 - **`origin` is `github.com/boostedchaos/Pythia` — Kyle's own fork.** (This line said "origin
   points at UPSTREAM, fork before pushing" until 2026-08-28; that was wrong.) Upstream is not
   configured as a remote. Don't commit unless asked, and don't push without asking.
-- **Active branch = `monitor-v1`.** `review-fixes` is the forecasting experiment's archive — do
-  not rewrite it.
+- **Active branch = `main`** (was `monitor-v1`; renamed and made the GitHub default 2026-08-29).
+  `review-fixes` is the forecasting experiment's archive — do not rewrite it.
 - **Plan of record = `PYTHIA-MONITOR-V1-PLAN.md`.** Status log = `STATE.md` (newest dated entry at
   top is truth; the `## Status` bullets below it are pre-pivot history).
 - `BUILD-PROMPT.md` = paste-ready prompt to build the remaining phases autonomously.
