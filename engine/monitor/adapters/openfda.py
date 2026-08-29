@@ -17,6 +17,8 @@ from . import _util
 SOURCE_ID = "openfda"
 BEAT = "healthcare"
 KIND = "stream"
+DISPLAY_NAME = "openFDA drug enforcement reports"
+CANONICAL_DOMAIN = "fda.gov"
 
 URL = "https://api.fda.gov/drug/enforcement.json?sort=report_date%3Adesc&limit=25"
 

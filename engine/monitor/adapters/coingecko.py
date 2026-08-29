@@ -23,6 +23,8 @@ from . import _util
 SOURCE_ID = "coingecko"
 BEAT = "markets"
 KIND = "snapshot"
+DISPLAY_NAME = "CoinGecko spot prices"
+CANONICAL_DOMAIN = "coingecko.com"
 
 # coingecko id -> (symbol, display name, instrument kind)
 INSTRUMENTS = {

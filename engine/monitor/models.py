@@ -31,3 +31,6 @@ class AdapterRun:
     error: str | None = None
     received: int = 0
     accepted: int = 0
+    # Observations the spine refused on provenance grounds (defect D2). Optional with
+    # a default, so a 0.5-contract adapter constructing AdapterRun is unaffected.
+    rejected: int = 0

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+ <channel>
+  <atom:link href="https://huggingface.co/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <title>Hugging Face - Blog</title>
+  <link>https://huggingface.co/blog</link>
+  <description>The Hugging Face blog</description>
+  <language>en-US</language>
+  <item>
+   <title>The Open ASR Leaderboard Adds Its First Global South Language</title>
+   <pubDate>Fri, 28 Aug 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/open-asr-leaderboard-global-south</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/open-asr-leaderboard-global-south</guid>
+  </item>
+    <item>
+   <title>Training and Finetuning Multi-Vector Embedding Models with Sentence Transformers</title>
+   <pubDate>Wed, 26 Aug 2026 00:00:00 GMT</pubDate>
+   <link>https://huggingface.co/blog/train-multi-vector-encoder</link>
+   <guid isPermaLink="true">https://huggingface.co/blog/train-multi-vector-encoder</guid>
+  </item>
+    <item>
+   <title>Granite 4.2 LLMs: How They&apos;re Built</title>
+   <pubDate>Tue, 25 Aug 2026 15:14:14 GMT</pubDate>
+   <link>https://huggingface.co/blog/ibm-granite/granite-4-2</link>
+   <guid isPermaLink="false">https://huggingface.co/blog/ibm-granite/granite-4-2</guid>
+  </item>
+  </channel>
+</rss>

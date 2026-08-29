@@ -13,6 +13,8 @@ from . import _util
 SOURCE_ID = "arxiv"
 BEAT = "ai"
 KIND = "stream"
+DISPLAY_NAME = "arXiv cs.AI / cs.LG new submissions"
+CANONICAL_DOMAIN = "arxiv.org"
 
 URL = (
     "http://export.arxiv.org/api/query"

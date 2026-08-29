@@ -16,6 +16,8 @@ from . import _util
 SOURCE_ID = "federal_register"
 BEAT = "healthcare"
 KIND = "stream"
+DISPLAY_NAME = "Federal Register documents"
+CANONICAL_DOMAIN = "federalregister.gov"
 
 AGENCIES = (
     "health-and-human-services-department",

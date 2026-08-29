@@ -17,6 +17,8 @@ from . import _util
 SOURCE_ID = "cisa_kev"
 BEAT = "cybersecurity"
 KIND = "snapshot"
+DISPLAY_NAME = "CISA Known Exploited Vulnerabilities catalog"
+CANONICAL_DOMAIN = "cisa.gov"
 
 URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 

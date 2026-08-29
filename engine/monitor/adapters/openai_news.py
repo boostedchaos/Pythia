@@ -13,6 +13,8 @@ from . import _util
 SOURCE_ID = "openai_news"
 BEAT = "ai"
 KIND = "stream"
+DISPLAY_NAME = "OpenAI news"
+CANONICAL_DOMAIN = "openai.com"
 
 URL = "https://openai.com/news/rss.xml"
 

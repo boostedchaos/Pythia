@@ -20,6 +20,8 @@ from . import _util
 SOURCE_ID = "treasury_yields"
 BEAT = "markets"
 KIND = "snapshot"
+DISPLAY_NAME = "US Treasury par yield curve"
+CANONICAL_DOMAIN = "home.treasury.gov"
 
 BASE = (
     "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml"

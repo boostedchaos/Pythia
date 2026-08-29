@@ -1,6 +1,8 @@
 # PYTHIA Monitor v1 — Plan of Record
 
-**Status:** Phase 0 COMPLETE and verified on the target host. Phases 0.5–4 specified, not started.
+**Status:** Phases 0, 0.5 and 1 COMPLETE and verified on the target host (0.5 = `9a907ff`;
+Phase 1 committed 2026-08-29 after a failed first verification and a fix round). Phases 2–4
+specified, not started.
 **Originally recorded:** 2026-08-28 (planning only)
 **Revised:** 2026-08-28 (evening) — after a code audit, a homelab siting decision, and the Phase 0 build
 **Branch:** `monitor-v1` (Phase 0 = commit `5fcd8f3`)
@@ -253,11 +255,33 @@ Market events are titled `"BTC: 65432 (+1.2%)"`. The price is inside the dedup k
 produces a brand-new event. Change detection on markets is structurally impossible until the
 identity is `(symbol)` with the price as an attribute. Phase 1.
 
-### 5.12 New finding — container-hostile config
+### 5.12 New finding — container-hostile config *(FIXED — Phase 0.5)*
 
 `engine/config.py` reads `~/.hermes/.env` for credentials and defaults `LLM_BASE_URL` to Ollama
 at `localhost:11434`. Neither exists in a container: a fresh deploy silently points at nothing.
 Phase 0.5 must make configuration explicit and container-first.
+
+### 5.13 New finding (2026-08-29, from the Phase 0.5 adversarial verifier) — the LLM can silently DROP evidence
+
+The citation gate proves the model cannot cite what it was not sent — fabricated and
+out-of-window citations are both rejected (verified with planted inputs). But the inverse is
+unguarded: given 12 observations, a model that returns one bullet citing one of them publishes
+cleanly, silently de-selecting the other 11. It also chooses beat headings without a check.
+Not a Phase 0.5 blocker (the verifier's words), but selection completeness needs a gate in
+Phase 2: compare cited-id coverage against the evidence pack and surface a dropped-count in the
+brief itself.
+
+### 5.14 Verified feed-source facts (2026-08-29) — recorded so nobody re-researches them
+
+`docs/feed-verification.md` is the record. Highlights: Anthropic has no news RSS (404). Stooq
+unreachable (404 on six variants). Yahoo Finance 429s on first contact and its terms forbid
+this use. ReliefWeb v1 is decommissioned (410) and v2 requires a pre-approved appname (403) —
+a credential in all but name. UN News robots.txt disallows our feed path for `User-agent: *`
+while explicitly allowing Google's fetcher only. GDELT's wildcard cert expired
+2026-08-28T19:50:12Z; the adapter reports `error` over https rather than downgrading to
+plaintext. Keyless markets coverage tops out at: BTC/ETH (CoinGecko), Treasury yields
+(treasury.gov), gold only as the PAXG proxy. Equity indices and oil need a FRED key — Kyle's
+action, free registration.
 
 ---
 
@@ -299,7 +323,34 @@ change instead of publishing the delta.
 
 See §3. Acceptance criteria met and evidenced.
 
-### Phase 0.5 — Cited delta digest (NEW — the fastest path to value)
+### Phase 0.5 — Cited delta digest ✅ DONE (commit `9a907ff`, 2026-08-29)
+
+**Every acceptance criterion below was met and evidenced**, first by lane tests whose canaries
+were each proven to fire, then independently by a fresh adversarial verifier (Opus, xhigh)
+that planted its own bad inputs and knew nothing about how the work was built. Gate evidence:
+
+- **Fabricated citation rejected** — verifier's own invented id `9e11aa77…` → `status=failed`,
+  `CitationError`, prior brief byte-identical. Also rejected: a REAL id present in the DB but
+  absent from the evidence pack actually sent.
+- **Planted duplicate → one bullet** — verifier's own pair (same URL, case/whitespace-differing
+  titles): 1 row, 1 bullet; distinct-URL control correctly NOT collapsed.
+- **Failed provider call leaves yesterday intact** — three authored failure classes (HTTP 522,
+  unexpected exception, zero-bullet response) each → `status=failed`, previous markdown
+  byte-identical. Plus a real transport failure on the VM (the placeholder-key 401) took the
+  same path.
+- **Real feeds on the deployed container** — 8/9 adapters healthy live on 192.168.0.28, 2,035
+  observations across all five beats (politics 223 via State Dept advisories after GDELT's
+  upstream cert expiry was surfaced as a named error, not hidden).
+- **One real paid LLM run** — published brief, 5 beats, 39 cited ids all resolving to exactly
+  one stored observation, window named in UTC + America/Chicago, coverage warning naming
+  `gdelt`, cost 0.008025 USD recorded from the provider's usage field (source: the
+  /brief/run response and the llm_spend row read back from monitor.db).
+- **ntfy delivery read back from the receiver** — after the ASCII-header fix, ntfy.sh's own
+  poll returned the stored message (ASCII title, UTF-8 body intact). The send status alone was
+  never trusted; the first "sent" claim was disproven exactly this way (UnicodeEncodeError
+  found only on the real run).
+
+Original specification (kept for the record):
 
 The original plan went straight from safety work into a full persistence-and-ranking spine. This
 phase inserts a usable product first, so the idea is proven before the machine is built.
@@ -333,7 +384,46 @@ Acceptance criteria:
 
 **Then stop and use it for two weeks** before building Phase 1. Collect the §6 measurements.
 
-### Phase 1 — Trustworthy event spine
+### Phase 1 — Trustworthy event spine ✅ DONE (2026-08-29)
+
+**Shipped:** schema v3 (sources, feed_runs, revisions, stories + story_observations,
+schema_version) with in-place migration proven lossless on a hand-built v1 db AND on the real
+deployed database (2,085 pre-migration rows preserved); deterministic stories (snapshot source =
+one story per instrument/advisory/CVE across time, stream = 1:1); revisions carrying field-level
+change history; 1-year retention prune as its own unconditional task; provenance validation at
+the spine (malformed observations rejected and counted, not stored); persisted feed health with
+staleness + never_run + import_error statuses; four new feeds (cisa_advisories, huggingface_blog,
+frankfurter, un_press — registry 9 → 13, every source verified with a real call first).
+
+**First verification FAILED — recorded because it is the point of the process.** A fresh
+adversarial verifier (Opus, xhigh) returned DO-NOT-SHIP: one bad adapter module could silently
+shrink the registry 13 → 0 while `/feeds/health` kept reporting green, and a source that stopped
+running stayed "healthy" forever — the plan's own criterion 4 failing at exactly what it was
+written to prevent. Five secondary defects (provenance by convention only, 58 production rows
+with no story link, a restart test blind to the CHANGED branch, an overstated migration
+docstring, retention gated on the brief). All six were fixed; a second fresh verifier re-ran the
+original probes plus two harder ones and returned SHIP. Fix-round gate evidence:
+
+- one planted SyntaxError → 12 of 13 adapters load, the broken one surfaces BY NAME as
+  `import_error`, module-file count exposes the gap; breaking the registry itself yields
+  `module_count=0` vs `source_count`, visibly disagreeing;
+- controlled-clock staleness: exact boundary 540000 ms healthy / 540001 stale; all-stale →
+  `/readyz` 503;
+- the five malformed-observation shapes rejected through both the direct and the collect path,
+  rejection persisted to `feed_runs.rejected`;
+- 0 of 2,724 deployed observations without a story link (was 58 of 2,209);
+- restart identity re-proven on the real container: same obs_id, same first_seen, 0 duplicate
+  (source_id, upstream_id) groups over the whole db; BTC = ONE story whose revisions carry the
+  price series (77635 → 77637 → 77662 → 77677 …) — the §5.11 fix, observed live.
+
+**Follow-ups filed by the verifier (non-blocking), for Phase 2:** a test for the `save_brief`
+no-op commit-leak (the code is fixed; the test named for it asserts a different property); an
+"exactly one story per observation" invariant check; a contradictory prune docstring; prune
+observability (no route/log exposes the prune loop's liveness); residual provenance gaps (empty
+title accepted, CR/LF inside a URL stored raw); a latent v3-migration guard trap if a second
+ALTER is ever added; and §5.13 (the LLM can silently drop evidence).
+
+Original specification (kept for the record):
 
 - Full Source / FeedRun / Observation / Story schema and migrations.
 - Stable identity order: upstream ID → canonical URL → source-specific natural key → content

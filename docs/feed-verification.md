@@ -11,6 +11,9 @@ never fields, so every parsed field is a real one.
 
 **Adopted: 9.  Rejected: 5.  Verified but held in reserve: 2.**
 
+> Those tallies are Phase 0.5's. **Phase 1 (2026-08-29) took the registry from 9 to 13** —
+> see [Phase 1](#phase-1--2026-08-29) at the end of this file for its own evidence and tally.
+
 | Beat | Adopted sources | Kind |
 |---|---|---|
 | ai | `arxiv`, `openai_news` | stream |
@@ -357,3 +360,250 @@ source actually serving data.** GDELT fails exactly as designed: a clean
 `status="error"` with a safe message, no exception escaping, no effect on the other
 eight. Politics is covered by `state_dept_advisories` while GDELT's certificate is
 broken, so the brief can speak to all five beats honestly today.
+
+---
+
+# Phase 1 — 2026-08-29
+
+Second pass, same discipline: one real HTTP call **before** any adapter was written, the
+recorded response becomes the fixture, terms and robots checked, and a candidate that
+fails verification is written down and replaced rather than quietly adopted.
+
+**All calls made 2026-08-29** (UTC stamps where they matter).
+
+**Adopted: 4 (registry 9 → 13).  Rejected: 3.  Rechecked, unchanged: 1 (GDELT).**
+
+| Beat | Added | Kind | Beat now has |
+|---|---|---|---|
+| ai | `huggingface_blog` | stream | 3 |
+| cybersecurity | `cisa_advisories` | stream | 2 |
+| politics | `un_press` | stream | 3 (2 serving; GDELT still dark) |
+| markets | `frankfurter` | snapshot | 3 |
+
+Registry count is asserted, not assumed —
+`uv run python -c "from engine.monitor.adapters import ADAPTERS; print(len(ADAPTERS))"`
+returned **9 before** and **13 after**.
+
+## cisa_advisories — ADOPTED
+
+- **Called:** `https://www.cisa.gov/cybersecurity-advisories/all.xml`
+- **Result:** HTTP 200, `application/rss+xml`, 481,093 bytes, 0.25 s, **30 `<item>`**.
+- **Key:** none. US federal government work; public domain.
+- **robots.txt** (`https://www.cisa.gov/robots.txt`, 80 lines): one `User-agent: *` group
+  at line 16 disallowing only `/core/`, `/profiles/`, assorted READMEs, `/admin/`,
+  `/comment/reply/`, `/filter/tips`, `/node/add/`, `/search/`, `/search?`,
+  `/user/register`. A second group at line 80 blocks **PetalBot** only. Neither
+  `/cybersecurity-advisories/` nor `/news-events/` is disallowed.
+- **Fixture:** `tests/fixtures/cisa_advisories.xml` — trimmed from 30 items to 4,
+  deliberately **one of each shape the feed carries**: an ICS advisory, an AA-series joint
+  advisory, a KEV-catalog alert, and a revised advisory titled "(Update D)", so the
+  classifier and the revision test exercise the real range rather than one example.
+- **Verdict: ADOPTED.** `KIND = "stream"`.
+- **It complements `cisa_kev` rather than duplicating it.** KEV is the machine-readable
+  catalog of CVEs confirmed exploited; this is CISA's written analyst output. Composition
+  of the live 30: **ICS advisories 18, alerts 9, AA-series joint advisories 2, resource 1.**
+- **The overlap is real and is recorded rather than hidden:** 9 of the 30 items are
+  "CISA Adds N Known Exploited Vulnerabilities to Catalog" alerts, which restate KEV
+  activity. They are **kept**, because filtering them would need a title-sniffing rule that
+  would eventually swallow a genuine alert. Instead every row is classified structurally in
+  `extra["advisory_type"]` (`ics_advisory` / `joint_advisory` / `alert` / `other`) from the
+  URL section, so a consumer can separate them without parsing wording. The raw section is
+  kept alongside in `extra["raw_section"]` so the mapping stays auditable.
+- **Identity is the advisory id, not the title.** An advisory reissued as "(Update D)" keeps
+  its id and its URL while its title changes, so a revision is a **change to the same
+  observation**. Alert URLs are dated slugs carrying no advisory id, so those fall back to
+  URL identity (`upstream_id is None`). Both halves are guarded by
+  `test_cisa_advisories_classifies_by_url_not_by_wording` and
+  `test_cisa_advisory_identity_survives_a_revision`.
+- **Parsing trap checked, not assumed: the feed stamps a TWO-DIGIT year** —
+  `"Thu, 27 Aug 26 12:00:00 +0000"`. `email.utils.parsedate_to_datetime` reads this
+  correctly per RFC 2822 (00–49 → 2000s, so 26 → 2026); verified against **all 10 distinct
+  pubDate values** in the live feed, every one parsing to 2026. It is guarded anyway by
+  `test_cisa_advisories_reads_the_feeds_two_digit_year`, because a regression here would
+  shift every timestamp by ~2000 years while failing nothing else. Live run: **0 of 30
+  observations missing a timestamp.**
+- **Descriptions are escaped HTML** (CVSS tables and all) and are tag-stripped to prose.
+
+## cisa ics-advisories.xml — REJECTED (redundant subset)
+
+- **Called:** `https://www.cisa.gov/cybersecurity-advisories/ics-advisories.xml`
+- **Result:** HTTP 200, `application/rss+xml`, 492,408 bytes, 30 items — **all 30 are ICS
+  advisories**, 19 of which already appear in `all.xml`.
+- **Verdict: REJECTED.** It adds only more of the beat's *lowest*-signal category while
+  carrying none of the AA-series joint advisories or alerts. `all.xml` is the strictly
+  better single feed. Recorded so nobody re-researches it.
+
+## msrc (Microsoft Security Update Guide) — REJECTED (volume without exploitation signal)
+
+The lane brief's optional vendor-advisory candidate. It verifies; it is rejected on the
+brief's own stated criterion.
+
+- **Called:** `https://api.msrc.microsoft.com/update-guide/rss`
+- **Result:** HTTP 200, `application/rss+xml`, 2,446,259 bytes, **4,681 `<item>` elements**,
+  one per CVE (`<guid>CVE-2026-70331</guid>`, `<category>CVE</category>`). Keyless.
+- **Also called:** `https://api.msrc.microsoft.com/cvrf/v3.0/updates` — HTTP 200 JSON, and
+  `https://msrc.microsoft.com/blog/feed/` — HTTP 200 but serves **HTML, not RSS**.
+- **Verdict: REJECTED.** 4,681 raw CVE rows in a single fetch, carrying no severity and no
+  exploitation status in the item, is precisely the "volume without exploitation signal"
+  shape the brief said to skip for NVD. Confirmed exploitation is already covered by
+  `cisa_kev`, and analyst-written advisories by `cisa_advisories`. Adoptable later **only**
+  with a severity/exploited filter, which this endpoint does not expose per item.
+- **Method note:** a naive `grep -c '<item>'` reported **0** items for this feed, because
+  MSRC writes `<item Revision="1.0000000000">`. The real count came from an XML parser.
+  A count that reads zero and a feed that is genuinely empty look identical.
+
+## huggingface_blog — ADOPTED (was held in reserve in Phase 0.5)
+
+- **Re-verified 2026-08-29** with one fresh call, as instructed.
+- **Called:** `https://huggingface.co/blog/feed.xml`
+- **Result:** HTTP 200, `application/rss+xml`, 251,388 bytes, 0.24 s, **852 `<item>`**.
+- **Key:** none. `https://huggingface.co/robots.txt` is `User-agent: * / Allow: /`.
+- **Fixture:** `tests/fixtures/huggingface_blog.xml` — trimmed from 852 to 3, chosen to
+  include **one `isPermaLink="false"` community post** so both post families are exercised.
+- **Verdict: ADOPTED.** `KIND = "stream"`; the adapter reads the head 30 items, the same
+  choice `openai_news` makes, because the feed is a full archive rather than a window.
+- **KNOWN LIMITATION, measured rather than assumed: no item carries a `<description>`** —
+  **0 of 852**. Every observation's summary is therefore empty and the brief has only the
+  title from this source. The adapter does **not** substitute the title or any other field
+  into the summary; `test_huggingface_summary_is_empty_because_the_feed_has_no_description`
+  pins that, so an adapter that starts inventing a summary fails loudly. (The *channel*
+  carries a description; no *item* does — the first version of that test checked the
+  document and had to be tightened to check items.)
+- **Two post families, kept and labelled, not filtered:** official posts (`/blog/<slug>`,
+  739) and community/organisation posts (`/blog/<org>/<slug>`, **113 of 852**). Org posts
+  come from the model labs (IBM Granite, LiquidAI) and are often the substantive ones, so
+  they are distinguished structurally in `extra["post_type"]` rather than dropped.
+- **Identity:** `<guid>` equals `<link>` in every observed item, including the
+  `isPermaLink="false"` ones, so the guid is a stable id and not a second URL form.
+
+## frankfurter — ADOPTED (was verified-not-adopted in Phase 0.5)
+
+- **Re-verified 2026-08-29.**
+- **Called:** `https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR,JPY,GBP,CNY,CHF`
+- **Result:** HTTP 200, `application/json`, 125 bytes, 0.61 s —
+  `{"amount":1.0,"base":"USD","date":"2026-08-28","rates":{"CHF":0.80426,"CNY":6.7209,"EUR":0.85889,"GBP":0.73624,"JPY":159.68}}`
+- **Key:** none. `https://api.frankfurter.dev/robots.txt` is `User-agent: * / Allow: /`.
+- **Fixture:** `tests/fixtures/frankfurter.json` — the full real response, untrimmed.
+- **Verdict: ADOPTED.** `KIND = "snapshot"` — the whole pair list arrives each fetch, so a
+  pair disappearing is meaningful.
+- **Identity (plan §5.11) is the PAIR, never the rate.** `upstream_id` is `"USD/EUR"`; the
+  rate appears only in `extra["price"]` and the title carries no number. Guarded by
+  `test_frankfurter_rate_is_never_part_of_identity`, which refetches the same pairs at
+  moved rates and asserts identity is unchanged.
+- **Honest labelling, the same care PAXG got.** These are **ECB reference rates published
+  once per business day (~16:00 CET), not live tradable quotes.** `source_ts_ms` is the
+  payload's own `date` field, so a weekend or holiday fetch reports Friday's reference date
+  instead of looking fresh; `extra["rate_kind"] = "ecb_reference_daily"` says so on every
+  row. Guarded by `test_frankfurter_reports_the_ecb_reference_date_not_fetch_time`.
+- **Note on url:** Frankfurter has no per-pair web page, so the canonical url is that pair's
+  own query (`…/v1/latest?base=USD&symbols=EUR`) — deterministic and resolvable, the same
+  approach `openfda` uses.
+- **Scope note:** FX is a beat dimension Phase 0.5 declined as unasked-for. It was adopted
+  here on the lead's explicit instruction. **It does not close the markets gap** — equity
+  indices and oil are still uncovered; see "Known coverage gap — markets" above, which
+  stands unchanged.
+
+## un_press — ADOPTED
+
+**This is `press.un.org`, a DIFFERENT HOST from the `news.un.org` that Phase 0.5 rejected.**
+That rejection turned on `Disallow: */news/` in news.un.org's rules; it is not inherited
+here, and this verdict does not overturn it. press.un.org's own robots.txt was fetched and
+read rather than assumed from the sibling.
+
+- **Called:** `https://press.un.org/en/rss.xml`
+- **Result:** HTTP 200, `application/rss+xml`, 7,176 bytes, **10 `<item>`**. Refetched 3
+  times: 200 and 7,176 bytes every time.
+- **Key:** none.
+- **robots.txt** (`https://press.un.org/robots.txt`, 85 lines): a single `User-agent: *`
+  group at line 16. Its Disallow entries cover only `/core/`, `/profiles/`, READMEs,
+  `/admin/`, `/comment/reply/`, `/filter/tips`, `/node/add/`, `/search/`, `/search?`,
+  `/user/*`, `/media/oembed`, their `/index.php/…` twins, `*/sitesearch` and `*/search`.
+  **There is no `*/news/` rule and no rule matching `/en/rss.xml`.** No named-agent group
+  exists, so there is no narrowly-scoped Allow of the kind that made news.un.org's case
+  hard to argue.
+- **Fixture:** `tests/fixtures/un_press.xml` — trimmed from 10 items to 4, deliberately
+  **keeping the duplicate pair** described below so the dedup path is actually exercised.
+- **Verdict: ADOPTED.** `KIND = "stream"`. This is the politics beat's first live
+  general-news source; `state_dept_advisories` is a snapshot of country advisories and
+  GDELT is still dark.
+- **Identity is the UN DOCUMENT SYMBOL, not the url — because the feed publishes one
+  meeting under two urls.** Found by reading the live payload: Security Council meeting
+  **sc16444** appeared as both the press release
+  (`/en/2026/sc16444.doc.htm`, "Kenscoff Massacre Exposes Worsening Brutality of Haiti's
+  Gang Crisis…") and the live blog (`/en/blog/sc16444`, "Security Council, 10216th Meeting
+  (PM) Haiti"). Keying on the url would have put the same Council meeting in the brief
+  twice. Keying on the symbol collapses them, preferring the authoritative `.doc.htm`
+  press release. Live run: **10 received, 9 accepted** — the collapse is visible in the
+  counts. Guarded by `test_un_press_collapses_one_meeting_published_under_two_urls`.
+- **Document-symbol prefixes** are mapped to a UN body in `extra["body"]` — observed live:
+  `sgsm` 4 (SG statement), `sc` 3 (Security Council), `db` 1 (daily briefing), `bio` 1,
+  `sga` 1. An unrecognised prefix is typed `"other"` with the raw prefix preserved in
+  `extra["raw_prefix"]`, never silently relabelled — the same discipline
+  `federal_register` applies to document types.
+- Live run: **0 of 9 observations missing a timestamp**; all 9 document symbols unique.
+
+## eu_council (Council of the EU press releases) — REJECTED (bot wall)
+
+- **Called:** `https://www.consilium.europa.eu/en/rss/press-releases.aspx` and
+  `https://www.consilium.europa.eu/en/press/press-releases/rss/`
+- **Result:** **HTTP 403** on both, serving a `Browser check - Consilium` HTML interstitial
+  with a meta-refresh — a managed anti-bot challenge, not a missing path.
+- **Verdict: REJECTED.** Defeating a deliberate browser check is out of scope for a keyless
+  monitor. `ec.europa.eu/commission/presscorner/api/rss?language=en` (European **Commission**,
+  a different institution) did return HTTP 200 RSS and is the ready EU candidate if the beat
+  ever needs one — recorded, not adopted, since `un_press` satisfied the brief's priority order.
+
+## gdelt — RECHECKED 2026-08-29, STILL BROKEN, adapter unchanged
+
+Ran the exact recheck command recorded above, at **2026-08-29T02:40:35Z**:
+
+```
+curl -sS -o /dev/null -w '%{http_code}\n' --max-time 15 \
+  'https://api.gdeltproject.org/api/v2/doc/doc?query=test&mode=artlist&format=json&maxrecords=1'
+→ curl: (60) SSL certificate problem: certificate has expired
+→ 000
+```
+
+The certificate is byte-for-byte the same one, not a new short-lived cert:
+
+```
+subject= /CN=*.gdeltproject.org
+issuer=  /C=US/O=Let's Encrypt/CN=YR2
+notBefore=May 30 19:50:13 2026 GMT
+notAfter= Aug 28 19:50:12 2026 GMT
+```
+
+**No change made to the adapter**, per instruction — it continues to return
+`status="error"` cleanly and affects nothing else. **This has now been broken for ~31
+hours and is past the "day or two" the Phase 0.5 note allowed, so it is a live decision
+for the lead:** accept plaintext HTTP (rejected once, on the grounds that a brief quotes
+these articles and plaintext can be edited in transit), drop GDELT, or keep waiting.
+Politics is no longer one-source-deep while waiting — `un_press` now serves it alongside
+`state_dept_advisories`.
+
+## Live end-to-end run — all 13 against the real network
+
+`uv run python` over `engine.monitor.adapters.ADAPTERS`, **2026-08-29T02:48:11Z**, real
+network, no fixtures:
+
+```
+arxiv                  ai             healthy  http=200  recv=   25 acc=   25
+openai_news            ai             healthy  http=200  recv= 1157 acc=   30
+cisa_kev               cybersecurity  healthy  http=200  recv= 1685 acc= 1685
+gdelt                  politics       error    http=None recv=    0 acc=    0
+state_dept_advisories  politics       healthy  http=200  recv=  220 acc=  220
+federal_register       healthcare     healthy  http=200  recv=   40 acc=   40
+openfda                healthcare     healthy  http=200  recv=   25 acc=   25
+coingecko              markets        healthy  http=200  recv=    3 acc=    3
+treasury_yields        markets        healthy  http=200  recv=    4 acc=    4
+huggingface_blog       ai             healthy  http=200  recv=  852 acc=   30
+cisa_advisories        cybersecurity  healthy  http=200  recv=   30 acc=   30
+un_press               politics       healthy  http=200  recv=   10 acc=    9
+frankfurter            markets        healthy  http=200  recv=    5 acc=    5
+
+healthy 12/13
+```
+
+**All four new sources are healthy against live endpoints.** The only failure is GDELT's
+expired certificate, unchanged from Phase 0.5. `un_press`'s `recv=10 acc=9` is the
+duplicate-meeting collapse firing on the real feed, not a dropped item.

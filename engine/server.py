@@ -25,6 +25,22 @@ async def lifespan(app: FastAPI):
     from .loop import LOOP, SENSE
     from .monitor.schedule import SCHEDULER
     SENSE.start()   # cheap sensing (no LLM) — runs in BOTH modes
+    if not CONFIG.research_mode:
+        # The registry, written to `sources` at boot. Doing it here rather than inside
+        # collect means a source is registered even if its very first fetch fails —
+        # otherwise a permanently broken feed would never appear anywhere at all.
+        try:
+            from .monitor.collect import load_adapters_with_failures, register_sources
+            modules, failures = load_adapters_with_failures()
+            if failures:
+                # Loud, and recorded as errored sources rather than a shrunken registry.
+                log.error("%s adapter module(s) failed to import: %s", len(failures),
+                          ", ".join(n for n, _ in failures))
+            log.info("registered %s sources from %s module(s), %s failed",
+                     register_sources(adapters=modules, import_failures=failures),
+                     len(modules), len(failures))
+        except Exception as e:  # noqa: BLE001 — never block startup on bookkeeping
+            log.warning("source registration failed: %s", type(e).__name__)
     if CONFIG.research_mode:
         LOOP.start()
     else:
@@ -116,9 +132,23 @@ async def readyz():
     A completed sensing pass is not enough — when every feed is down the pass
     still completes and publishes an empty brief. Requiring a successful feed is
     what keeps 'quiet world' and 'all 23 feeds broken' from looking identical."""
-    healthy = [k for k, v in STATE.feed_health.items() if v.get("status") in ("healthy", "empty")]
-    failing = [k for k, v in STATE.feed_health.items() if v.get("status") == "error"]
-    ready = STATE.last_feed_ok_ms is not None
+    if CONFIG.research_mode:
+        health = STATE.feed_health
+    else:
+        from .monitor.collect import health_from_persisted_runs
+        from .monitor.store import get_store
+        health = health_from_persisted_runs(get_store())
+    healthy = [k for k, v in health.items() if v.get("status") in ("healthy", "empty")]
+    failing = [k for k, v in health.items()
+               if v.get("status") in ("error", "import_error")]
+    stale = [k for k, v in health.items()
+             if v.get("status") in ("stale", "never_run")]
+    # READINESS RULE (decided for defect D1b): ready means at least one source is
+    # delivering RIGHT NOW. If every source is stale or has never run, the service is
+    # NOT ready — even though each of those sources succeeded at some point, which is
+    # precisely the state that used to report 13/13 healthy while nothing collected.
+    # `last_feed_ok_ms` alone could not express this: it never goes back down.
+    ready = bool(healthy) if not CONFIG.research_mode else STATE.last_feed_ok_ms is not None
     return JSONResponse(
         {"ready": ready, "mode": CONFIG.mode,
          "world_refreshed_at": STATE.world_refreshed_ms,
@@ -126,20 +156,75 @@ async def readyz():
          # Monitor mode holds no in-memory events; its unit of work is the observation.
          "event_count": (len(STATE.events) if CONFIG.research_mode else STATE.observation_count),
          "feeds_ok": len(healthy), "feeds_failing": len(failing),
-         "failing": sorted(failing)[:10]},
+         "feeds_stale": len(stale),
+         "failing": sorted(failing)[:10], "stale": sorted(stale)[:10]},
         status_code=200 if ready else 503,
     )
 
 
 @app.get("/feeds/health")
 async def feeds_health():
-    """Per-feed status, so a stale or broken source is visible instead of silent."""
-    fh = STATE.feed_health
-    counts: dict[str, int] = {}
-    for v in fh.values():
-        counts[v.get("status", "unknown")] = counts.get(v.get("status", "unknown"), 0) + 1
-    return {"checked_at": STATE.world_refreshed_ms, "feed_count": len(fh),
+    """Per-feed status, so a stale or broken source is visible instead of silent.
+
+    In monitor mode this is served from the PERSISTED feed_runs table, so a restart no
+    longer wipes it. `source_count` is the registry as recorded in `sources`, and it is
+    reported next to `feed_count`: a source that is registered but has never produced a
+    run is the signature of a silently skipped adapter, and the two numbers differing is
+    the only way to see it."""
+    if CONFIG.research_mode:
+        fh = STATE.feed_health
+        counts: dict = {}
+        for v in fh.values():
+            counts[v.get("status", "unknown")] = counts.get(v.get("status", "unknown"), 0) + 1
+        return {"checked_at": STATE.world_refreshed_ms, "feed_count": len(fh),
+                "source_count": len(fh), "counts": counts, "feeds": fh}
+
+    from .monitor.collect import (
+        discovered_adapter_count,
+        health_counts,
+        health_from_persisted_runs,
+    )
+    from .monitor.store import get_store
+    store = get_store()
+    fh = health_from_persisted_runs(store)
+    counts = health_counts(fh)
+    # Three populations, deliberately reported side by side. They agreeing is the
+    # normal case; any disagreement names a specific failure that used to be silent:
+    # modules on disk that never reached the registry, or registered sources this
+    # process has not collected (defect D1).
+    return {"checked_at": STATE.world_refreshed_ms,
+            "feed_count": len(fh),
+            "source_count": store.count_sources(),
+            "adapter_module_count": discovered_adapter_count(),
             "counts": counts, "feeds": fh}
+
+
+@app.get("/sources")
+async def sources():
+    """What this monitor is watching, as recorded at boot from the adapter registry."""
+    from .monitor.store import get_store
+    rows = get_store().list_sources()
+    return {"count": len(rows), "sources": rows}
+
+
+@app.get("/stories")
+async def stories(beat: "str | None" = None, limit: int = 50):
+    """Stories, newest change first. Read-only; same token rules as every other route."""
+    from .monitor.store import get_store
+    limit = max(1, min(int(limit), 500))
+    rows = get_store().list_stories(beat=beat, limit=limit)
+    return {"count": len(rows), "beat": beat, "limit": limit, "stories": rows}
+
+
+@app.get("/story/{story_id}")
+async def story(story_id: str):
+    """One story: its metadata, the observations linked to it, and their revisions —
+    which for a market instrument IS the price history."""
+    from .monitor.store import get_store
+    row = get_store().get_story(story_id)
+    if not row:
+        raise HTTPException(404, "no such story")
+    return row
 
 
 @app.get("/brief/latest")

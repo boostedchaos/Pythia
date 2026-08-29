@@ -27,6 +27,8 @@ from . import _util
 SOURCE_ID = "state_dept_advisories"
 BEAT = "politics"
 KIND = "snapshot"
+DISPLAY_NAME = "US State Dept travel advisories"
+CANONICAL_DOMAIN = "travel.state.gov"
 
 URL = "https://travel.state.gov/_res/rss/TAsTWs.xml"
 

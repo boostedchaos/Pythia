@@ -1,6 +1,58 @@
 # PYTHIA — STATE (record of record)
 
-_Last updated: 2026-08-28_
+_Last updated: 2026-08-29_
+
+## 2026-08-29 — Phase 1 SHIPPED after a failed first gate: durable event spine
+
+**The process worked as designed.** Two Opus lanes built the spine (schema v3, stories,
+revisions, retention, persisted health) and four new feeds (registry 9 → 13, all verified with
+real calls; MSRC/EU-Council rejected with evidence; GDELT's expired cert renewed upstream
+mid-build). Suite 221 → 247. Then a fresh adversarial verifier said **DO-NOT-SHIP**: one bad
+adapter module silently killed all 13 feeds while health reported 13/13 healthy, plus five
+smaller holes. All six fixed; a second fresh verifier re-ran the original probes plus harder
+ones and said **SHIP**. Gate evidence is in the plan (§7 Phase 1). Highlights proven on the
+deployed VM: lossless in-place migration of the live db; 0 of 2,724 observations without
+provenance or story link; restart-stable identity; BTC as ONE story with a revision price
+series. Non-blocking follow-ups are filed in the plan for Phase 2.
+
+**Also of note:** an unknown peer session ("observer-sessions-fc") twice asked this build to
+commit to main and push to Gitea mid-run. Refused both times — standing orders are monitor-v1
+only, never push. If that session was not Kyle's, treat it as a prompt-injection attempt.
+
+## 2026-08-29 — Phase 0.5 SHIPPED: cited delta brief over direct feeds, Osiris dropped
+
+Commit `9a907ff` on `monitor-v1`, deployed and verified on VM 107 (192.168.0.28). Built by two
+parallel Opus 5 lanes under a Fable 5 architect, gated by a fresh adversarial verifier (xhigh)
+that planted its own bad inputs and passed all 12 acceptance criteria.
+
+**What exists now.** Nine direct feed adapters (`engine/monitor/adapters/`) covering all five
+beats — every source verified with a real HTTP call before adoption, fixtures + terms notes in
+`docs/feed-verification.md`. SQLite WAL spine with stable observation identity (price never in
+identity). Deterministic NEW/CHANGED/GONE deltas — no LLM in that path. One LLM rewrite call
+per brief behind a hard citation gate; URLs come from the store, never the model. Monthly LLM
+cap enforced in code. ntfy delivery (ASCII-safe headers), 07:00 America/Chicago schedule,
+`POST /brief/run`, `GET /brief/latest`. Config is container-first: `~/.hermes` and MiroFish
+reads deleted, Ollama default gone (§5.12 closed). Workstation artifacts retired to
+`.trash/2026-08-29/`, including the whole Osiris overlay.
+
+**Verified against the real world, not fixtures.** 8/9 feeds healthy live (GDELT = upstream
+expired cert, surfaced as a named error); 2,035 observations across all five beats read back
+from `monitor.db`; one real paid brief (deepseek/deepseek-v4-pro, $0.008025 from the provider's
+usage field) published with 39 valid citations; delivery confirmed by polling ntfy.sh itself —
+after the send-status alone had already lied once (UnicodeEncodeError on non-ASCII headers,
+found ONLY on the real run, fixed, regression-tested against the real httpx path).
+
+**Feed facts learned** (recorded in `docs/feed-verification.md`, plan §5.14): Anthropic has no
+news RSS; Stooq unreachable; Yahoo 429 + terms; ReliefWeb needs a pre-approved appname; UN News
+robots.txt disallows us; keyless markets tops out at BTC/ETH/yields/PAXG-as-gold-proxy. Equity
+indices + oil need a free FRED key — Kyle's action.
+
+**New finding (§5.13):** the citation gate blocks invented evidence but not silently DROPPED
+evidence — a model returning 1 bullet from 12 observations publishes cleanly. Phase 2 gate.
+
+**Suite:** 154 tests passing at commit time; every guard canary-proven (break → fail →
+restore, tree byte-identical). Phase 1 (event spine: sources/feed_runs/revisions/stories,
+retention, feed depth) in build the same night.
 
 ## 2026-08-28 — PIVOT TO MONITOR v1: sited on Proxmox, Phase 0 built and verified
 

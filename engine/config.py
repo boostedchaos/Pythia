@@ -107,6 +107,19 @@ class Config:
     # ships — deterministically, and labelled as such.
     llm_monthly_cap_usd: float = field(default_factory=lambda: _f("PYTHIA_LLM_MONTHLY_CAP_USD", 5.0))
 
+    # ── Retention (Phase 1) ──
+    # Observations, revisions, feed runs and snapshot presence older than this are
+    # pruned daily. Briefs are KEPT regardless — they are the product, and they are
+    # small enough that keeping every one costs nothing.
+    retention_days: int = field(default_factory=lambda: _i("RETENTION_DAYS", 365))
+
+    # A source whose most recent run is older than this reads as STALE rather than
+    # keeping its last good status forever (defect D1b). Derived from the sense
+    # interval — three missed collections is unambiguous, one could be a slow fetch.
+    feed_stale_after_sec: int = field(
+        default_factory=lambda: _i("FEED_STALE_AFTER_SEC",
+                                   _i("SENSE_INTERVAL_SEC", 180) * 3))
+
     # ── ntfy delivery ──
     ntfy_url: str = field(default_factory=lambda: os.environ.get("NTFY_URL", "https://ntfy.sh").rstrip("/"))
     # Secret: the topic IS the credential. Never logged, never in a response body.
@@ -164,6 +177,8 @@ class Config:
             "brief_tz": self.brief_tz,
             "brief_enabled": self.brief_enabled,
             "llm_monthly_cap_usd": self.llm_monthly_cap_usd,
+            "retention_days": self.retention_days,
+            "feed_stale_after_sec": self.feed_stale_after_sec,
             "ntfy_url": self.ntfy_url,
             # Presence only — the topic is a secret and never leaves the process.
             "ntfy_configured": bool(self.ntfy_topic),

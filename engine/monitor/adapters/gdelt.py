@@ -24,6 +24,8 @@ from . import _util
 SOURCE_ID = "gdelt"
 BEAT = "politics"
 KIND = "stream"
+DISPLAY_NAME = "GDELT global news index"
+CANONICAL_DOMAIN = "gdeltproject.org"
 
 QUERY = (
     "(diplomacy OR sanctions OR ceasefire OR election OR treaty OR coup) sourcelang:eng"
