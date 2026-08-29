@@ -1,22 +1,34 @@
 # PYTHIA — project instructions (this fork)
 
-PYTHIA is a local world-watching prediction oracle: it fuses ~23 keyless live global feeds (served
-by an Osiris checkout) → an LLM → concrete, located forecasts across 24h/week/month/year, has a
-persona **swarm** deliberate each one, and exposes the whole world-view as an agent API on `:8088`.
-Upstream: github.com/jangles-byte/Pythia (built on MiroFish + Osiris).
+> **2026-08-28: this is PYTHIA Monitor now, not a forecasting oracle.** Read
+> **`PYTHIA-MONITOR-V1-PLAN.md` first** — it is the plan of record (decisions, phases, acceptance
+> gates). Everything below the "Mode" heading describes the pre-pivot build and is kept as
+> history; where it conflicts with the plan, the plan wins.
 
-**This fork's headline change:** the 4-persona swarm (Strategist/Economist/Naturalist/Skeptic) runs
-each persona on a **different model over OpenRouter**, so votes genuinely decorrelate. The full
-themed Osiris web UI is also rolled out (into `osiris-live/` in this repo, its own git checkout) — oracle deck,
-swarm deliberation, chat, 9 social map layers, light/dark theme — plus a keyless engine dashboard
-at `GET /` on `:8088`.
+PYTHIA Monitor is a private, always-on world-monitoring service: it collects live feeds across
+five beats (AI, cybersecurity, global politics, US healthcare regulation, markets), tracks what
+**changed**, and writes a cited daily brief. It exposes the same evidence to other agents on
+`:8088`. Forecasting is retired and archived behind `PYTHIA_MODE=research`.
+
+Upstream: github.com/jangles-byte/Pythia (built on MiroFish + Osiris) — diverged; do not merge.
 
 ## Working here
 
-- `origin` points at UPSTREAM (jangles-byte). **Fork before pushing.** Don't commit unless asked.
-- **Record of record = `STATE.md`** (status + dated decisions). Read it before changing things.
+- **`origin` is `github.com/boostedchaos/Pythia` — Kyle's own fork.** (This line said "origin
+  points at UPSTREAM, fork before pushing" until 2026-08-28; that was wrong.) Upstream is not
+  configured as a remote. Don't commit unless asked, and don't push without asking.
+- **Active branch = `monitor-v1`.** `review-fixes` is the forecasting experiment's archive — do
+  not rewrite it.
+- **Plan of record = `PYTHIA-MONITOR-V1-PLAN.md`.** Status log = `STATE.md` (newest dated entry at
+  top is truth; the `## Status` bullets below it are pre-pivot history).
+- `BUILD-PROMPT.md` = paste-ready prompt to build the remaining phases autonomously.
 - Durable cross-session knowledge = `~/.claude/memory/domain/pythia.md`.
-- Approved design = `~/.claude/plans/typed-herding-melody.md`.
+- **Deployed on VM 107 `pythia`, Proxmox node pve2, `192.168.0.28`** —
+  `ssh -i ~/.ssh/id_ed25519_pythia pythia@192.168.0.28`; stack at `~/pythia/deploy/compose`.
+  Nightly `vzdump` job `pythia-daily` at 03:00. Deploy/health/restore commands: plan §13.
+- Pre-pivot design doc (historical) = `~/.claude/plans/typed-herding-melody.md`.
+
+## Mode (pre-pivot sections follow — history, not instructions)
 
 ## Layout
 

@@ -52,9 +52,9 @@ fake feed server written for the test. VM is on DHCP (needs a UniFi reservation 
 artifacts awaiting removal.
 
 
-## Status
+## Status (pre-pivot — superseded by the 2026-08-28 entry above; kept as history)
 
-- Forked from `jangles-byte/Pythia`. Local: `~/Documents/PROJECTS/Pythia` (`origin` = upstream — fork before pushing).
+- Forked from `jangles-byte/Pythia`. Local: `~/Documents/PROJECTS/Pythia/Pythia` (**nested checkout**). **`origin` = `github.com/boostedchaos/Pythia`, Kyle's own fork** — corrected 2026-08-28; this line previously said `origin` = upstream, which was wrong. Active branch `monitor-v1`.
 - **Multi-model swarm: DONE + verified.** Each persona votes with a different OpenRouter model.
 - **Calibration/backtesting: SHIPPED + verified (2026-07-02).** Every pass persists to
   `runs/predictions.jsonl`; an LLM judge resolves forecasts on horizon expiry
