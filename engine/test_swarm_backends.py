@@ -10,7 +10,7 @@ from .config import OPENROUTER_HEADERS, _PERSONA_ENV, Config
 from .oracle import Oracle
 
 _SWARM_VARS = list(_PERSONA_ENV.values()) + ["SWARM_BASE_URL", "SWARM_API_KEY"]
-_ORACLE_VARS = ["LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL"]
+_ORACLE_VARS = ["LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL", "OPENROUTER_API_KEY"]
 
 
 def _clear(*names: str) -> None:

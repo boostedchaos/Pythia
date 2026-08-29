@@ -36,11 +36,13 @@ class SenseLoop:
 
     async def _run(self) -> None:
         from .models import now_ms
-        from .pipeline import refresh_world
+        from .pipeline import refresh_monitor, refresh_world
         while True:
             try:
                 if not STATE.generating:
-                    await refresh_world()
+                    # Monitor mode senses through the direct adapters; research mode
+                    # keeps the Osiris intake it was measured on.
+                    await (refresh_world() if CONFIG.research_mode else refresh_monitor())
                     # The resolver is FORECAST work. In monitor mode it is not merely
                     # given a huge interval — it is never imported or called.
                     if CONFIG.research_mode and now_ms() - self._last_resolve >= CONFIG.resolve_interval_sec * 1000:

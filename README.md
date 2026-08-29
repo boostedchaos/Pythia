@@ -11,6 +11,18 @@ PYTHIA fuses two open-source projects — **[MiroFish](https://github.com/666ghj
 
 It runs **entirely on your own hardware**. No cloud, no API keys, no cost.
 
+</div>
+
+> **2026-08-29 — this document describes the pre-pivot build.** PYTHIA is now a
+> world-**monitoring** service; forecasting is retired (`PYTHIA_MODE=research` archives it).
+> The launchers this file mentions — `run-all.sh`, `PYTHIA.command`, `PYTHIA.app`,
+> `daily-digest.py` — and the Osiris overlay in `integrations/osiris/` were moved to
+> `.trash/2026-08-29/` and no longer exist at these paths. The plan of record is
+> `PYTHIA-MONITOR-V1-PLAN.md`; run the engine with `uv run python -m engine.run`.
+
+<div align="center">
+
+
 > **Building an agent?** Point it at PYTHIA and it gains **eyes on the whole planet** — one live, machine-readable view of everything happening on Earth (conflict, disasters, markets, displacement, disease, unrest, cyber) plus forecasts and reasoning, to inform decisions and add real-world context to whatever it does. → **[For agents ↓](#for-agents--give-your-agent-eyes-on-the-planet)**
 
 </div>

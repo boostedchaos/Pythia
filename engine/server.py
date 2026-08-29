@@ -23,33 +23,37 @@ log = logging.getLogger("pythia.server")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from .loop import LOOP, SENSE
+    from .monitor.schedule import SCHEDULER
     SENSE.start()   # cheap sensing (no LLM) — runs in BOTH modes
     if CONFIG.research_mode:
         LOOP.start()
+    else:
+        SCHEDULER.start()   # the daily brief — monitor mode's only LLM call
     log.info("PYTHIA up in %s mode | %s", CONFIG.mode, CONFIG.summary())
 
     async def _boot():
-        from .pipeline import refresh_world, run_prediction
+        from .pipeline import run_prediction
+        if not CONFIG.research_mode:
+            # Monitor mode needs no boot pass: SenseLoop's first iteration collects
+            # immediately. Doing it here as well fired every adapter TWICE within a
+            # second of startup — pointless load on eight public APIs, and enough to
+            # trip a rate limit on the ones that have one.
+            return
+        from . import ledger
         from .runtime import intake
-        if CONFIG.research_mode:
-            from . import ledger
-            # seed the track record from disk so restarts show history immediately
-            try:
-                STATE.track = ledger.track_record()
-            except Exception as e:  # noqa: BLE001
-                log.warning("track record seed failed: %s", e)
+        # seed the track record from disk so restarts show history immediately
+        try:
+            STATE.track = ledger.track_record()
+        except Exception as e:  # noqa: BLE001
+            log.warning("track record seed failed: %s", e)
         # wait for Osiris to be reachable, then give its routes a moment to compile
         for _ in range(20):
             if await intake.health():
                 break
             await asyncio.sleep(2)
         await asyncio.sleep(4)
-        if CONFIG.research_mode:
-            # run_prediction senses the world itself — no separate refresh_world (double-fetch)
-            await run_prediction(trigger="boot")
-        else:
-            # monitor mode: sense the world only. Zero LLM calls, zero ledger writes.
-            await refresh_world()
+        # run_prediction senses the world itself — no separate refresh_world (double-fetch)
+        await run_prediction(trigger="boot")
 
     boot = asyncio.create_task(_boot(), name="pythia-boot")
     try:
@@ -59,6 +63,7 @@ async def lifespan(app: FastAPI):
         boot.cancel()
         await LOOP.stop()
         await SENSE.stop()
+        await SCHEDULER.stop()
         for t in (boot,):
             try:
                 await t
@@ -118,7 +123,8 @@ async def readyz():
         {"ready": ready, "mode": CONFIG.mode,
          "world_refreshed_at": STATE.world_refreshed_ms,
          "last_successful_feed_at": STATE.last_feed_ok_ms,
-         "event_count": len(STATE.events),
+         # Monitor mode holds no in-memory events; its unit of work is the observation.
+         "event_count": (len(STATE.events) if CONFIG.research_mode else STATE.observation_count),
          "feeds_ok": len(healthy), "feeds_failing": len(failing),
          "failing": sorted(failing)[:10]},
         status_code=200 if ready else 503,
@@ -134,6 +140,27 @@ async def feeds_health():
         counts[v.get("status", "unknown")] = counts.get(v.get("status", "unknown"), 0) + 1
     return {"checked_at": STATE.world_refreshed_ms, "feed_count": len(fh),
             "counts": counts, "feeds": fh}
+
+
+@app.get("/brief/latest")
+async def brief_latest():
+    """The newest brief a reader should see. A `failed` run is never returned here —
+    that is exactly the point: a dead provider leaves yesterday's brief in place."""
+    from .monitor.schedule import SCHEDULER
+    from .monitor.store import get_store
+    row = get_store().latest_brief()
+    if not row:
+        raise HTTPException(404, "no brief has been published yet")
+    return {"brief": row, "next_fire": SCHEDULER.next_fire_iso,
+            "last_run": SCHEDULER.last_result}
+
+
+@app.post("/brief/run")
+async def brief_run():
+    """Collect and build a brief NOW. Mutating, so the bearer-token gate covers it."""
+    from .monitor.schedule import run_once
+    result = await run_once()
+    return result
 
 
 @app.get("/", response_class=HTMLResponse)

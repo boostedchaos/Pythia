@@ -22,10 +22,18 @@ services:
       OSIRIS_URL: ${OSIRIS_URL:-http://osiris:3000}
       LLM_BASE_URL: ${LLM_BASE_URL:-https://openrouter.ai/api/v1}
       LLM_MODEL: ${LLM_MODEL:-deepseek/deepseek-v4-pro}
-      LLM_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in deploy/compose/.env}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in deploy/compose/.env}
       PYTHIA_API_TOKEN: ${PYTHIA_API_TOKEN:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       SENSE_INTERVAL_SEC: ${SENSE_INTERVAL_SEC:-180}
+      # ── daily brief (one LLM call per day) ──
+      BRIEF_MODEL: ${BRIEF_MODEL:-deepseek/deepseek-v4-pro}
+      BRIEF_HOUR_LOCAL: ${BRIEF_HOUR_LOCAL:-7}
+      BRIEF_TZ: ${BRIEF_TZ:-America/Chicago}
+      PYTHIA_LLM_MONTHLY_CAP_USD: ${PYTHIA_LLM_MONTHLY_CAP_USD:-5}
+      # The ntfy topic IS the credential — keep it in deploy/compose/.env only.
+      NTFY_URL: ${NTFY_URL:-https://ntfy.sh}
+      NTFY_TOPIC: ${NTFY_TOPIC:-}
     volumes:
       - pythia-data:/data
     networks: [pythia]

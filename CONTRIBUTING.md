@@ -1,5 +1,12 @@
 # Contributing to PYTHIA
 
+> **2026-08-29 — this document describes the pre-pivot build.** PYTHIA is now a
+> world-**monitoring** service; forecasting is retired (`PYTHIA_MODE=research` archives it).
+> The launchers this file mentions — `run-all.sh`, `PYTHIA.command`, `PYTHIA.app`,
+> `daily-digest.py` — and the Osiris overlay in `integrations/osiris/` were moved to
+> `.trash/2026-08-29/` and no longer exist at these paths. The plan of record is
+> `PYTHIA-MONITOR-V1-PLAN.md`; run the engine with `uv run python -m engine.run`.
+
 Thanks for wanting to help. PYTHIA is a **local, keyless world-watching prediction oracle**, and contributions that keep it that way — fast, private, and free — are very welcome.
 
 `main` is protected: all changes land through a **pull request** that gets reviewed and approved. Push directly to your fork, then open a PR here.

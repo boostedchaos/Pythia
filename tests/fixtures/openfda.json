@@ -1,0 +1,219 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2026-08-19",
+  "results": {
+   "skip": 0,
+   "limit": 20,
+   "total": 17899
+  }
+ },
+ "results": [
+  {
+   "status": "Ongoing",
+   "city": "Flushing",
+   "state": "NY",
+   "country": "United States",
+   "classification": "Class I",
+   "openfda": {},
+   "product_type": "Drugs",
+   "event_id": "98650",
+   "recalling_firm": "Buy-Herbal",
+   "address_1": "13661 41st Ave",
+   "address_2": "Box 239",
+   "postal_code": "11355-2464",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "E-Mail",
+   "distribution_pattern": "Product was sold to individual consumers via ebay third party seller.",
+   "recall_number": "D-0769-2026",
+   "product_description": "Kian Pee Wan Capsules, 30-count bottles",
+   "product_quantity": "71 bottles",
+   "reason_for_recall": "Marketed Without an Approved NDA/ANDA: Product contains undeclared drug ingredients dexamethasone and cyproheptadine.",
+   "recall_initiation_date": "20260321",
+   "center_classification_date": "20260817",
+   "report_date": "20260819",
+   "code_info": "All lots within expiry.",
+   "more_code_info": ""
+  },
+  {
+   "status": "Ongoing",
+   "city": "Kadi",
+   "state": "",
+   "country": "India",
+   "classification": "Class II",
+   "openfda": {},
+   "product_type": "Drugs",
+   "event_id": "99547",
+   "recalling_firm": "Shoolin Pharma Chem LLP",
+   "address_1": "408 B/H Ratnamani Tubes",
+   "address_2": "Block/Survey No; Nr Maruti Inox",
+   "postal_code": "N/A",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "",
+   "distribution_pattern": "Distributed Nationwide in the USA",
+   "recall_number": "D-0759-2026",
+   "product_description": "SILDENAFIL CITRATE USP, 0.100 KG, 100 gm-bag Net Wt, RX ONLY \"FOR Prescription Compounding Only\", Shoolin Pharma Chem LLP, Block/Survey no 408, B/H Ratnamani Tubes, Near Maruti Inox, Indrad, Kadi, Mahesana, Gujarat, 382715, India,  (CAS NO. 171599-83-0) NDC 85702-001-05",
+   "product_quantity": "25KG, 250-1gm bags",
+   "reason_for_recall": "CGMP Deviations:Noted during FDA inspection",
+   "recall_initiation_date": "20260803",
+   "center_classification_date": "20260813",
+   "report_date": "20260819",
+   "code_info": "Batch SDC2505001, Date of Expiry: April 30, 2030.",
+   "more_code_info": ""
+  },
+  {
+   "status": "Ongoing",
+   "city": "Columbia",
+   "state": "MO",
+   "country": "United States",
+   "classification": "Class II",
+   "openfda": {},
+   "product_type": "Drugs",
+   "event_id": "99505",
+   "recalling_firm": "Apollo Care, LLC",
+   "address_1": "3801 Mojave Ct Ste 101",
+   "address_2": "",
+   "postal_code": "65202-4042",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "E-Mail",
+   "distribution_pattern": "Nationwide within the U.S",
+   "recall_number": "D-0755-2026",
+   "product_description": "SEMAGLUTIDE 7.5mg (5mg/mL), Glycine 7.5 mg (5mg/mL), 1.5 mL Sterile Multi-Dose Vial, Rx Only, For Subcutaneous Injection Only, APOLLO care, 3801 Mojave Ct, Ste 102, Columbia, MO 65202. NDC 71170-721-01",
+   "product_quantity": "250 vials.",
+   "reason_for_recall": "Presence of Particulate Matter; identified as a nylon/polyamide and silk/proteinaceous-type material",
+   "recall_initiation_date": "20260729",
+   "center_classification_date": "20260807",
+   "report_date": "20260819",
+   "code_info": "Lot: AC-017273, Exp. 12/12/2026.",
+   "more_code_info": ""
+  },
+  {
+   "status": "Ongoing",
+   "city": "Austin",
+   "state": "TX",
+   "country": "United States",
+   "classification": "Class I",
+   "openfda": {},
+   "product_type": "Drugs",
+   "event_id": "99509",
+   "recalling_firm": "Victory Medical Center Pharmacy",
+   "address_1": "4303 Victory Dr",
+   "address_2": "",
+   "postal_code": "78704-7507",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "Telephone",
+   "distribution_pattern": "USA Nationwide",
+   "recall_number": "D-0772-2026",
+   "product_description": "Glutathione (MDV), 200 mg/mL, 30 mL vial, each mL contains Glutathione 200 mg, Ascorbic Acid 20 mg, Benzyl Alcohol 1.5%, Na Hydroxide (Ph Adjust) in sterile water for injection, VMC.",
+   "product_quantity": "91",
+   "reason_for_recall": "Microbial Contamination of Sterile Products - out of specifications results were obtained for bacterial endotoxin.",
+   "recall_initiation_date": "20260701",
+   "center_classification_date": "20260819",
+   "report_date": "20260819",
+   "code_info": "Lot # 1984345, 1980571, 1981940, Use Before Date: 08/27/2026.",
+   "more_code_info": ""
+  },
+  {
+   "status": "Ongoing",
+   "city": "Columbia",
+   "state": "MO",
+   "country": "United States",
+   "classification": "Class II",
+   "openfda": {},
+   "product_type": "Drugs",
+   "event_id": "99505",
+   "recalling_firm": "Apollo Care, LLC",
+   "address_1": "3801 Mojave Ct Ste 101",
+   "address_2": "",
+   "postal_code": "65202-4042",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "E-Mail",
+   "distribution_pattern": "Nationwide within the U.S",
+   "recall_number": "D-0747-2026",
+   "product_description": "SEMAGLUTIDE 12.5MG (2.5MG/mL), 5 mL Sterile Multi-Dose Vial, Rx Only, For Subcutaneous Injection Only, APOLLO care, 3801 Mojave Ct, Ste 102, Columbia, MO 65202. NDC 71170-495-05",
+   "product_quantity": "56,918 vials.",
+   "reason_for_recall": "Presence of Particulate Matter; identified as a nylon/polyamide and silk/proteinaceous-type material",
+   "recall_initiation_date": "20260729",
+   "center_classification_date": "20260807",
+   "report_date": "20260819",
+   "code_info": "Lot: AC-017108, Exp. 11/17/2026; AC-017110, Exp. 11/20/2026; AC-017112, Exp. 11/21/2026;  AC-017142, AC-017144, Exp. 12/10/2026; AC-017166, AC-017167, AC-017177, AC-017213, AC-017224, AC-017225, Exp. 12/31/2026",
+   "more_code_info": ""
+  },
+  {
+   "status": "Ongoing",
+   "city": "Deerfield",
+   "state": "IL",
+   "country": "United States",
+   "classification": "Not Yet Classified",
+   "openfda": {
+    "application_number": [
+     "NDA207131"
+    ],
+    "brand_name": [
+     "CEFAZOLIN"
+    ],
+    "generic_name": [
+     "CEFAZOLIN SODIUM"
+    ],
+    "manufacturer_name": [
+     "Baxter Healthcare Corporation"
+    ],
+    "product_ndc": [
+     "0338-0096",
+     "0338-3508",
+     "0338-3503"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ],
+    "route": [
+     "INTRAVENOUS"
+    ],
+    "substance_name": [
+     "CEFAZOLIN SODIUM"
+    ],
+    "rxcui": [
+     "1665050",
+     "1665060",
+     "2630753"
+    ],
+    "spl_id": [
+     "9139fd65-24ba-42a9-a084-9d6dd2d1b181"
+    ],
+    "spl_set_id": [
+     "d91a8d13-99a0-4d87-88dc-71cbd37922b4"
+    ],
+    "package_ndc": [
+     "0338-3508-41",
+     "0338-3503-41",
+     "0338-0096-06"
+    ],
+    "is_original_packager": [
+     true
+    ],
+    "unii": [
+     "P380M0454Z"
+    ]
+   },
+   "product_type": "Drugs",
+   "event_id": "99463",
+   "recalling_firm": "Baxter Healthcare Corporation",
+   "address_1": "1 Baxter Pkwy",
+   "address_2": "",
+   "postal_code": "60015-4625",
+   "voluntary_mandated": "Voluntary: Firm initiated",
+   "initial_firm_notification": "Letter",
+   "distribution_pattern": "US Nationwide.",
+   "recall_number": "",
+   "product_description": "Cefazolin in Dextrose, Injection, USP, 2g / 100mL (20mg / mL) Single-Dose Infusion Bag in 100mL GALAXY Plastic Container, Frozen Premix, Sterile, Rx only, Manufactured by Baxter Healthcare Corporation, Deerfield, IL 60015, USA, NDC 0338-3508-41.",
+   "product_quantity": "",
+   "reason_for_recall": "Presence of Particulate Matter",
+   "recall_initiation_date": "20260724",
+   "report_date": "20260819",
+   "code_info": "Lot # LD175708, Exp Date: 14-Feb-2027.",
+   "more_code_info": ""
+  }
+ ]
+}

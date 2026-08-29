@@ -25,7 +25,7 @@ RUN pip install \
 
 COPY engine/ ./engine/
 
-# Non-root. /data is the persistent volume (SQLite lands here in Phase 1).
+# Non-root. /data is the persistent volume (monitor.db, WAL, lands here).
 RUN useradd --system --uid 10001 --create-home pythia \
  && mkdir -p /data /app/runs \
  && chown -R pythia:pythia /data /app

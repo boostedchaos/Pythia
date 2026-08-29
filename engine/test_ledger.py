@@ -12,8 +12,27 @@ from .models import AgentView, Prediction, WorldBrief
 from .oracle import Oracle
 
 
+try:  # pytest is a dev dependency; `python -m engine.test_ledger` must still work without it
+    import pytest
+
+    @pytest.fixture(name="tmp")
+    def _tmp_dir(tmp_path):
+        """The four tests below take a `tmp` directory. Under pytest that name
+        resolved to no fixture, so all four ERRORED at setup instead of running —
+        collected, reported, and never actually executing a single assertion."""
+        return str(tmp_path)
+except ImportError:  # pragma: no cover — main() supplies its own temp dirs
+    pass
+
+
 def _fresh_ledger(tmp: str):
     from . import ledger
+    # Repoint the CONFIG object the LEDGER actually holds, not the one this module
+    # imported. Another test reloading engine.config rebinds the module attribute, so
+    # a lazily-imported ledger can end up on a different instance — in which case this
+    # redirect silently misses and every test writes to the repo's real runs/ dir,
+    # accumulating rows across tests instead of isolating them.
+    ledger.CONFIG.runs_dir = Path(tmp)
     CONFIG.runs_dir = Path(tmp)
     ledger.reset_cache_for_tests()
     return ledger

@@ -19,26 +19,12 @@ try:
 except Exception:  # noqa: BLE001 — fall back to httpx's default if the system store is unavailable
     HTTPX_VERIFY = True
 
-# Reuse MiroFish's local LLM as the oracle's brain unless overridden in pythia/.env.
-_MIROFISH_DIR = Path(os.environ.get("MIROFISH_DIR", str(Path.home() / "MiroFish")))
-
-
-def _read_env_file(path: Path) -> dict:
-    """Parse a foreign KEY=VALUE .env into a dict (missing file -> empty)."""
-    out: dict[str, str] = {}
-    if path.exists():
-        for line in path.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
-                k, v = line.split("=", 1)
-                out[k.strip()] = v.strip()
-    return out
-
-
-_MF = _read_env_file(_MIROFISH_DIR / ".env")
-# The user's existing OpenRouter/API creds already live here — reuse them so the
-# oracle needs no key of its own (mirrors the MiroFish .env reuse above).
-_HERMES = _read_env_file(Path.home() / ".hermes" / ".env")
+# Configuration is CONTAINER-FIRST (plan §5.12). Until 2026-08-29 this module read
+# ~/.hermes/.env and MiroFish's .env for credentials and defaulted LLM_BASE_URL to
+# Ollama on localhost. None of those exist inside a container, so a fresh deploy
+# pointed at nothing and said so nowhere. Every setting now comes from a real
+# environment variable; the repo-root .env above is the only file read, and it is
+# inside the deployment.
 
 # OpenRouter wants attribution headers; harmless to any other OpenAI-compatible host.
 OPENROUTER_HEADERS = {
@@ -105,12 +91,26 @@ class Config:
     # Bearer token required on every route when set. Blank = open (loopback only).
     api_token: str = field(default_factory=lambda: os.environ.get("PYTHIA_API_TOKEN", "").strip())
 
-    # ── Oracle LLM (defaults to MiroFish's configured local model) ──
-    llm_base_url: str = field(default_factory=lambda: os.environ.get("LLM_BASE_URL") or _MF.get("LLM_BASE_URL") or "http://localhost:11434/v1")
-    llm_api_key: str = field(default_factory=lambda: os.environ.get("LLM_API_KEY") or _MF.get("LLM_API_KEY") or "")
-    llm_model: str = field(default_factory=lambda: os.environ.get("LLM_MODEL") or _MF.get("LLM_MODEL_NAME") or "llama3.1")
+    # ── LLM (OpenRouter by default; explicit env only) ──
+    llm_base_url: str = field(default_factory=lambda: os.environ.get("LLM_BASE_URL") or "https://openrouter.ai/api/v1")
+    llm_api_key: str = field(default_factory=lambda: os.environ.get("OPENROUTER_API_KEY") or os.environ.get("LLM_API_KEY") or "")
+    llm_model: str = field(default_factory=lambda: os.environ.get("LLM_MODEL") or "")
     temperature: float = field(default_factory=lambda: _f("ORACLE_TEMPERATURE", 0.5))
     request_timeout: int = field(default_factory=lambda: _i("ORACLE_TIMEOUT_SEC", 180))
+
+    # ── Daily brief (Phase 0.5) ──
+    brief_model: str = field(default_factory=lambda: os.environ.get("BRIEF_MODEL", "").strip())
+    brief_hour_local: int = field(default_factory=lambda: _i("BRIEF_HOUR_LOCAL", 7))
+    brief_tz: str = field(default_factory=lambda: os.environ.get("BRIEF_TZ", "America/Chicago").strip() or "America/Chicago")
+    brief_enabled: bool = field(default_factory=lambda: _b("BRIEF_ENABLED", True))
+    # Hard monthly ceiling, enforced in code (plan §10). At the cap the brief still
+    # ships — deterministically, and labelled as such.
+    llm_monthly_cap_usd: float = field(default_factory=lambda: _f("PYTHIA_LLM_MONTHLY_CAP_USD", 5.0))
+
+    # ── ntfy delivery ──
+    ntfy_url: str = field(default_factory=lambda: os.environ.get("NTFY_URL", "https://ntfy.sh").rstrip("/"))
+    # Secret: the topic IS the credential. Never logged, never in a response body.
+    ntfy_topic: str = field(default_factory=lambda: os.environ.get("NTFY_TOPIC", "").strip())
 
     # ── Prediction behaviour ──
     horizons: list[str] = field(default_factory=lambda: [h.strip() for h in os.environ.get("HORIZONS", "24h,week,month,year").split(",") if h.strip()])
@@ -132,18 +132,12 @@ class Config:
         n: os.environ[e] for n, e in _PERSONA_ENV.items() if os.environ.get(e)})
 
     def __post_init__(self) -> None:
-        # Resolve the oracle key: explicit -> Hermes OpenRouter key (only when the
-        # base IS OpenRouter, so a cloud key never leaks to a local host) -> Ollama dummy.
-        if not self.llm_api_key:
-            if "openrouter" in self.llm_base_url:
-                self.llm_api_key = _HERMES.get("OPENROUTER_API_KEY") or ""
-            self.llm_api_key = self.llm_api_key or "ollama"
+        # No credential is invented and none is read from outside the deployment.
+        # A blank key stays blank so the failure is "no key configured", not a
+        # confusing 401 from a host we silently guessed at.
         # Swarm backend inherits the oracle's unless overridden.
         self.swarm_base_url = self.swarm_base_url or self.llm_base_url
-        if not self.swarm_api_key:
-            self.swarm_api_key = self.llm_api_key
-            if self.swarm_api_key == "ollama" and "openrouter" in self.swarm_base_url:
-                self.swarm_api_key = _HERMES.get("OPENROUTER_API_KEY") or self.swarm_api_key
+        self.swarm_api_key = self.swarm_api_key or self.llm_api_key
         # Any persona left unset uses the oracle model == today's single-model behaviour.
         for name in _PERSONA_ENV:
             self.swarm_models.setdefault(name, self.llm_model)
@@ -165,6 +159,14 @@ class Config:
             "llm_base_url": self.llm_base_url,
             "llm_model": self.llm_model,
             "sense_interval_sec": self.sense_interval_sec,
+            "brief_model": self.brief_model,
+            "brief_hour_local": self.brief_hour_local,
+            "brief_tz": self.brief_tz,
+            "brief_enabled": self.brief_enabled,
+            "llm_monthly_cap_usd": self.llm_monthly_cap_usd,
+            "ntfy_url": self.ntfy_url,
+            # Presence only — the topic is a secret and never leaves the process.
+            "ntfy_configured": bool(self.ntfy_topic),
         }
         if self.research_mode:
             out.update(swarm_models=self.swarm_models, horizons=self.horizons,

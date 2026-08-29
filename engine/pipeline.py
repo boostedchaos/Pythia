@@ -29,6 +29,23 @@ async def refresh_world() -> int:
         return 0
 
 
+async def refresh_monitor() -> int:
+    """Monitor-mode sensing: run the direct feed adapters and persist what changed.
+
+    This REPLACES the Osiris intake in monitor mode (plan Phase 0.5). Research mode
+    keeps `refresh_world` untouched, so the archived experiment still reproduces."""
+    from .monitor.collect import collect_once, health_from_runs
+    try:
+        runs = await collect_once()
+        STATE.set_feed_health(health_from_runs(runs))
+        count = sum(len(r.observations) for r in runs)
+        STATE.note_monitor_pass(count)
+        return count
+    except Exception as e:  # noqa: BLE001
+        log.warning("monitor collection failed: %s", e)
+        return 0
+
+
 async def run_prediction(trigger: str = "manual") -> RunRecord:
     """RESEARCH MODE ONLY. Forecasting is retired — see PYTHIA-MONITOR-V1-PLAN.md.
     Guarded here as well as at every caller so no future caller can re-enable it by accident."""

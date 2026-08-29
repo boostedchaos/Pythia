@@ -1,0 +1,180 @@
+{
+ "description": "Documents from Health and Human Services Department, Centers for Medicare & Medicaid Services, and Food and Drug Administration",
+ "count": 10000,
+ "total_pages": 50,
+ "next_page_url": "https://www.federalregister.gov/api/v1/documents?conditions%5Bagencies%5D%5B%5D=health-and-human-services-department&conditions%5Bagencies%5D%5B%5D=centers-for-medicare-medicaid-services&conditions%5Bagencies%5D%5B%5D=food-and-drug-administration&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=type&fields%5B%5D=html_url&fields%5B%5D=publication_date&fields%5B%5D=abstract&fields%5B%5D=agencies&fields%5B%5D=action&format=json&order=newest&page=2&per_page=20&search_after_cursor=WzE3ODc3MDI0MDAwMDAsIjIwMjYtMTc0MDkiXQ",
+ "results": [
+  {
+   "document_number": "2026-17625",
+   "title": "Agency Information Collection Activities: Proposed Collection: Public Comment Request; Information Collection Request Title: The National Health Service Corps Loan Repayment Programs OMB No. 0915-0127-Revision",
+   "type": "Notice",
+   "html_url": "https://www.federalregister.gov/documents/2026/08/28/2026-17625/agency-information-collection-activities-proposed-collection-public-comment-request-information",
+   "publication_date": "2026-08-28",
+   "abstract": "In compliance with the requirement for opportunity for public comment on proposed data collection projects of the Paperwork Reduction Act of 1995, HRSA announces plans to submit an Information Collection Request (ICR), described below, to the Office of Management and Budget (OMB). Prior to submitting the ICR to OMB, HRSA seeks comments from the public regarding the burden estimate, below, or any other aspect of the ICR.",
+   "agencies": [
+    {
+     "raw_name": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+     "name": "Health and Human Services Department",
+     "id": 221,
+     "url": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/221",
+     "parent_id": null,
+     "slug": "health-and-human-services-department"
+    },
+    {
+     "raw_name": "Health Resources and Services Administration",
+     "name": "Health Resources and Services Administration",
+     "id": 222,
+     "url": "https://www.federalregister.gov/agencies/health-resources-and-services-administration",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/222",
+     "parent_id": 221,
+     "slug": "health-resources-and-services-administration"
+    }
+   ],
+   "action": "Notice."
+  },
+  {
+   "document_number": "2026-17624",
+   "title": "Proposed Data Collection Submitted for Public Comment and Recommendations",
+   "type": "Notice",
+   "html_url": "https://www.federalregister.gov/documents/2026/08/28/2026-17624/proposed-data-collection-submitted-for-public-comment-and-recommendations",
+   "publication_date": "2026-08-28",
+   "abstract": "The Centers for Disease Control and Prevention (CDC), as part of its continuing effort to reduce public burden and maximize the utility of government information, invites the general public and other federal agencies the opportunity to comment on a continuing information collection, as required by the Paperwork Reduction Act of 1995. This notice invites comment on a proposed information collection project titled the National Death Index (NDI). The NDI allows NCHS to collect mortality data to support epidemiological research and to furnish mortality information to approved public health and medical investigators.",
+   "agencies": [
+    {
+     "raw_name": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+     "name": "Health and Human Services Department",
+     "id": 221,
+     "url": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/221",
+     "parent_id": null,
+     "slug": "health-and-human-services-department"
+    },
+    {
+     "raw_name": "Centers for Disease Control and Prevention",
+     "name": "Centers for Disease Control and Prevention",
+     "id": 44,
+     "url": "https://www.federalregister.gov/agencies/centers-for-disease-control-and-prevention",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/44",
+     "parent_id": 221,
+     "slug": "centers-for-disease-control-and-prevention"
+    }
+   ],
+   "action": "Notice with comment period."
+  },
+  {
+   "document_number": "2026-17623",
+   "title": "Agency Forms Undergoing Paperwork Reduction Act Review",
+   "type": "Notice",
+   "html_url": "https://www.federalregister.gov/documents/2026/08/28/2026-17623/agency-forms-undergoing-paperwork-reduction-act-review",
+   "publication_date": "2026-08-28",
+   "abstract": null,
+   "agencies": [
+    {
+     "raw_name": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+     "name": "Health and Human Services Department",
+     "id": 221,
+     "url": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/221",
+     "parent_id": null,
+     "slug": "health-and-human-services-department"
+    },
+    {
+     "raw_name": "Centers for Disease Control and Prevention",
+     "name": "Centers for Disease Control and Prevention",
+     "id": 44,
+     "url": "https://www.federalregister.gov/agencies/centers-for-disease-control-and-prevention",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/44",
+     "parent_id": 221,
+     "slug": "centers-for-disease-control-and-prevention"
+    }
+   ],
+   "action": null
+  },
+  {
+   "document_number": "2026-17622",
+   "title": "Federal Independent Dispute Resolution Operations; Correction",
+   "type": "Rule",
+   "html_url": "https://www.federalregister.gov/documents/2026/08/28/2026-17622/federal-independent-dispute-resolution-operations-correction",
+   "publication_date": "2026-08-28",
+   "abstract": "This document corrects typographical errors and omissions in the final rule that appeared in the June 4, 2026, Federal Register titled \"Federal Independent Dispute Resolution Operations\" (referred to hereafter as the \"IDR final rule\"). The effective date of the IDR final rule was August 3, 2026.",
+   "agencies": [
+    {
+     "raw_name": "DEPARTMENT OF THE TREASURY",
+     "name": "Treasury Department",
+     "id": 497,
+     "url": "https://www.federalregister.gov/agencies/treasury-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/497",
+     "parent_id": null,
+     "slug": "treasury-department"
+    },
+    {
+     "raw_name": "Internal Revenue Service",
+     "name": "Internal Revenue Service",
+     "id": 254,
+     "url": "https://www.federalregister.gov/agencies/internal-revenue-service",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/254",
+     "parent_id": 497,
+     "slug": "internal-revenue-service"
+    },
+    {
+     "raw_name": "DEPARTMENT OF LABOR",
+     "name": "Labor Department",
+     "id": 271,
+     "url": "https://www.federalregister.gov/agencies/labor-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/271",
+     "parent_id": null,
+     "slug": "labor-department"
+    },
+    {
+     "raw_name": "Employee Benefits Security Administration",
+     "name": "Employee Benefits Security Administration",
+     "id": 131,
+     "url": "https://www.federalregister.gov/agencies/employee-benefits-security-administration",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/131",
+     "parent_id": 271,
+     "slug": "employee-benefits-security-administration"
+    },
+    {
+     "raw_name": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+     "name": "Health and Human Services Department",
+     "id": 221,
+     "url": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/221",
+     "parent_id": null,
+     "slug": "health-and-human-services-department"
+    }
+   ],
+   "action": "Correcting amendment."
+  },
+  {
+   "document_number": "2026-17605",
+   "title": "Agency Information Collection Activities; Proposed Collection; Comment Request; Qualitative Feedback on Agency Service Delivery",
+   "type": "Notice",
+   "html_url": "https://www.federalregister.gov/documents/2026/08/28/2026-17605/agency-information-collection-activities-proposed-collection-comment-request-qualitative-feedback-on",
+   "publication_date": "2026-08-28",
+   "abstract": "The Food and Drug Administration (FDA or Agency) is announcing an opportunity for public comment on the proposed collection of certain information by the Agency. Under the Paperwork Reduction Act of 1995 (PRA), Federal Agencies are required to publish notice in the Federal Register concerning each proposed collection of information, including each proposed extension of an existing collection of information, and to allow 60 days for public comment in response to the notice. This notice solicits comments on a generic collection of information through which we intend to seek insights into customer or stakeholder perceptions, experiences and expectations, provide an early warning of issues with service, or focus attention on areas where communication, training, or changes in operations might improve delivery of products or services.",
+   "agencies": [
+    {
+     "raw_name": "DEPARTMENT OF HEALTH AND HUMAN SERVICES",
+     "name": "Health and Human Services Department",
+     "id": 221,
+     "url": "https://www.federalregister.gov/agencies/health-and-human-services-department",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/221",
+     "parent_id": null,
+     "slug": "health-and-human-services-department"
+    },
+    {
+     "raw_name": "Food and Drug Administration",
+     "name": "Food and Drug Administration",
+     "id": 199,
+     "url": "https://www.federalregister.gov/agencies/food-and-drug-administration",
+     "json_url": "https://www.federalregister.gov/api/v1/agencies/199",
+     "parent_id": 221,
+     "slug": "food-and-drug-administration"
+    }
+   ],
+   "action": "Notice."
+  }
+ ]
+}

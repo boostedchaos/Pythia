@@ -24,6 +24,7 @@ class EngineState:
         self.world_refreshed_ms: Optional[int] = None   # last completed sensing pass
         self.last_feed_ok_ms: Optional[int] = None      # last pass that returned >0 events
         self.feed_health: dict = {}                     # feed key -> FeedRun-ish dict
+        self.observation_count: int = 0                 # observations in the last monitor pass
         self.last_run_ms: Optional[int] = None
         self.started_ms: int = now_ms()
         self._subs: set[asyncio.Queue] = set()
@@ -55,6 +56,15 @@ class EngineState:
         self.world = brief
         self.world_refreshed_ms = now_ms()
         self.publish("world", brief.model_dump())
+
+    def note_monitor_pass(self, observation_count: int) -> None:
+        """Monitor mode builds no WorldBrief, so `set_world` never fires and
+        `world_refreshed_ms` would sit at null forever — a freshness field that is
+        permanently blank is indistinguishable from a monitor that stopped running."""
+        self.observation_count = observation_count
+        self.world_refreshed_ms = now_ms()
+        self.publish("monitor", {"observations": observation_count,
+                                 "refreshed_ms": self.world_refreshed_ms})
 
     def set_feed_health(self, health: dict) -> None:
         """Record per-feed status. `last_feed_ok_ms` tracks REACHABILITY, not event
