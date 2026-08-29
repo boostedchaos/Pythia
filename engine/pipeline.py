@@ -19,8 +19,9 @@ async def refresh_world() -> int:
     Keeps the agent view and oracle context current between forecasts."""
     from .runtime import intake
     try:
-        events = await intake.fetch(limit=250)
+        events, health = await intake.fetch_with_health(limit=250)
         STATE.events = events
+        STATE.set_feed_health(health)
         STATE.set_world(build_brief(events))
         return len(events)
     except Exception as e:  # noqa: BLE001
@@ -29,6 +30,12 @@ async def refresh_world() -> int:
 
 
 async def run_prediction(trigger: str = "manual") -> RunRecord:
+    """RESEARCH MODE ONLY. Forecasting is retired — see PYTHIA-MONITOR-V1-PLAN.md.
+    Guarded here as well as at every caller so no future caller can re-enable it by accident."""
+    from .config import CONFIG
+    if not CONFIG.research_mode:
+        raise RuntimeError("run_prediction called in monitor mode — forecasting is retired")
+
     from .runtime import intake, oracle
 
     run = RunRecord(trigger=trigger, stage="queued")

@@ -82,9 +82,19 @@ def _text(d: dict, *keys: str) -> str:
     return ""
 
 
+def _first_not_none(d: dict, *keys: str):
+    """First key whose value is not None. NOT truthiness — a valid coordinate of
+    0 (equator / prime meridian) is falsy and `or`-chaining silently drops it."""
+    for k in keys:
+        v = d.get(k)
+        if v is not None:
+            return v
+    return None
+
+
 def _coord(d: dict):
-    lat = d.get("lat") or d.get("latitude")
-    lng = d.get("lng") or d.get("lon") or d.get("longitude")
+    lat = _first_not_none(d, "lat", "latitude")
+    lng = _first_not_none(d, "lng", "lon", "longitude")
     coords = d.get("coords") or (d.get("geometry") or {}).get("coordinates")
     if (lat is None or lng is None) and isinstance(coords, (list, tuple)) and len(coords) >= 2:
         lng, lat = coords[0], coords[1]  # GeoJSON [lng, lat]
@@ -249,6 +259,8 @@ class OsirisIntake:
         # dedup-key -> first-seen epoch ms, so events rebuilt every fetch keep a
         # stable timestamp and `?since=` filtering actually means something
         self._first_seen: dict[str, int] = {}
+        # source -> epoch ms of its last successful fetch (survives a failing cycle)
+        self._last_ok: dict[str, int] = {}
 
     async def health(self) -> bool:
         try:
@@ -258,14 +270,22 @@ class OsirisIntake:
         except Exception:  # noqa: BLE001 — health is a status dot; never raise
             return False
 
-    async def _fetch_feed(self, c: httpx.AsyncClient, path: str, source: str, category: str) -> list[WorldEvent]:
+    async def _fetch_feed(self, c: httpx.AsyncClient, path: str, source: str,
+                          category: str) -> "tuple[list[WorldEvent], dict]":
+        """Returns (events, FeedRun). A failure is REPORTED, never silently flattened
+        into an empty list — downstream must be able to tell 'quiet' from 'broken'."""
         out: list[WorldEvent] = []
+        run = {"source": source, "path": path, "status": "error", "started_at": now_ms(),
+               "http_status": None, "items_received": 0, "items_accepted": 0,
+               "error": None, "last_ok_at": self._last_ok.get(source)}
         try:
             # generous: Next.js compiles each route on first hit (cold start), and a few
             # feeds (e.g. /api/unrest aggregates many GDELT files) are slow until cached.
             r = await c.get(f"{self.base}{path}", timeout=35)
+            run["http_status"] = r.status_code
             if r.status_code < 400:
                 data = r.json()
+                run["items_received"] = len(_find_items(data)) if isinstance(data, (list, dict)) else 0
                 if source in ("markets", "crypto"):
                     out.extend(_markets_events(data, source))
                 elif source == "frontlines":
@@ -293,15 +313,48 @@ class OsirisIntake:
                         ev = _to_event(d, source, category)
                         if ev:
                             out.append(ev)
-        except (httpx.HTTPError, ValueError) as e:
-            log.debug("feed %s failed: %s", path, e)
-        return out
+            else:
+                run["error"] = f"HTTP {r.status_code}"
+                log.warning("feed %s returned HTTP %s", path, r.status_code)
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:  # noqa: BLE001 — one bad feed must never sink the other 22
+            run["error"] = f"{type(e).__name__}: {e}"[:200]
+            log.warning("feed %s failed: %s", path, run["error"])
+        else:
+            # No exception — but an HTTP 4xx/5xx also lands here and is NOT success.
+            if run["error"] is None:
+                run["status"] = "healthy" if out else "empty"
+                self._last_ok[source] = now_ms()
+                run["last_ok_at"] = self._last_ok[source]
+        run.setdefault("completed_at", now_ms())
+        run["items_accepted"] = len(out)
+        return out, run
 
     async def fetch(self, limit: int = 40) -> list[WorldEvent]:
-        # Fetch feeds concurrently so one slow/dead feed (e.g. GDELT) can't starve the rest.
+        events, _ = await self.fetch_with_health(limit)
+        return events
+
+    async def fetch_with_health(self, limit: int = 40) -> "tuple[list[WorldEvent], dict]":
+        """Fetch every feed concurrently and report per-feed health alongside the events."""
+        # return_exceptions=True: without it, ONE unexpected exception in ONE feed
+        # cancels the gather and returns zero events for all 23.
         async with httpx.AsyncClient(verify=HTTPX_VERIFY, timeout=25) as c:
-            batches = await asyncio.gather(*[self._fetch_feed(c, p, s, cat) for p, s, cat in FEEDS])
-        events: list[WorldEvent] = [ev for batch in batches for ev in batch]
+            results = await asyncio.gather(
+                *[self._fetch_feed(c, p, s, cat) for p, s, cat in FEEDS],
+                return_exceptions=True)
+        events: list[WorldEvent] = []
+        health: dict = {}
+        for (path, source, _cat), res in zip(FEEDS, results):
+            if isinstance(res, BaseException):
+                health[source] = {"source": source, "path": path, "status": "error",
+                                  "error": f"{type(res).__name__}: {res}"[:200],
+                                  "items_accepted": 0, "last_ok_at": self._last_ok.get(source)}
+                log.warning("feed %s raised: %s", path, res)
+                continue
+            batch, run = res
+            events.extend(batch)
+            health[source] = run
         # dedupe by lowercased title, keep highest salience, sort
         seen: dict[str, WorldEvent] = {}
         for ev in events:
@@ -314,4 +367,4 @@ class OsirisIntake:
         if len(self._first_seen) > 5000:   # ponytail: crude prune; fine at ~250 events/fetch
             self._first_seen = {k: self._first_seen[k] for k in seen}
         ranked = sorted(seen.values(), key=lambda e: e.salience, reverse=True)
-        return ranked[:limit]
+        return ranked[:limit], health

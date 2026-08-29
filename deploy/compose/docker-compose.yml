@@ -1,0 +1,50 @@
+# PYTHIA Monitor — production stack.
+#
+#   docker compose up -d
+#
+# The engine is NOT published to the host. It lives on a private bridge and holds
+# the OpenRouter credential. Reach it over Tailscale/your reverse proxy, or set
+# PYTHIA_PUBLISH_ADDR to a specific interface (never 0.0.0.0) plus a bearer token.
+services:
+  engine:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: pythia-monitor:0.4.0
+    container_name: pythia-engine
+    restart: unless-stopped
+    init: true
+    environment:
+      PYTHIA_MODE: monitor            # NEVER set to research here — see the plan
+      ENGINE_HOST: 0.0.0.0            # safe: bound to the private network below only
+      ENGINE_PORT: 8088
+      PYTHIA_DATA_DIR: /data
+      OSIRIS_URL: ${OSIRIS_URL:-http://osiris:3000}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://openrouter.ai/api/v1}
+      LLM_MODEL: ${LLM_MODEL:-deepseek/deepseek-v4-pro}
+      LLM_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in deploy/compose/.env}
+      PYTHIA_API_TOKEN: ${PYTHIA_API_TOKEN:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      SENSE_INTERVAL_SEC: ${SENSE_INTERVAL_SEC:-180}
+    volumes:
+      - pythia-data:/data
+    networks: [pythia]
+    ports:
+      # Bound to a named interface, not 0.0.0.0. Default is loopback-only:
+      # override PYTHIA_PUBLISH_ADDR with the Tailscale IP to reach it remotely.
+      - "${PYTHIA_PUBLISH_ADDR:-127.0.0.1}:8088:8088"
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
+    stop_grace_period: 20s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+
+networks:
+  pythia:
+    driver: bridge
+
+volumes:
+  pythia-data:

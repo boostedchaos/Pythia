@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 from contextlib import asynccontextmanager
 
 from pathlib import Path
 
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from . import __version__
 from .config import CONFIG
@@ -22,37 +23,117 @@ log = logging.getLogger("pythia.server")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from .loop import LOOP, SENSE
-    from .pipeline import run_prediction
-    LOOP.start()
-    SENSE.start()   # keep live events fresh between forecasts
-    log.info("PYTHIA oracle up | %s", CONFIG.summary())
+    SENSE.start()   # cheap sensing (no LLM) — runs in BOTH modes
+    if CONFIG.research_mode:
+        LOOP.start()
+    log.info("PYTHIA up in %s mode | %s", CONFIG.mode, CONFIG.summary())
 
     async def _boot():
-        from . import ledger
+        from .pipeline import refresh_world, run_prediction
         from .runtime import intake
-        # seed the track record from disk so restarts show history immediately
-        try:
-            STATE.track = ledger.track_record()
-        except Exception as e:  # noqa: BLE001
-            log.warning("track record seed failed: %s", e)
+        if CONFIG.research_mode:
+            from . import ledger
+            # seed the track record from disk so restarts show history immediately
+            try:
+                STATE.track = ledger.track_record()
+            except Exception as e:  # noqa: BLE001
+                log.warning("track record seed failed: %s", e)
         # wait for Osiris to be reachable, then give its routes a moment to compile
         for _ in range(20):
             if await intake.health():
                 break
             await asyncio.sleep(2)
         await asyncio.sleep(4)
-        # run_prediction senses the world itself — no separate refresh_world (double-fetch)
-        await run_prediction(trigger="boot")
+        if CONFIG.research_mode:
+            # run_prediction senses the world itself — no separate refresh_world (double-fetch)
+            await run_prediction(trigger="boot")
+        else:
+            # monitor mode: sense the world only. Zero LLM calls, zero ledger writes.
+            await refresh_world()
 
-    asyncio.create_task(_boot())
-    yield
+    boot = asyncio.create_task(_boot(), name="pythia-boot")
+    try:
+        yield
+    finally:
+        # explicit shutdown — background tasks were previously left dangling
+        boot.cancel()
+        await LOOP.stop()
+        await SENSE.stop()
+        for t in (boot,):
+            try:
+                await t
+            except (asyncio.CancelledError, Exception):  # noqa: BLE001
+                pass
 
 
-app = FastAPI(title="PYTHIA Oracle", version=__version__, lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app = FastAPI(title="PYTHIA Monitor", version=__version__, lifespan=lifespan)
+# Explicit origins only. An empty list means no cross-origin browser access at all,
+# which is correct for a loopback/private-network service.
+if CONFIG.cors_origins:
+    app.add_middleware(CORSMiddleware, allow_origins=CONFIG.cors_origins,
+                       allow_methods=["GET", "POST"], allow_headers=["Authorization", "Content-Type"])
+
+# Routes reachable without a bearer token — liveness/readiness probes only, so a
+# container orchestrator never needs the secret.
+_OPEN_PATHS = {"/healthz", "/readyz"}
+
+
+@app.middleware("http")
+async def _require_token(request, call_next):
+    """Bearer-token gate. Inactive when PYTHIA_API_TOKEN is blank (loopback default)."""
+    if CONFIG.api_token and request.url.path not in _OPEN_PATHS:
+        sent = (request.headers.get("authorization") or "")
+        expected = f"Bearer {CONFIG.api_token}"
+        if not secrets.compare_digest(sent, expected):
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+    return await call_next(request)
+
+
+def _research_only() -> None:
+    """Refuse forecast routes unless research mode is explicitly on."""
+    if not CONFIG.research_mode:
+        raise HTTPException(409, "forecasting is retired; set PYTHIA_MODE=research to enable it")
 
 
 _DASHBOARD = Path(__file__).parent / "dashboard.html"
+
+
+@app.get("/healthz")
+async def healthz():
+    """Liveness: the process is up. No dependencies checked."""
+    return {"status": "ok", "mode": CONFIG.mode, "version": __version__}
+
+
+@app.get("/readyz")
+async def readyz():
+    """Readiness: at least one feed has actually DELIVERED.
+
+    A completed sensing pass is not enough — when every feed is down the pass
+    still completes and publishes an empty brief. Requiring a successful feed is
+    what keeps 'quiet world' and 'all 23 feeds broken' from looking identical."""
+    healthy = [k for k, v in STATE.feed_health.items() if v.get("status") in ("healthy", "empty")]
+    failing = [k for k, v in STATE.feed_health.items() if v.get("status") == "error"]
+    ready = STATE.last_feed_ok_ms is not None
+    return JSONResponse(
+        {"ready": ready, "mode": CONFIG.mode,
+         "world_refreshed_at": STATE.world_refreshed_ms,
+         "last_successful_feed_at": STATE.last_feed_ok_ms,
+         "event_count": len(STATE.events),
+         "feeds_ok": len(healthy), "feeds_failing": len(failing),
+         "failing": sorted(failing)[:10]},
+        status_code=200 if ready else 503,
+    )
+
+
+@app.get("/feeds/health")
+async def feeds_health():
+    """Per-feed status, so a stale or broken source is visible instead of silent."""
+    fh = STATE.feed_health
+    counts: dict[str, int] = {}
+    for v in fh.values():
+        counts[v.get("status", "unknown")] = counts.get(v.get("status", "unknown"), 0) + 1
+    return {"checked_at": STATE.world_refreshed_ms, "feed_count": len(fh),
+            "counts": counts, "feeds": fh}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -125,7 +206,8 @@ async def predictions(horizon: str | None = None, min_probability: float = 0.0):
 
 @app.post("/predict")
 async def predict():
-    """Run an oracle pass now (sense the world -> forecast)."""
+    """Run an oracle pass now (sense the world -> forecast). RESEARCH MODE ONLY."""
+    _research_only()
     from .pipeline import run_prediction, _lock
     if STATE.generating or _lock.locked():
         return {"status": "already running"}
@@ -148,13 +230,19 @@ async def agent_view():
             "lat": e.lat, "lng": e.lng, "salience": e.salience, "ts": e.ts,
         })
     return {
-        "generated_at": STATE.last_run_ms,
+        "mode": CONFIG.mode,
+        # last_run_ms only moves when a FORECAST runs, so it is stale in monitor mode.
+        # These three describe the sensing loop, which is what actually refreshes this view.
+        "world_refreshed_at": STATE.world_refreshed_ms,
+        "last_successful_feed_at": STATE.last_feed_ok_ms,
+        "forecast_generated_at": (STATE.last_run_ms if CONFIG.research_mode else None),
+        "generated_at": STATE.world_refreshed_ms,   # back-compat alias, now sensing-based
         "model": oracle.model,
         "summary": (STATE.world.text if STATE.world else ""),
         "domains": (STATE.world.domains if STATE.world else {}),
         "events_by_domain": by_domain,
         "event_count": len(STATE.events),
-        "predictions": [p.model_dump() for p in STATE.predictions],
+        "predictions": ([p.model_dump() for p in STATE.predictions] if CONFIG.research_mode else []),
         "live_stream": "/state/stream",
     }
 
@@ -192,7 +280,9 @@ async def world():
 
 @app.post("/resolve")
 async def resolve():
-    """Run a resolution sweep now (judge expired forecasts against the current brief)."""
+    """Run a resolution sweep now (judge expired forecasts against the current brief).
+    RESEARCH MODE ONLY."""
+    _research_only()
     from . import ledger
     from .models import now_ms
     from .resolver import resolve_due
@@ -203,7 +293,8 @@ async def resolve():
 @app.get("/history")
 async def history(horizon: str | None = None, status: str | None = None, limit: int = 200):
     """Every persisted forecast joined with its resolution (disk-backed, survives restarts).
-    `status` ∈ pending|resolved_true|resolved_false|unresolvable."""
+    `status` ∈ pending|resolved_true|resolved_false|unresolvable. RESEARCH MODE ONLY."""
+    _research_only()
     from . import ledger
     return {"history": ledger.history(horizon, status, limit),
             "track_record": ledger.track_record()}
@@ -259,5 +350,6 @@ async def chat(payload: dict = Body(...)):
 
 @app.post("/loop")
 async def loop(payload: dict = Body(default={})):
+    _research_only()
     STATE.set_loop(bool(payload.get("enabled", not STATE.loop_enabled)))
     return {"loop_enabled": STATE.loop_enabled}

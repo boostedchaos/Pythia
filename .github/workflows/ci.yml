@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [monitor-v1, review-fixes]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --all-extras --dev
+      - name: Tests
+        run: uv run pytest tests/ engine/ -q
+
+  monitor-mode-gate:
+    # The Phase 0 acceptance criterion, as its own job so it can never be
+    # lost in a long test log: monitor mode must do zero forecast work.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-extras --dev
+      - name: Forecasting is unreachable in monitor mode
+        env:
+          PYTHIA_MODE: monitor
+        run: uv run pytest tests/test_monitor_mode.py -q
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build engine image
+        run: docker build -t pythia-monitor:ci .
+      - name: Image runs as non-root
+        run: |
+          UID_OUT=$(docker run --rm --entrypoint id pythia-monitor:ci -u)
+          echo "container uid=$UID_OUT"
+          test "$UID_OUT" != "0"
+      - name: Engine starts and answers /healthz in monitor mode
+        run: |
+          docker run -d --name ci-engine -p 8088:8088 \
+            -e PYTHIA_MODE=monitor -e LLM_API_KEY=dummy \
+            -e OSIRIS_URL=http://127.0.0.1:1 pythia-monitor:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8088/healthz > /tmp/h.json; then break; fi
+            sleep 2
+          done
+          cat /tmp/h.json
+          grep -q '"mode":"monitor"' /tmp/h.json
+          docker logs ci-engine 2>&1 | tail -20
+          # No forecast WORK may appear in the log. Anchored on pythia's own logger
+          # names + stage words, not on bare substrings — "swarm_models" in a config
+          # dump is configuration, not activity, and matching it is a false positive.
+          docker logs ci-engine > /tmp/engine.log 2>&1
+          PATTERN='pythia\.(pipeline|swarm|resolver|ledger)|\[run_[a-z0-9]+\]|deliberat(e|ion)|predictions ->|judged [0-9]+'
+          if grep -nEi "$PATTERN" /tmp/engine.log; then
+            echo "FAIL: forecast activity in monitor mode"; exit 1
+          fi
+          # Prove the checker fires: it must match a known-bad line.
+          echo "2026-01-01 pythia.swarm INFO deliberation start" >> /tmp/canary.log
+          grep -qEi "$PATTERN" /tmp/canary.log || { echo "FAIL: forecast grep is broken"; exit 1; }
+          echo "monitor-mode log clean (checker verified against a canary)"
+          docker rm -f ci-engine

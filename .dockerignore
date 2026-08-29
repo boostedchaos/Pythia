@@ -1,0 +1,13 @@
+.git
+.venv
+__pycache__
+*.pyc
+.playwright-mcp
+screenshots
+osiris-live
+runs
+digests
+*.png
+*.mov
+*.md
+tests

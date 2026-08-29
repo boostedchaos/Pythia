@@ -19,6 +19,11 @@ class EngineState:
         self.generating: bool = False
         self.loop_enabled: bool = False
         self.track: dict = {}                        # calibration track record (from ledger)
+        # last_run_ms moves only on a FORECAST. In monitor mode nothing forecasts, so
+        # these two are the timestamps that actually describe freshness.
+        self.world_refreshed_ms: Optional[int] = None   # last completed sensing pass
+        self.last_feed_ok_ms: Optional[int] = None      # last pass that returned >0 events
+        self.feed_health: dict = {}                     # feed key -> FeedRun-ish dict
         self.last_run_ms: Optional[int] = None
         self.started_ms: int = now_ms()
         self._subs: set[asyncio.Queue] = set()
@@ -48,7 +53,17 @@ class EngineState:
 
     def set_world(self, brief: WorldBrief) -> None:
         self.world = brief
+        self.world_refreshed_ms = now_ms()
         self.publish("world", brief.model_dump())
+
+    def set_feed_health(self, health: dict) -> None:
+        """Record per-feed status. `last_feed_ok_ms` tracks REACHABILITY, not event
+        count — a genuinely quiet feed that answered is a success, and treating it as
+        a failure is the same error as treating a dead feed as quiet."""
+        self.feed_health = health
+        if any(v.get("status") in ("healthy", "empty") for v in health.values()):
+            self.last_feed_ok_ms = now_ms()
+        self.publish("feeds", health)
 
     def upsert_run(self, run: RunRecord) -> None:
         run.touch()
@@ -77,6 +92,8 @@ class EngineState:
             "generating": self.generating,
             "loop_enabled": self.loop_enabled,
             "last_run_ms": self.last_run_ms,
+            "world_refreshed_ms": self.world_refreshed_ms,
+            "last_feed_ok_ms": self.last_feed_ok_ms,
             "uptime_ms": now_ms() - self.started_ms,
             "track_record": self.track,
             "world": self.world.model_dump() if self.world else None,

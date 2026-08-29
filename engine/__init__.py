@@ -1,6 +1,11 @@
-"""PYTHIA — a world-watching prediction oracle.
+"""PYTHIA Monitor — a private, always-on world-monitoring service.
 
-Osiris streams live world data -> a brief is assembled -> a local LLM forecasts
-what happens next (24h / week / month / year). No markets, no cloud, no cost.
+Live global feeds are fused into a durable view of what is happening, what
+CHANGED since last time, and which sources say so. One cheap LLM call turns
+selected evidence into a cited brief.
+
+Forecasting is retired: the experiment is archived under research mode
+(PYTHIA_MODE=research) and its record lives in STATE.md and the ledger.
+See PYTHIA-MONITOR-V1-PLAN.md.
 """
-__version__ = "0.3.0"
+__version__ = "0.4.0"

@@ -14,3 +14,9 @@ osiris-live/
 
 # local Claude Code session settings
 .claude/settings.local.json
+
+# playwright MCP session artifacts (logs/screenshots) — never commit
+.playwright-mcp/
+
+# compose secrets
+deploy/compose/.env

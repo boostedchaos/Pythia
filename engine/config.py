@@ -73,14 +73,37 @@ def _b(name: str, default: bool) -> bool:
     return os.environ.get(name, str(default)).strip().lower() in ("1", "true", "yes", "on")
 
 
+def _mode(name: str, default: str) -> str:
+    """Operating mode, validated. An unknown value fails CLOSED to `monitor` —
+    a typo must never silently re-enable forecasting."""
+    v = os.environ.get(name, default).strip().lower()
+    return v if v in ("monitor", "research") else "monitor"
+
+
 @dataclass
 class Config:
     root: Path = _ROOT
     runs_dir: Path = _ROOT / "runs"
+    data_dir: Path = field(default_factory=lambda: Path(os.environ.get("PYTHIA_DATA_DIR", str(_ROOT / "runs"))))
+
+    # ── Operating mode ──
+    # monitor  = world-watching only. No forecast, swarm, ledger append, or resolver
+    #            work happens AT ALL — excluded by construction, not by interval tuning.
+    # research = the archived forecasting experiment, explicitly re-enabled.
+    mode: str = field(default_factory=lambda: _mode("PYTHIA_MODE", "monitor"))
 
     osiris_url: str = field(default_factory=lambda: os.environ.get("OSIRIS_URL", "http://localhost:3000"))
-    engine_host: str = field(default_factory=lambda: os.environ.get("ENGINE_HOST", "0.0.0.0"))
+    # Loopback by default: the engine holds provider credentials and has unauthenticated
+    # mutating routes. A container deployment sets ENGINE_HOST=0.0.0.0 on a PRIVATE network.
+    engine_host: str = field(default_factory=lambda: os.environ.get("ENGINE_HOST", "127.0.0.1"))
     engine_port: int = field(default_factory=lambda: _i("ENGINE_PORT", 8088))
+
+    # ── API exposure ──
+    # Explicit origins only; empty list = no cross-origin browser access.
+    cors_origins: list[str] = field(default_factory=lambda: [
+        o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()])
+    # Bearer token required on every route when set. Blank = open (loopback only).
+    api_token: str = field(default_factory=lambda: os.environ.get("PYTHIA_API_TOKEN", "").strip())
 
     # ── Oracle LLM (defaults to MiroFish's configured local model) ──
     llm_base_url: str = field(default_factory=lambda: os.environ.get("LLM_BASE_URL") or _MF.get("LLM_BASE_URL") or "http://localhost:11434/v1")
@@ -127,15 +150,26 @@ class Config:
         # The resolution judge defaults to the (cheap) oracle draft model.
         self.judge_model = self.judge_model or self.llm_model
 
+    @property
+    def research_mode(self) -> bool:
+        """True only when forecasting is EXPLICITLY enabled. Every forecast, swarm,
+        ledger-append and resolver code path must be guarded on this."""
+        return self.mode == "research"
+
     def summary(self) -> dict:
-        return {
+        """What this engine is actually doing. Forecast settings are omitted in
+        monitor mode — advertising them implies work that never happens."""
+        out = {
+            "mode": self.mode,
             "osiris_url": self.osiris_url,
             "llm_base_url": self.llm_base_url,
             "llm_model": self.llm_model,
-            "swarm_models": self.swarm_models,
-            "horizons": self.horizons,
-            "loop_interval_sec": self.loop_interval_sec,
+            "sense_interval_sec": self.sense_interval_sec,
         }
+        if self.research_mode:
+            out.update(swarm_models=self.swarm_models, horizons=self.horizons,
+                       loop_interval_sec=self.loop_interval_sec)
+        return out
 
 
 CONFIG = Config()
