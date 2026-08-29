@@ -2,6 +2,26 @@
 
 _Last updated: 2026-08-29_
 
+## 2026-08-29 (later) — Phase 2 shipped, infra closed out, two-week evaluation begins
+
+**Phase 2 (`363a222`):** FRED markets adapter (registry 13 → 14: SP500, DJIA, NASDAQ, WTI —
+gold rejected with evidence, PAXG stays the proxy; key lives only in the VM env) + ntfy pushes
+now carry a tappable source URL per bullet. Details in that commit's message and
+`docs/feed-verification.md`.
+
+**Infra closed out:** `monitor-v1` pushed to origin (verified this session: local HEAD ==
+`origin/monitor-v1` at `b273e33`). Misses log at `docs/misses-log.md` (`b273e33`). Live
+checkout promoted to `~/Documents/PROJECTS/Pythia`; the old outer frozen clone (osiris-live,
+forecasting ledger) moved intact to `~/Documents/PROJECTS/Pythia-archive-2026-08-29`. **UniFi
+fixed-IP reservation SET and verified by read-back** (`use_fixedip: true`, MAC
+`bc:24:11:cf:02:8f` → 192.168.0.28) after enabling `UNIFI_POLICY_NETWORK_CLIENTS_UPDATE=true`
+in `~/.claude/settings.json` with Kyle's approval — closes the DHCP item in the 2026-08-28
+Open list. Still open from that list: Tailscale not installed.
+
+**Now:** two-week evaluation, no development. Kyle reads the 07:00 brief, rates bullets, logs
+misses in `docs/misses-log.md` (target ≤2/week). Phase 2+ (ranking, feedback button, alert
+rules) waits on that data.
+
 ## 2026-08-29 — Phase 1 SHIPPED after a failed first gate: durable event spine
 
 **The process worked as designed.** Two Opus lanes built the spine (schema v3, stories,
@@ -102,7 +122,6 @@ fake feed server written for the test. VM is on DHCP (needs a UniFi reservation 
 `BC:24:11:CF:02:8F`). Tailscale not installed. `monitor-v1` is not pushed. `daily-digest.py`,
 `run-all.sh`, `PYTHIA.command`, `PYTHIA.app` and `integrations/osiris/` are workstation-era
 artifacts awaiting removal.
-
 
 ## Status (pre-pivot — superseded by the 2026-08-28 entry above; kept as history)
 
