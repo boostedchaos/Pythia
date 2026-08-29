@@ -11,8 +11,10 @@ never fields, so every parsed field is a real one.
 
 **Adopted: 9.  Rejected: 5.  Verified but held in reserve: 2.**
 
-> Those tallies are Phase 0.5's. **Phase 1 (2026-08-29) took the registry from 9 to 13** —
-> see [Phase 1](#phase-1--2026-08-29) at the end of this file for its own evidence and tally.
+> Those tallies are Phase 0.5's. **Phase 1 (2026-08-29) took the registry from 9 to 13**,
+> and **Phase 1b (2026-08-29) added `fred`, 13 to 14**, closing the markets gap recorded
+> below — see [Phase 1](#phase-1--2026-08-29) and [Phase 1b](#phase-1b--fred-2026-08-29-the-markets-gap-closed)
+> at the end of this file for their own evidence and tallies.
 
 | Beat | Adopted sources | Kind |
 |---|---|---|
@@ -325,8 +327,8 @@ actually served, and what is not:
 | BTC, ETH | covered — `coingecko` |
 | Gold | **proxy only** — PAXG, a gold-backed token, explicitly labelled as a proxy |
 | Treasury yields (3M, 2Y, 10Y, 30Y) | covered — `treasury_yields` |
-| Major equity indices (S&P 500, Dow, Nasdaq) | **NOT COVERED** |
-| Oil | **NOT COVERED** |
+| Major equity indices (S&P 500, Dow, Nasdaq) | **NOT COVERED** — *closed 2026-08-29 by `fred`, see Phase 1b* |
+| Oil | **NOT COVERED** — *closed 2026-08-29 by `fred`, see Phase 1b* |
 
 No keyless source for equity indices or oil survived verification: Stooq 404s from
 this network and Yahoo returns 429 and is ToS-hostile. Every remaining candidate
@@ -607,3 +609,209 @@ healthy 12/13
 **All four new sources are healthy against live endpoints.** The only failure is GDELT's
 expired certificate, unchanged from Phase 0.5. `un_press`'s `recv=10 acc=9` is the
 duplicate-meeting collapse firing on the real feed, not a dropped item.
+
+---
+
+# Phase 1b — `fred`, 2026-08-29 (the markets gap, closed)
+
+Same discipline. This section closes the **"Known coverage gap — markets"** recorded in
+Phase 0.5: no equity index, no oil. That gap's own note named FRED as the one keyed
+source that could cover indices, oil and gold together. Kyle registered a free FRED key
+on 2026-08-29; **it lives only in `deploy/compose/.env` on VM 107** and appears in no
+file, fixture, log or commit here.
+
+**Adopted: 1 source / 4 instruments (registry 13 → 14). Rejected: gold (no such series).**
+
+Registry count is asserted, not assumed —
+`uv run python -c "from engine.monitor.adapters import ADAPTERS; print(len(ADAPTERS))"`
+returned **13 before** and **14 after**.
+
+## fred
+
+- **Called:** `https://api.stlouisfed.org/fred/series/observations?series_id=<ID>&api_key=<KEY>&file_type=json&sort_order=desc&limit=10`
+  — one request per series. The `api_key` value is never written down; the key was read
+  at call time with
+  `ssh -i ~/.ssh/id_ed25519_pythia pythia@192.168.0.28 'grep "^FRED_API_KEY=" ~/pythia/deploy/compose/.env | cut -d= -f2-'`.
+- **Key:** required. `FRED_API_KEY`, read from the environment at fetch time. A 32-hex
+  string. Unset → the adapter returns `status="error"` with
+  `"FRED_API_KEY not configured — no key, no call made"` and issues **no request**
+  (verified live: `env -u FRED_API_KEY`, 2026-08-29).
+- **Wrong key:** HTTP **400** with
+  `{"error_code":400,"error_message":"Bad Request. The value for variable api_key is not registered..."}`.
+  `_util.get` reports only `"HTTP 400"`, so the response body never reaches a log.
+
+### Series verified — one real call each, 2026-08-29
+
+| Series | HTTP | Bytes | Latest observation | Verdict |
+|---|---|---|---|---|
+| `SP500` (S&P 500) | 200 | 762 | 2026-08-28 = 7711.76 | **ADOPTED** |
+| `DJIA` (Dow Jones Industrial Average) | 200 | 767 | 2026-08-28 = 53559.99 | **ADOPTED** |
+| `NASDAQCOM` (NASDAQ Composite) | 200 | 767 | 2026-08-28 = 26402.42 | **ADOPTED** |
+| `DCOILWTICO` (WTI spot, Cushing OK) | 200 | 753 | 2026-08-25 = 83.9 $/bbl | **ADOPTED** |
+| `GOLDAMGBD228NLBM` (LBMA gold AM fix) | 400 | — | — | **REJECTED — series does not exist** |
+| `GOLDPMGBD228NLBM` (LBMA gold PM fix) | 400 | — | — | **REJECTED — series does not exist** |
+
+`curl` timings on those four: 0.29 s, 3.14 s, 1.03 s, 3.47 s.
+
+### Gold — REJECTED, with evidence
+
+Both LBMA gold fixings return
+`{"error_code":400,"error_message":"Bad Request.  The series does not exist."}` from
+`/fred/series?series_id=…`. They are gone, not stale.
+
+A search for a replacement found none:
+`/fred/series/search?search_text=gold+price&order_by=popularity&limit=15` returns
+**no spot gold price series** — the top results are `GVZCLS` (CBOE *gold ETF volatility*
+index), `NASDAQQGLDI` (a Credit Suisse gold *flows* index), and a run of PPI / import-export
+*price indices* for gold ore and jewellery. `search_text=London+Bullion+Market` returns
+**`count: 0`**.
+
+**Gold is therefore NOT added.** It stays on `coingecko`'s PAXG proxy, which is already
+labelled a proxy. Shipping a discontinued LBMA fixing would have put a stale number in the
+brief wearing a current date.
+
+### Data lag — recorded because it is not uniform
+
+These are **daily close** values, and the two families lag by different amounts. Observed
+2026-08-29: the three equity series were at **2026-08-28**, `DCOILWTICO` (EIA-sourced) at
+**2026-08-25** — three days behind, with its own `realtime_start` at 2026-08-26. The
+adapter stamps `source_ts_ms` from each observation's **own date**, so the brief cannot
+render Monday's oil price as today's. `extra["value_kind"] = "daily_close"` says the same
+thing in the record.
+
+### Missing values are real and had to be handled
+
+FRED publishes a row for every calendar weekday and writes `"."` where the series has no
+value. Confirmed live on SP500 over 2025-12-20…2026-01-05:
+
+```
+2025-12-24 6932.05
+2025-12-25 .          <- Christmas
+2025-12-26 6929.94
+...
+2026-01-01 .          <- New Year's Day
+2026-01-02 6858.47
+```
+
+So the newest **row** is not always the newest **value**. `latest_value()` walks the
+descending window (`limit=10`, enough for any run of market holidays) and takes the first
+row that parses as a number. A window that is entirely `"."` yields no observation for that
+series — counted in `received`, not in `accepted`, never rendered as a zero.
+
+### Fixture
+
+`tests/fixtures/fred.json` — the four real payloads, keyed by series id, exactly as
+recorded (10 observations each). **One deliberate addition, called out here because it is
+the only fixture in this repo that is not purely a trimmed capture:** a single row
+`{"date": "2026-08-29", "value": "."}` was prepended to `SP500.observations` so the
+holiday path above is exercised by the test suite. The row's shape is copied verbatim
+from the live 2025-12-25 row; no field was invented and no real value was altered.
+
+The fixture holds no request URL and no key — asserted by
+`test_fred_fixture_holds_no_api_key`, which greps every fixture for `api_key` and greps
+fred's for a bare 32-hex run. A repo-wide sweep for the real key value
+(`grep -rIlF "$KEY"` over the working tree, and `git grep -IlF`) returned **0 hits**, and
+the sweep was proved to fire first against a planted canary file containing the key
+(**1 hit**).
+
+### Canonical URL
+
+Each observation links to that series' own FRED page, e.g.
+`https://fred.stlouisfed.org/series/SP500` — derived from the id, never invented per
+fetch, and keyless. All four verified 2026-08-29: HTTP 200, titles
+`S&P 500 (SP500) | FRED | St. Louis Fed`, `Dow Jones Industrial Average (DJIA) …`,
+`NASDAQ Composite (NASDAQCOM) …`, `Crude Oil Prices: West Texas Intermediate (WTI) -
+Cushing, Oklahoma (DCOILWTICO) …`. (An earlier attempt at these four timed out; the same
+minute GDELT and FRED's own terms page also timed out, so that was local network
+flakiness, not a bot wall — the retry succeeded in 0.5 s.)
+
+### Terms of use — VERDICT: permitted, with one live constraint
+
+Read in full at <https://fred.stlouisfed.org/docs/api/terms_of_use.html> (2026-08-29).
+
+**Permitted.** Nothing in the Prohibitions applies: this is not a replica of the FRED web
+experience, it does not conceal its identity (`User-Agent: PythiaMonitor/0.5 …`), four
+requests every half hour is not unreasonable bandwidth, and no FRED mark is used in a
+hostname.
+
+**Required, and now carried in code.** The terms say: *"Place the following notice
+prominently on your application: 'This product uses the FRED® API but is not endorsed or
+certified by the Federal Reserve Bank of St. Louis.'"* That exact sentence is
+`fred.TERMS_NOTE` (persisted to the `sources` table via `terms_note`) and is repeated on
+every observation as `extra["fred_notice"]`, so a brief can render it.
+
+**The constraint the lead should see.** The terms also say third-party series carry their
+owners' restrictions, and that *"Before using data series owned by third parties for
+anything other than your own personal use, you must contact the data owner to obtain
+permission"*; copyrighted series are identified by the word *Copyright* in their notes.
+Checked per series via `/fred/series?series_id=…`:
+
+| Series | Owner note | `extra["redistribution"]` |
+|---|---|---|
+| `SP500` | *"Copyright © 2016, S&P Dow Jones Indices LLC… Reproduction of S&P 500 in any form is prohibited except with the prior written permission of S&P Dow Jones Indices LLC"* | `restricted` |
+| `DJIA` | same S&P Dow Jones notice | `restricted` |
+| `NASDAQCOM` | *"Copyright © 2016, NASDAQ OMX Group, Inc."* | `restricted` |
+| `DCOILWTICO` | no copyright word; EIA (US government) source note only | `public_domain` |
+
+PYTHIA Monitor is a **private** brief for one person, which is the "own personal use" the
+terms carve out, so adoption is inside the licence as things stand. But the moment a brief
+carrying an index level is published, shared or exposed to a third party, those three
+series need S&P DJI / NASDAQ permission. That is a fact about the product, not about this
+adapter, so it is recorded as a **field on every observation** rather than only as prose —
+`extra["redistribution"]` — and guarded by
+`test_fred_records_the_redistribution_terms_it_is_bound_by`. **Decision for the lead: if
+the brief is ever to leave personal use, either obtain permission or drop SP500/DJIA/
+NASDAQCOM and keep DCOILWTICO.**
+
+### Markets coverage after this
+
+The Phase 0.5 gap table now reads:
+
+| Instrument | Status |
+|---|---|
+| BTC, ETH | covered — `coingecko` |
+| Gold | **proxy only** — PAXG; FRED has no spot gold series (evidence above) |
+| Treasury yields (3M, 2Y, 10Y, 30Y) | covered — `treasury_yields` |
+| FX (USD vs EUR/JPY/GBP/CHF/CNY) | covered — `frankfurter` |
+| Major equity indices (S&P 500, Dow, Nasdaq) | **covered — `fred`** |
+| Oil (WTI) | **covered — `fred`** |
+
+### Live end-to-end run — all 14 against the real network
+
+`uv run python` over `engine.monitor.adapters.ADAPTERS`, **2026-08-29T12:06:13Z**, real
+network, real key, no fixtures:
+
+```
+arxiv                  ai             healthy  http=200  recv= 25   acc= 25
+openai_news            ai             healthy  http=200  recv= 1157 acc= 30
+huggingface_blog       ai             healthy  http=200  recv= 852  acc= 30
+cisa_kev               cybersecurity  healthy  http=200  recv= 1685 acc= 1685
+cisa_advisories        cybersecurity  healthy  http=200  recv= 30   acc= 30
+gdelt                  politics       error    http=None recv= 0    acc= 0   ConnectTimeout
+state_dept_advisories  politics       healthy  http=200  recv= 220  acc= 220
+un_press               politics       healthy  http=200  recv= 10   acc= 9
+federal_register       healthcare     healthy  http=200  recv= 40   acc= 40
+openfda                healthcare     healthy  http=200  recv= 25   acc= 25
+coingecko              markets        healthy  http=200  recv= 3    acc= 3
+treasury_yields        markets        healthy  http=200  recv= 4    acc= 4
+frankfurter            markets        healthy  http=200  recv= 5    acc= 5
+fred                   markets        healthy  http=200  recv= 4    acc= 4
+
+healthy 13/14
+```
+
+`fred` observations from that run:
+
+```
+SP500       price=7711.76   date=2026-08-28  redist=restricted
+DJIA        price=53559.99  date=2026-08-28  redist=restricted
+NASDAQCOM   price=26402.42  date=2026-08-28  redist=restricted
+DCOILWTICO  price=83.9      date=2026-08-25  redist=public_domain
+```
+
+The key appeared in no title, url, extra or error in that run (asserted in the same script).
+
+**GDELT note, not acted on:** it failed this run as `ConnectTimeout`, a *different* symptom
+from the expired certificate recorded above. The same minute, two other hosts also timed
+out from this machine, so this run is not evidence the certificate was replaced — GDELT's
+status is unchanged and still the lead's open decision.

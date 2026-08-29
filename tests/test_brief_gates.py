@@ -272,15 +272,27 @@ async def test_ntfy_failure_does_not_unpublish_the_brief(store):
     assert store.latest_brief()["status"] == "published"
 
 
-def test_ntfy_summary_carries_no_topic_and_strips_links():
+def test_ntfy_summary_keeps_one_source_link_per_bullet_and_no_markdown_syntax():
     from engine.monitor import ntfy
     result = {"status": "published", "brief_date": "2026-08-29",
-              "markdown": "## Ai\n\n- Something changed [abc12345](https://example.test/1)\n",
+              "markdown": "## Ai\n\n- Something changed [abc12345](https://example.test/1)"
+                          " [def67890](https://example.test/2)\n",
               "coverage_warnings": ["federal_register"]}
     title, body = ntfy._summarise(result)
     assert "1 item(s)" in title
-    assert "https://example.test" not in body, "the push must not carry raw markdown links"
+    assert "https://example.test/1" in body, "the push must carry the bullet's first source URL"
+    assert "https://example.test/2" not in body, "only the FIRST source URL per bullet"
+    assert "](" not in body and "[abc12345]" not in body, "no markdown syntax in a plain push"
+    assert body.index("Something changed") < body.index("https://example.test/1")
     assert "federal_register" in body
+
+
+def test_ntfy_summary_survives_a_bullet_with_no_link():
+    from engine.monitor import ntfy
+    result = {"status": "published", "brief_date": "2026-08-29",
+              "markdown": "## Ai\n\n- Linkless line\n", "coverage_warnings": []}
+    _, body = ntfy._summarise(result)
+    assert "Linkless line" in body and "http" not in body
 
 
 # ── ntfy header encoding (found on the VM: published fine, delivered nothing) ──

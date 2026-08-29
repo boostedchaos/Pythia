@@ -34,6 +34,11 @@ services:
       # The ntfy topic IS the credential — keep it in deploy/compose/.env only.
       NTFY_URL: ${NTFY_URL:-https://ntfy.sh}
       NTFY_TOPIC: ${NTFY_TOPIC:-}
+      # ── feed keys ──
+      # FRED (St. Louis Fed) markets adapter. Optional: unset, the fred adapter
+      # reports status="error" ("key not configured") and every other feed is
+      # unaffected. Keep the real value in deploy/compose/.env only.
+      FRED_API_KEY: ${FRED_API_KEY:-}
     volumes:
       - pythia-data:/data
     networks: [pythia]

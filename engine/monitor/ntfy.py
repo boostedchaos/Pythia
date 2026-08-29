@@ -58,15 +58,21 @@ def _summarise(result: dict) -> "tuple[str, str]":
         elif ln.startswith("- "):
             per_beat[beat] = per_beat.get(beat, 0) + 1
             if len(bullets) < PREVIEW_BULLETS:
-                # strip the markdown citation links; the push is plain text
-                bullets.append(re.sub(r"\s*\[[^\]]*\]\([^)]*\)", "", ln[2:]).strip())
+                # plain text: strip the markdown citation syntax, but keep the FIRST
+                # cited source URL as its own line so the push is tappable
+                urls = re.findall(r"\]\((https?://[^)]+)\)", ln)
+                text = re.sub(r"\s*\[[^\]]*\]\([^)]*\)", "", ln[2:]).strip()
+                bullets.append((text, urls[0] if urls else None))
 
     total = sum(per_beat.values())
     label = "PYTHIA brief" if result.get("status") == "published" else "PYTHIA brief (deterministic)"
     title = f"{label} {result.get('brief_date', '')} — {total} item(s)"
     counts = ", ".join(f"{b}: {n}" for b, n in per_beat.items() if n) or "no changes"
     parts = [counts, ""]
-    parts += [f"• {b}" for b in bullets]
+    for text, url in bullets:
+        parts.append(f"• {text}")
+        if url:
+            parts.append(f"  {url}")
     if total > len(bullets):
         parts.append(f"…and {total - len(bullets)} more.")
     if result.get("coverage_warnings"):

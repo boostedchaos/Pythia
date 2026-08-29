@@ -6,6 +6,7 @@ the exact URL called for each are in docs/feed-verification.md.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import httpx
@@ -27,9 +28,21 @@ from engine.monitor.adapters import (
 from engine.monitor.adapters import (  # Phase 1 additions
     cisa_advisories,
     frankfurter,
+    fred,
     huggingface_blog,
     un_press,
 )
+
+# `fred` is the only adapter that needs a credential. Every test gets a dummy one
+# so the shared parametrized cases exercise the parse path; the missing-key test
+# removes it explicitly. The value is a throwaway with the shape of a real key
+# (32 hex chars) and is not a FRED key.
+FRED_TEST_KEY = "0" * 32
+
+
+@pytest.fixture(autouse=True)
+def _fred_key(monkeypatch):
+    monkeypatch.setenv(fred.ENV_KEY, FRED_TEST_KEY)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -49,6 +62,7 @@ CASES = {
     huggingface_blog: ("huggingface_blog.xml", "application/rss+xml"),
     un_press: ("un_press.xml", "application/rss+xml"),
     frankfurter: ("frankfurter.json", "application/json"),
+    fred: ("fred.json", "application/json"),
 }
 
 # Minimum observations each fixture must yield, from the trimmed fixture contents.
@@ -67,6 +81,7 @@ MIN_OBSERVATIONS = {
     huggingface_blog: 3,
     un_press: 3,       # 4 items, minus the sc16444 duplicate collapsed by symbol
     frankfurter: 5,    # 5 currency pairs
+    fred: 4,           # 3 equity indices + WTI crude
 }
 
 ALL_MODULES = list(CASES)
@@ -84,12 +99,33 @@ def client_returning(module, *, status: int = 200, body: bytes | None = None,
     def handler(request: httpx.Request) -> httpx.Response:
         if raises is not None:
             raise raises
+        body = _route(module, payload, request)
         return httpx.Response(
-            status, content=payload,
+            status, content=body,
             headers={"content-type": CASES[module][1]},
         )
 
     return httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+
+def _route(module, payload: bytes, request: httpx.Request) -> bytes:
+    """FRED needs one request per series, so its fixture is a map of them.
+
+    The mock hands back the payload for the series the request actually asked
+    for, exactly as the real API does — a mock that returned one body for every
+    series would let a fetch loop that ignores its own series_id pass.
+    A payload that is not that map (a malformed-body test) is replayed as-is.
+    """
+    if module is not fred:
+        return payload
+    try:
+        routed = json.loads(payload)
+    except ValueError:
+        return payload
+    if not isinstance(routed, dict) or not set(routed) >= set(fred.SERIES):
+        return payload
+    series_id = request.url.params.get("series_id")
+    return json.dumps(routed.get(series_id, {})).encode()
 
 
 def empty_body(module) -> bytes:
@@ -97,6 +133,9 @@ def empty_body(module) -> bytes:
     name = CASES[module][0]
     if name.endswith(".json"):
         raw = json.loads(fixture_bytes(module))
+        if module is fred:
+            # Well-formed per-series payloads that publish no observations.
+            return json.dumps({sid: {"observations": []} for sid in fred.SERIES}).encode()
         if module in (coingecko, frankfurter):
             return b"{}"
         for key in ("results", "vulnerabilities", "articles"):
@@ -133,6 +172,7 @@ EXPECTED_BEATS = {
     "cisa_advisories": "cybersecurity",
     "un_press": "politics",
     "frankfurter": "markets",
+    "fred": "markets",
 }
 
 EXPECTED_KINDS = {
@@ -150,6 +190,7 @@ EXPECTED_KINDS = {
     "cisa_advisories": "stream",
     "un_press": "stream",
     "frankfurter": "snapshot",
+    "fred": "snapshot",
 }
 
 
@@ -505,7 +546,7 @@ async def test_state_dept_identity_survives_a_level_change():
 
 def test_phase_1_adapters_carry_the_new_display_constants():
     """docs/phase-1-contract.md: sources are upserted from these at boot."""
-    for module in (cisa_advisories, huggingface_blog, un_press, frankfurter):
+    for module in (cisa_advisories, huggingface_blog, un_press, frankfurter, fred):
         assert module.DISPLAY_NAME.strip(), module.SOURCE_ID
         assert module.CANONICAL_DOMAIN.strip(), module.SOURCE_ID
         assert "/" not in module.CANONICAL_DOMAIN, "a domain, not a url"
@@ -694,3 +735,173 @@ async def test_frankfurter_skips_a_pair_the_api_omits():
     assert run.received == len(frankfurter.QUOTES), "received counts what we asked for"
     assert run.accepted == len(frankfurter.QUOTES) - 1
     assert "USD/JPY" not in {o.upstream_id for o in run.observations}
+
+
+# --- fred (2026-08-29): the first adapter that needs a credential ---------------
+
+async def test_fred_level_is_never_part_of_identity():
+    """Plan §5.11, the same property every other market source is held to."""
+    async with client_returning(fred) as client:
+        run = await fred.fetch(client)
+
+    assert fred.KIND == "snapshot"
+    assert {o.upstream_id for o in run.observations} == set(fred.SERIES)
+    for obs in run.observations:
+        price = obs.extra["price"]
+        assert isinstance(price, float)
+        assert f"{price}" not in obs.title
+        assert f"{price}" not in obs.upstream_id
+        assert f"{price}" not in obs.url
+
+    # Same series, moved levels -> identical identity.
+    payload = json.loads(fixture_bytes(fred))
+    for series in payload.values():
+        for row in series["observations"]:
+            if row["value"] != ".":
+                row["value"] = f"{float(row['value']) * 1.031:.2f}"
+    async with client_returning(fred, body=json.dumps(payload).encode()) as client:
+        after = await fred.fetch(client)
+
+    assert [o.upstream_id for o in run.observations] == \
+           [o.upstream_id for o in after.observations]
+    assert [o.extra["price"] for o in run.observations] != \
+           [o.extra["price"] for o in after.observations], "levels should have moved"
+
+
+async def test_fred_timestamp_is_the_observation_date_not_fetch_time():
+    """These are daily closes and they lag by days; the brief must not look fresh.
+
+    The fixture's WTI series really is older than its equity series (EIA publishes
+    behind the exchanges), so a parser that stamped fetch time would collapse two
+    genuinely different dates into one.
+    """
+    async with client_returning(fred) as client:
+        run = await fred.fetch(client)
+
+    payload = json.loads(fixture_bytes(fred))
+    by_id = {o.upstream_id: o for o in run.observations}
+    for series_id, obs in by_id.items():
+        newest_real = next(r for r in payload[series_id]["observations"]
+                           if r["value"] != ".")
+        assert obs.extra["observation_date"] == newest_real["date"]
+        assert obs.source_ts_ms == _util_ms(newest_real["date"])
+        assert obs.extra["value_kind"] == "daily_close"
+
+    assert by_id["DCOILWTICO"].source_ts_ms < by_id["SP500"].source_ts_ms, \
+        "fixture must hold two different observation dates for this to mean anything"
+
+
+def _util_ms(date: str) -> int:
+    from engine.monitor.adapters import _util as u
+    value = u.ms_from_date(date)
+    assert value is not None
+    return value
+
+
+async def test_fred_steps_over_a_holiday_row_with_no_value():
+    """FRED emits "." for a date with no published value (observed 2025-12-25).
+
+    The fixture's SP500 series carries such a row as its NEWEST entry, so an
+    adapter that simply took observations[0] would ship a null price.
+    """
+    payload = json.loads(fixture_bytes(fred))
+    assert payload["SP500"]["observations"][0]["value"] == ".", \
+        "fixture must keep the missing-value row for this test to mean anything"
+
+    async with client_returning(fred) as client:
+        run = await fred.fetch(client)
+
+    sp500 = next(o for o in run.observations if o.upstream_id == "SP500")
+    assert isinstance(sp500.extra["price"], float)
+    assert sp500.extra["observation_date"] == payload["SP500"]["observations"][1]["date"]
+
+    # A window that is ALL "." yields no observation for that series — counted as
+    # received, never accepted, never rendered as a zero.
+    for row in payload["SP500"]["observations"]:
+        row["value"] = "."
+    async with client_returning(fred, body=json.dumps(payload).encode()) as client:
+        blank = await fred.fetch(client)
+
+    assert blank.status == "healthy"
+    assert blank.received == len(fred.SERIES)
+    assert blank.accepted == len(fred.SERIES) - 1
+    assert "SP500" not in {o.upstream_id for o in blank.observations}
+
+
+async def test_fred_without_a_key_is_a_clean_error_and_makes_no_call(monkeypatch):
+    """Contract: unset key -> status="error", never a raise and never a guess."""
+    monkeypatch.delenv(fred.ENV_KEY, raising=False)
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request.url)
+        return httpx.Response(200, content=fixture_bytes(fred))
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        run = await fred.fetch(client)
+
+    assert run.status == "error"
+    assert run.observations == []
+    assert run.error and "not configured" in run.error
+    assert fred.ENV_KEY in run.error
+    assert calls == [], "no request may be made without a key"
+
+    # An empty or whitespace-only value is treated as unset, not sent as a key.
+    monkeypatch.setenv(fred.ENV_KEY, "   ")
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        blank = await fred.fetch(client)
+    assert blank.status == "error" and calls == []
+
+
+async def test_fred_key_never_reaches_an_error_string():
+    """Two shapes: the key inside a query string, and the key on its own.
+
+    `_util.safe_error` only blanks text after a "?", so the second shape is the
+    one that needs the adapter's own value-based scrub.
+    """
+    for message in (f"connect failed to host?api_key={FRED_TEST_KEY}&x=1",
+                    f"upstream rejected key {FRED_TEST_KEY} for this account"):
+        boom = httpx.ConnectError(message)
+        async with client_returning(fred, raises=boom) as client:
+            run = await fred.fetch(client)
+        assert run.status == "error"
+        assert FRED_TEST_KEY not in (run.error or ""), message
+
+    # The keyless constants are what live in the repo; neither carries a key.
+    assert "api_key" not in fred.URL
+    assert "api_key" not in fred.CANONICAL_DOMAIN
+
+
+def test_fred_fixture_holds_no_api_key():
+    """The fixture is a recorded response; recording one must not record the key.
+
+    Checked over EVERY fixture, not just fred's, so a future keyed adapter cannot
+    reintroduce this by adding a file nobody thought to list here.
+    """
+    checked = 0
+    for path in sorted(FIXTURES.glob("*")):
+        raw = path.read_bytes()
+        checked += 1
+        assert b"api_key" not in raw, f"{path.name} carries an api_key parameter"
+    assert checked == len(CASES), \
+        f"checked {checked} fixtures for {len(CASES)} adapters — the scan skipped some"
+
+    # The 32-hex shape check is scoped to fred's own fixture. Run corpus-wide it
+    # is a false positive: gdelt.json carries 32-hex CDN image hashes in article
+    # urls, which are not secrets. fred's fixture is numeric time series, so any
+    # 32-hex run in it would be an intruder.
+    fred_raw = fixture_bytes(fred)
+    assert not re.search(rb"(?<![0-9a-fA-F])[0-9a-f]{32}(?![0-9a-fA-F])", fred_raw), \
+        "fred.json carries something shaped like an API key"
+    assert b"stlouisfed" not in fred_raw, "the recorded body carries no request url"
+
+
+def test_fred_records_the_redistribution_terms_it_is_bound_by():
+    """FRED's own terms require the notice; three of the four series are
+    third-party copyrighted and may not be reproduced without permission
+    (docs/feed-verification.md#fred). The brief must be able to see that per
+    instrument, so it is a field, not only prose in a docstring."""
+    assert "not endorsed or certified" in fred.TERMS_NOTE
+    restricted = {sid for sid, meta in fred.SERIES.items() if meta[3] == "restricted"}
+    assert restricted == {"SP500", "DJIA", "NASDAQCOM"}
+    assert fred.SERIES["DCOILWTICO"][3] == "public_domain"

@@ -38,7 +38,7 @@ _ORDER = (
     # healthcare
     "federal_register", "openfda",
     # markets
-    "coingecko", "treasury_yields", "frankfurter",
+    "coingecko", "treasury_yields", "frankfurter", "fred",
 )
 
 # What every adapter module must expose (docs/phase-0.5-contract.md). A file that

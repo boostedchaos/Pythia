@@ -1,0 +1,312 @@
+{
+ "DCOILWTICO": {
+  "count": 10604,
+  "file_type": "json",
+  "limit": 10,
+  "observation_end": "9999-12-31",
+  "observation_start": "1600-01-01",
+  "observations": [
+   {
+    "date": "2026-08-25",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "83.9"
+   },
+   {
+    "date": "2026-08-24",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "86.34"
+   },
+   {
+    "date": "2026-08-21",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "87.21"
+   },
+   {
+    "date": "2026-08-20",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "89.75"
+   },
+   {
+    "date": "2026-08-19",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "87.28"
+   },
+   {
+    "date": "2026-08-18",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "86.48"
+   },
+   {
+    "date": "2026-08-17",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "86.04"
+   },
+   {
+    "date": "2026-08-14",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "83.99"
+   },
+   {
+    "date": "2026-08-13",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "82.77"
+   },
+   {
+    "date": "2026-08-12",
+    "realtime_end": "2026-08-26",
+    "realtime_start": "2026-08-26",
+    "value": "84.97"
+   }
+  ],
+  "offset": 0,
+  "order_by": "observation_date",
+  "output_type": 1,
+  "realtime_end": "2026-08-26",
+  "realtime_start": "2026-08-26",
+  "sort_order": "desc",
+  "units": "lin"
+ },
+ "DJIA": {
+  "count": 2610,
+  "file_type": "json",
+  "limit": 10,
+  "observation_end": "9999-12-31",
+  "observation_start": "1600-01-01",
+  "observations": [
+   {
+    "date": "2026-08-28",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53559.99"
+   },
+   {
+    "date": "2026-08-27",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53569.44"
+   },
+   {
+    "date": "2026-08-26",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53463.88"
+   },
+   {
+    "date": "2026-08-25",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53577.4"
+   },
+   {
+    "date": "2026-08-24",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53417.16"
+   },
+   {
+    "date": "2026-08-21",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53277.01"
+   },
+   {
+    "date": "2026-08-20",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "52759.21"
+   },
+   {
+    "date": "2026-08-19",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53463.05"
+   },
+   {
+    "date": "2026-08-18",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53343.4"
+   },
+   {
+    "date": "2026-08-17",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "53459.78"
+   }
+  ],
+  "offset": 0,
+  "order_by": "observation_date",
+  "output_type": 1,
+  "realtime_end": "2026-08-28",
+  "realtime_start": "2026-08-28",
+  "sort_order": "desc",
+  "units": "lin"
+ },
+ "NASDAQCOM": {
+  "count": 14496,
+  "file_type": "json",
+  "limit": 10,
+  "observation_end": "9999-12-31",
+  "observation_start": "1600-01-01",
+  "observations": [
+   {
+    "date": "2026-08-28",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26402.42"
+   },
+   {
+    "date": "2026-08-27",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26541.35"
+   },
+   {
+    "date": "2026-08-26",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26130.2"
+   },
+   {
+    "date": "2026-08-25",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26151.3"
+   },
+   {
+    "date": "2026-08-24",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "25980.19"
+   },
+   {
+    "date": "2026-08-21",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26180.45"
+   },
+   {
+    "date": "2026-08-20",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26067.17"
+   },
+   {
+    "date": "2026-08-19",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26331.09"
+   },
+   {
+    "date": "2026-08-18",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26289.71"
+   },
+   {
+    "date": "2026-08-17",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "26644.91"
+   }
+  ],
+  "offset": 0,
+  "order_by": "observation_date",
+  "output_type": 1,
+  "realtime_end": "2026-08-28",
+  "realtime_start": "2026-08-28",
+  "sort_order": "desc",
+  "units": "lin"
+ },
+ "SP500": {
+  "count": 2610,
+  "file_type": "json",
+  "limit": 10,
+  "observation_end": "9999-12-31",
+  "observation_start": "1600-01-01",
+  "observations": [
+   {
+    "date": "2026-08-29",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "."
+   },
+   {
+    "date": "2026-08-28",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7711.76"
+   },
+   {
+    "date": "2026-08-27",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7730.99"
+   },
+   {
+    "date": "2026-08-26",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7675.7"
+   },
+   {
+    "date": "2026-08-25",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7677.28"
+   },
+   {
+    "date": "2026-08-24",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7652.86"
+   },
+   {
+    "date": "2026-08-21",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7674.37"
+   },
+   {
+    "date": "2026-08-20",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7641.16"
+   },
+   {
+    "date": "2026-08-19",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7707.98"
+   },
+   {
+    "date": "2026-08-18",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7691.76"
+   },
+   {
+    "date": "2026-08-17",
+    "realtime_end": "2026-08-28",
+    "realtime_start": "2026-08-28",
+    "value": "7745.06"
+   }
+  ],
+  "offset": 0,
+  "order_by": "observation_date",
+  "output_type": 1,
+  "realtime_end": "2026-08-28",
+  "realtime_start": "2026-08-28",
+  "sort_order": "desc",
+  "units": "lin"
+ }
+}
