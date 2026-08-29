@@ -149,13 +149,43 @@ canaries were run; all three fired.
 feeds were dead, and the log checker matched the word `swarm_models` in a config dump. Both now
 have tests.
 
+### 3.6 Backup — built and proven end to end (2026-08-28)
+
+Job `pythia-daily`: VM 107, **03:00 nightly**, `snapshot` mode, zstd, storage `local` on pve2,
+pruned to `keep-last=7,keep-weekly=4`.
+
+Proven, not assumed — each link in the chain was tested separately:
+
+| Link | Evidence |
+|---|---|
+| A backup can be taken | Ran one: **763 MB in 11 seconds**, exit 0, VM never stopped |
+| The archive is **restorable** | `qmrestore` to throwaway VMID 199 succeeded; config and 32 G disk came back intact |
+| The test artifact was cleaned up | VMID 199 destroyed — it carried VM 107's **duplicate MAC** and `onboot: 1`, so leaving it would have caused an IP fight on the next pve2 reboot |
+| The scheduler service is running | `pvescheduler.service` active + enabled |
+| **The schedule actually fires** | Temporarily set to 3 minutes out; a second archive appeared **on its own after ~190 s**; schedule restored to 03:00 and re-read from the API to confirm |
+
+`systemctl list-timers` shows nothing for this — PVE 8+ fires backup jobs from
+`pvescheduler.service`, not a systemd timer. An empty timer list here is normal and is **not**
+evidence the job is dead.
+
+**Space.** One archive ≈ 763 MB (the 32 G disk is 93% sparse). Up to 11 retained ≈ 8.4 GB against
+**47 GB free** on `/var/lib/vz`. Recheck once the SQLite history has a year in it.
+
+**Known weakness — the backup lives on the same node as the VM.** It protects against the likely
+failures (bad deploy, corrupted container, accidental destroy) but not against losing pve2 itself.
+Moving copies off-node needs a share on Midgard or TrueNAS and is a separate decision.
+
+**Wider finding, outside Pythia's scope:** this cluster had **no backup job for any guest** before
+today. Hermes (CT105), the-vault (CT104), TrueNAS (VM100) and mimir (VM106) still have none.
+Raise this in the Homelab project.
+
 ### 3.5 Phase 0 gaps — carry these forward
 
 1. **No real feed source has ever been tested.** The healthy path was proven with a fake feed
    server written for the test. This is exactly the "verify with the real producer" trap. Phase 1
    must exercise real sources.
 2. **DHCP, not reserved.** Add a UniFi fixed-IP reservation for MAC `BC:24:11:CF:02:8F`.
-3. **No backup job yet.** `vzdump` for VM 107 is not scheduled. The history *is* the product.
+3. ~~No backup job yet.~~ **DONE 2026-08-28** — see §3.6.
 4. **Not pushed.** `monitor-v1` exists only on the Mac.
 5. **Tailscale not installed** on the VM.
 6. **`daily-digest.py`, `run-all.sh`, `PYTHIA.command`, `PYTHIA.app`, `integrations/osiris/`** are
@@ -495,10 +525,26 @@ ssh -i ~/.ssh/id_ed25519_pythia pythia@192.168.0.28 \
 
 **Secrets.** `~/pythia/deploy/compose/.env` on the VM only. Gitignored. Never in the image.
 
-**Backup — TODO.** Schedule `vzdump` for VM 107 on pve2. The accumulated history is the product;
-until this exists, a lost VM is a lost product.
+**Backup.** Job `pythia-daily` on pve2 — VM 107, 03:00 nightly, snapshot mode (VM keeps
+running), zstd, to storage `local`, pruned `keep-last=7,keep-weekly=4`. See §3.6 for how it was
+verified.
 
-**Restore.** `qmrestore` the vzdump, boot, `docker compose up -d`.
+```bash
+# inspect / change
+ssh -i ~/.ssh/id_ed25519_proxmox_recovery root@192.168.0.111 'pvesh get /cluster/backup/pythia-daily'
+# run one now
+ssh -i ~/.ssh/id_ed25519_proxmox_recovery root@192.168.0.111 \
+  'vzdump 107 --storage local --mode snapshot --compress zstd'
+# list what exists
+ssh -i ~/.ssh/id_ed25519_proxmox_recovery root@192.168.0.111 'ls -la /var/lib/vz/dump/'
+```
+
+**Restore.**
+```bash
+ssh -i ~/.ssh/id_ed25519_proxmox_recovery root@192.168.0.111 \
+  'qmrestore /var/lib/vz/dump/<archive>.vma.zst 107 --storage local-lvm --force'
+# then: qm start 107, and the container comes up on its own (restart: unless-stopped)
+```
 
 ---
 
