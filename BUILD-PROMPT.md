@@ -1,7 +1,7 @@
 # PYTHIA Monitor — autonomous build prompt
 
 **How to use this file.** Open a fresh Claude Code session in
-`~/Documents/PROJECTS/Pythia/Pythia`. Set the active model to **Claude Fable 5**. Set
+`~/Documents/PROJECTS/Pythia/Pythia`. Set the active model to **Claude Fable 5.1** (`claude-fable-5-1`). Set
 `/effort medium`. Then paste everything between the `=== PROMPT ===` markers below as your first
 message.
 
@@ -11,7 +11,7 @@ Do not paste the setup notes — only the prompt block.
 
 ## Setup notes (read these, don't paste them)
 
-- **Model:** Fable 5, effort `medium`. Raise to `high` only if it visibly under-plans. Never
+- **Model:** Fable 5.1 (`claude-fable-5-1`), effort `medium`. Raise to `high` only if it visibly under-plans. Never
   `xhigh` or `max` — on Fable those cost more and produce worse, over-large changes.
 - **Pattern:** architect + delegate. Fable plans and delegates; Opus 5 subagents do the work.
   Fable should be roughly 5–15% of the tokens.
@@ -149,6 +149,10 @@ security-sensitive slice.
 Don't predefine subagent roles beyond that verifier; pick the right ones per task. Don't spawn a
 subagent for work that takes a handful of tool calls. Keep spawn counts low.
 
+First privately list what you need next; then request every item that doesn't depend on another's
+result in this one response. Apply that to spawning agents too: Fable 5.1 issues implied parallel
+calls one per turn unless told otherwise, which quietly turns a parallel rail into a queue.
+
 Every phase boundary: have a fresh subagent verify the work against the plan's acceptance criteria
 before you commit.
 
@@ -174,6 +178,10 @@ You're operating autonomously; I can't answer mid-task, so don't ask "Want me to
 actions that follow from this request, proceed. Before ending your turn, if your last paragraph is
 a plan, a question, or a promise ("I'll…"), do that work now. End only when done, or blocked on
 something only I can provide.
+
+Before you start, say in a line what you're about to do; brief updates while you work help me
+follow along. Close with a short recap that stands on its own — what you found, what you did, and
+what's next — so a reader who only sees the last message has the full picture.
 
 ## Feed acquisition — a specific warning
 
