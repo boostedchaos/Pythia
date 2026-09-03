@@ -15,9 +15,15 @@ from ..config import CONFIG, HTTPX_VERIFY
 
 log = logging.getLogger("pythia.monitor.ntfy")
 
-MAX_BODY_CHARS = 900
+# ntfy turns an oversized message into an ATTACHMENT rather than rejecting it:
+# at >=4096 BYTES the push silently becomes "You received a file: attachment.txt"
+# and the brief is gone, while the POST still returns 200. Measured against
+# ntfy.sh on 2026-09-02 by reading messages back from /json?poll=1 — 3800 bytes
+# stored intact, 4096/4200/5474/8000/16000/33000 all came back as attachments.
+# So the budget is in BYTES (the body is sent UTF-8 encoded), not characters.
+MAX_BODY_BYTES = 3800
 MAX_TITLE_CHARS = 200
-PREVIEW_BULLETS = 5
+PREVIEW_BULLETS = 12
 
 # httpx encodes header values as ASCII (httpx/_models.py:82,
 # `value.encode(encoding or "ascii")`) — not latin-1. A brief title carrying an em
@@ -68,16 +74,34 @@ def _summarise(result: dict) -> "tuple[str, str]":
     label = "PYTHIA brief" if result.get("status") == "published" else "PYTHIA brief (deterministic)"
     title = f"{label} {result.get('brief_date', '')} — {total} item(s)"
     counts = ", ".join(f"{b}: {n}" for b, n in per_beat.items() if n) or "no changes"
-    parts = [counts, ""]
-    for text, url in bullets:
-        parts.append(f"• {text}")
-        if url:
-            parts.append(f"  {url}")
-    if total > len(bullets):
-        parts.append(f"…and {total - len(bullets)} more.")
+
+    # The footer is the part that must never be dropped: "…and N more." is the
+    # only signal that the push is a preview, and a coverage gap is a warning.
+    # A single trailing slice put both LAST and so cut both first — a 26-item
+    # brief arrived as five bullets with nothing saying more existed.
+    head = [counts, ""]
+    foot: list[str] = []
     if result.get("coverage_warnings"):
-        parts.append("⚠ coverage gap: " + ", ".join(sorted(result["coverage_warnings"])))
-    return title, "\n".join(parts)[:MAX_BODY_CHARS]
+        foot.append("⚠ coverage gap: " + ", ".join(sorted(result["coverage_warnings"])))
+
+    def _fits(lines: list[str]) -> bool:
+        return len("\n".join(lines).encode("utf-8")) <= MAX_BODY_BYTES
+
+    # Drop whole bullets from the end until head + bullets + footer fits. Cutting
+    # at a bullet boundary keeps every line that survives intact — the old byte
+    # slice ended mid-word ("certification lists fo").
+    shown = list(bullets)
+    while True:
+        body_lines = list(head)
+        for text, url in shown:
+            body_lines.append(f"• {text}")
+            if url:
+                body_lines.append(f"  {url}")
+        remaining = total - len(shown)
+        tail = ([f"…and {remaining} more."] if remaining > 0 else []) + foot
+        if _fits(body_lines + tail) or not shown:
+            return title, "\n".join(body_lines + tail)
+        shown.pop()
 
 
 async def send_brief(result: dict, timeout: int = 20,

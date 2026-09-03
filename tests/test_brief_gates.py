@@ -287,6 +287,55 @@ def test_ntfy_summary_keeps_one_source_link_per_bullet_and_no_markdown_syntax():
     assert "federal_register" in body
 
 
+def test_ntfy_summary_always_keeps_the_and_more_footer():
+    """The regression Kyle saw on 2026-09-02: a 26-item brief arrived as five
+    bullets with NOTHING saying more existed, because the single trailing slice
+    put the footer last and so cut it first."""
+    from engine.monitor import ntfy
+    # Bullets must be REAL-brief length (~170 chars incl. the URL line). With
+    # short ones the old 900-char slice never bit and this test passed against
+    # the very bug it exists to catch — confirmed by running it on the old code.
+    md = "## Ai\n\n" + "".join(
+        f"- Item number {i}: a realistic arXiv-length summary sentence that runs on"
+        f" for a while because that is what these bullets actually look like in a"
+        f" published brief [abc{i:05d}](https://example.test/{i})\n" for i in range(40))
+    title, body = ntfy._summarise(
+        {"status": "published", "brief_date": "2026-09-02",
+         "markdown": md, "coverage_warnings": []})
+    assert "40 item(s)" in title
+    assert "more." in body, "the push must say how many items it did not show"
+    shown = body.count("• Item number ")
+    assert f"…and {40 - shown} more." in body, "the count must match what was shown"
+
+
+def test_ntfy_summary_keeps_the_coverage_warning_under_pressure():
+    """A coverage gap is a warning; it must outrank bullet text when space runs out."""
+    from engine.monitor import ntfy
+    md = "## Ai\n\n" + "".join(
+        f"- Padding line {i} " + "x" * 200 + "\n" for i in range(40))
+    _, body = ntfy._summarise(
+        {"status": "published", "brief_date": "2026-09-02",
+         "markdown": md, "coverage_warnings": ["federal_register", "cisa"]})
+    assert "coverage gap" in body and "federal_register" in body
+
+
+def test_ntfy_body_stays_under_the_attachment_threshold_and_never_cuts_mid_line():
+    """>=4096 BYTES makes ntfy convert the message to an attachment (verified
+    against ntfy.sh 2026-09-02), so the budget is bytes and the POST still
+    returns 200 when it happens. Cuts must land on a bullet boundary."""
+    from engine.monitor import ntfy
+    md = "## Ai\n\n" + "".join(
+        f"- Ünïcödé bullet {i} " + "é" * 150 +
+        f" [abc{i:05d}](https://example.test/{i})\n" for i in range(60))
+    _, body = ntfy._summarise(
+        {"status": "published", "brief_date": "2026-09-02",
+         "markdown": md, "coverage_warnings": []})
+    assert len(body.encode("utf-8")) <= ntfy.MAX_BODY_BYTES < 4096
+    for line in body.splitlines():
+        if line.startswith("• Ünïcödé bullet "):
+            assert line.endswith("é"), f"bullet cut mid-line: {line[-40:]!r}"
+
+
 def test_ntfy_summary_survives_a_bullet_with_no_link():
     from engine.monitor import ntfy
     result = {"status": "published", "brief_date": "2026-08-29",
