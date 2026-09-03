@@ -1,6 +1,36 @@
 # PYTHIA — STATE (record of record)
 
-_Last updated: 2026-08-29_
+_Last updated: 2026-09-02_
+
+## 2026-09-02 — ntfy pushes were losing the "and N more" footer; byte-budgeted now (`594764c`)
+
+**The bug Kyle saw, and the worse one under it.** Briefs arrived cut mid-word
+("certification lists fo"). `_summarise` sliced the body at 900 **chars** as its last step — but
+because `…and N more.` and the coverage-gap warning were appended **last**, the slice ate them
+**first**. Reproduced on the real 2026-09-02 brief: 26 items, body exactly 900/900, footer absent,
+and a live `gdelt` coverage gap silently dropped. Kyle had no way to know 21 items existed, and had
+never been shown a coverage warning on any brief long enough to trigger the slice.
+
+**The limit, measured not assumed.** Read back from ntfy's `/json?poll=1` rather than trusting the
+POST status: **at >=4096 BYTES ntfy converts the message into an attachment** — the push becomes
+"You received a file: attachment.txt", the brief is gone, and the POST *still returns 200*. 3800
+bytes stored intact; 4096 / 4200 / 5474 / 8000 / 16000 / 33000 all came back as attachments. A full
+26-item brief is 5474 bytes, so raising the cap naively would have made briefs vanish entirely. The
+budget also had to move from chars to **bytes**, since the body is POSTed UTF-8.
+
+**Fix.** `MAX_BODY_BYTES = 3800`; the footer and coverage warning are reserved *before* bullets are
+fitted; whole bullets are dropped from the end so a cut always lands on a line boundary;
+`PREVIEW_BULLETS` 5 → **12** (Kyle's call — 12 bullets ≈ 2.2 KB, well clear of the cliff).
+
+**Control-test lesson, worth more than the fix.** The first version of the new footer regression
+test **passed against the broken code** — its bullets were too short to trigger the 900-char slice,
+so it was blind to the exact bug it was named after. Rebuilt with realistic arXiv-length bullets;
+all three new tests now fail on the old code and pass on the new. Full suite **257 passed**.
+
+**Deploy note.** The VM bakes code into the image (only `/data` is a volume), so copying a file to
+`~/pythia` changes nothing — it needs `docker compose build engine && docker compose up -d engine`.
+Verified end to end by reading the delivered push back **from ntfy**, not from our own 200: 2288
+bytes, no attachment, 12 bullets, `…and 14 more.` and `⚠ coverage gap: gdelt` both present.
 
 ## 2026-08-29 (later) — Phase 2 shipped, infra closed out, two-week evaluation begins
 
