@@ -1,6 +1,19 @@
 # PYTHIA — STATE (record of record)
 
-_Last updated: 2026-09-02_
+_Last updated: 2026-09-20_
+
+## 2026-09-20 — Deployment SHUT DOWN (parked, not deleted)
+
+Kyle's call: the monitor had not been used since it was stood up, so VM 107 `pythia` is off.
+What was done, in order: (1) fresh `vzdump` taken first —
+`/var/lib/vz/dump/vzdump-qemu-107-2026_09_20-17_46_31.vma.zst` on pve2 (1.17 GB, 13 s, snapshot
+mode); (2) `docker compose down` on the VM (0 containers left); (3) `qm set 107 --onboot 0` +
+`qm shutdown 107` → `status: stopped`; ping to 192.168.0.28 fails. The `pythia-daily` backup job
+was already `enabled: 0` (last nightly archive 2026-09-04). Nothing on the Mac schedules against it
+(no launchd/cron hits). The VM disk, the 8 archives (08-29 → 09-04 + today) and the repo are all
+intact. **To bring it back:** `qm start 107` on pve2 → container comes up on its own
+(`restart: unless-stopped` was cleared by `down`, so run `docker compose up -d` in
+`~/pythia/deploy/compose` once) → set `onboot 1` and re-enable the backup job if it stays up.
 
 ## 2026-09-02 — ntfy pushes were losing the "and N more" footer; byte-budgeted now (`594764c`)
 
