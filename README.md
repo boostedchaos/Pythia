@@ -1,6 +1,6 @@
 # PYTHIA Monitor
 
-A private, always-on world-monitoring service. It watches live public feeds across five beats —
+A private world-monitoring service (parked 2026-09-20; VM stopped, backup kept). It watches live public feeds across five beats —
 **AI, cybersecurity, global politics, US healthcare regulation, and markets** — detects what
 *changed*, and delivers one cited daily brief to a phone via [ntfy](https://ntfy.sh) at 07:00
 America/Chicago. The same evidence store is exposed to other agents over a local HTTP API.

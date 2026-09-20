@@ -23,7 +23,8 @@ Upstream: github.com/jangles-byte/Pythia (built on MiroFish + Osiris) — diverg
   top is truth; the `## Status` bullets below it are pre-pivot history).
 - `BUILD-PROMPT.md` = paste-ready prompt to build the remaining phases autonomously.
 - Durable cross-session knowledge = `~/.claude/memory/domain/pythia.md`.
-- **Deployed on VM 107 `pythia`, Proxmox node pve2, `192.168.0.28`** —
+- **PARKED 2026-09-20 — VM 107 is stopped (`onboot 0`, final backup kept; see STATE.md).** Was
+  deployed on VM 107 `pythia`, Proxmox node pve2, `192.168.0.28` —
   `ssh -i ~/.ssh/id_ed25519_pythia pythia@192.168.0.28`; stack at `~/pythia/deploy/compose`.
   Nightly `vzdump` job `pythia-daily` at 03:00. Deploy/health/restore commands: plan §13.
 - Pre-pivot design doc (historical) = `~/.claude/plans/typed-herding-melody.md`.
